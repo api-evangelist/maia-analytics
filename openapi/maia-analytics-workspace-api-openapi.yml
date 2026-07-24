@@ -1,0 +1,763 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah workspace API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: workspace
+paths:
+  /api/v1/workspace:
+    get:
+      tags:
+      - workspace
+      summary: Get Workspace
+      description: Get current user's workspace details including credits and member count.
+      operationId: get_workspace_api_v1_workspace_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+    patch:
+      tags:
+      - workspace
+      summary: Update Workspace
+      description: 'Update workspace settings. Requires workspace admin for the name field.
+
+
+        All fields are optional. Only provided fields are updated.'
+      operationId: update_workspace_api_v1_workspace_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/workspace/members:
+    get:
+      tags:
+      - workspace
+      summary: Get Workspace Members
+      description: List all members of the current user's workspace.
+      operationId: get_workspace_members_api_v1_workspace_members_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          enum:
+          - name
+          - joined
+          type: string
+          description: Sort members by 'name' (alphabetical) or 'joined' (newest first)
+          default: name
+          title: Sort By
+        description: Sort members by 'name' (alphabetical) or 'joined' (newest first)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceMembersResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workspace/members/{user_id}:
+    delete:
+      tags:
+      - workspace
+      summary: Remove Workspace Member
+      description: 'Remove a member from the workspace. Requires workspace admin.
+
+
+        The removed user will get a new personal workspace created for them.
+
+        Cannot remove yourself. Returns 409 if the user has projects that must
+
+        be deleted or transferred first.'
+      operationId: remove_workspace_member_api_v1_workspace_members__user_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workspace/members/{user_id}/role:
+    patch:
+      tags:
+      - workspace
+      summary: Update Member Role
+      description: 'Update a workspace member''s role. Requires workspace admin.
+
+
+        Can change between ''writer'' and ''reader'' roles. Cannot change your own role.'
+      operationId: update_member_role_api_v1_workspace_members__user_id__role_patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberRoleUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceMemberResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workspace/dial-template-variables:
+    get:
+      tags:
+      - workspace
+      summary: List Dial Template Variables
+      description: Return variables usable inside `dial_agent_settings` override fields.
+      operationId: list_dial_template_variables_api_v1_workspace_dial_template_variables_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialTemplateVariablesResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/workspace/dial-agent-settings:
+    patch:
+      tags:
+      - workspace
+      summary: Update Dial Agent Settings
+      description: 'Replace the workspace''s dial agent prompt overrides.
+
+
+        Whole-blob replace: clients send the desired state for every field they
+
+        want to keep (omit a field → it''s removed; explicit `null` → also removed).
+
+        The dispatch path treats null/missing identically — both fall through to
+
+        the Retell flow node''s baked-in default — so we don''t preserve the
+
+        distinction in storage.'
+      operationId: update_dial_agent_settings_api_v1_workspace_dial_agent_settings_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DialAgentSettingsUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/workspace/transfer-destinations:
+    get:
+      tags:
+      - workspace
+      summary: List Transfer Destinations
+      operationId: list_transfer_destinations_api_v1_workspace_transfer_destinations_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferDestinationListResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+    post:
+      tags:
+      - workspace
+      summary: Create Transfer Destination
+      description: Create a workspace transfer destination.
+      operationId: create_transfer_destination_api_v1_workspace_transfer_destinations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferDestinationCreateRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferDestinationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/workspace/transfer-destinations/{destination_id}:
+    patch:
+      tags:
+      - workspace
+      summary: Update Transfer Destination
+      description: Update a workspace transfer destination.
+      operationId: update_transfer_destination_api_v1_workspace_transfer_destinations__destination_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: destination_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Destination Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferDestinationUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferDestinationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - workspace
+      summary: Delete Transfer Destination
+      description: Delete a workspace transfer destination.
+      operationId: delete_transfer_destination_api_v1_workspace_transfer_destinations__destination_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: destination_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Destination Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workspace/dial-usage/current:
+    get:
+      tags:
+      - workspace
+      summary: Get Dial Usage Current
+      description: Current month's auto-dial usage for the user's workspace.
+      operationId: get_dial_usage_current_api_v1_workspace_dial_usage_current_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialUsageResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    WorkspaceRole:
+      type: string
+      enum:
+      - writer
+      - reader
+      title: WorkspaceRole
+      description: 'Role within a workspace determining permission level.
+
+
+        WRITER = can edit workspace_write projects
+
+        READER = can only view workspace projects'
+    DialTemplateVariablesResponse:
+      properties:
+        variables:
+          items:
+            $ref: '#/components/schemas/DialTemplateVariable'
+          type: array
+          title: Variables
+      type: object
+      required:
+      - variables
+      title: DialTemplateVariablesResponse
+      description: 'Available template variables for `dial_agent_settings` overrides.
+
+
+        Returned by `GET /workspaces/dial-template-variables`. The FE
+
+        autocomplete menu reads this directly so client and server can''t
+
+        drift on the supported set.'
+    WorkspaceMembersResponse:
+      properties:
+        members:
+          items:
+            $ref: '#/components/schemas/WorkspaceMemberResponse'
+          type: array
+          title: Members
+      type: object
+      required:
+      - members
+      title: WorkspaceMembersResponse
+      description: Response model for listing workspace members.
+    WorkspaceUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+          description: New name for the workspace
+        avatar_color:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Avatar Color
+          description: Avatar color name for the workspace. Set to null to remove.
+      type: object
+      title: WorkspaceUpdateRequest
+      description: 'Request model for updating workspace settings.
+
+
+        All fields are optional -- only provided fields are updated.'
+    CreditBalance:
+      properties:
+        total:
+          type: integer
+          title: Total
+        used:
+          type: integer
+          title: Used
+        remaining:
+          type: integer
+          title: Remaining
+      type: object
+      required:
+      - total
+      - used
+      - remaining
+      title: CreditBalance
+      description: 'Credit balance breakdown for a workspace.
+
+
+        Uses pool accounting: total is the credits ever granted (never decremented),
+
+        used is cumulative consumption, remaining = total - used.'
+    DialAgentSettings:
+      properties:
+        voicemail_message:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Voicemail Message
+        intro_line:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Intro Line
+        transfer_pitch:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Transfer Pitch
+      additionalProperties: false
+      type: object
+      title: DialAgentSettings
+      description: 'Per-workspace overrides for placeholders in the Retell agent flow.
+
+
+        Each field maps to a `{{placeholder}}` in the Retell flow config. Unset
+
+        fields are omitted at dispatch so the flow node''s baked-in default applies.'
+    MemberRoleUpdateRequest:
+      properties:
+        workspace_role:
+          $ref: '#/components/schemas/WorkspaceRole'
+          description: 'New role for the member: ''writer'' or ''reader'''
+      type: object
+      required:
+      - workspace_role
+      title: MemberRoleUpdateRequest
+      description: Request model for updating a member's workspace role.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TransferDestinationUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Name
+        is_default:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Default
+      type: object
+      title: TransferDestinationUpdateRequest
+      description: Partial update — omitted fields are left untouched.
+    TransferDestinationResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        e164:
+          type: string
+          title: E164
+        is_default:
+          type: boolean
+          title: Is Default
+        last_used_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Used At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - e164
+      - is_default
+      - created_at
+      - updated_at
+      title: TransferDestinationResponse
+    DialTemplateVariable:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+      type: object
+      required:
+      - name
+      - description
+      title: DialTemplateVariable
+      description: Single entry in the dial-prompt template-variable registry.
+    DialAgentSettingsUpdateRequest:
+      properties:
+        voicemail_message:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Voicemail Message
+        intro_line:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Intro Line
+        transfer_pitch:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Transfer Pitch
+      type: object
+      title: DialAgentSettingsUpdateRequest
+      description: 'Request model for updating per-workspace dial agent prompt overrides.
+
+
+        All fields optional; pass `null` to clear an individual override and let
+
+        the Retell flow node''s baked-in default apply.
+
+
+        `{{variable_name}}` placeholders are allowed inside each field; the
+
+        handler validates them against the allowed-variable registry and
+
+        returns 422 with the offending names when an unknown variable is used.'
+    TransferDestinationListResponse:
+      properties:
+        destinations:
+          items:
+            $ref: '#/components/schemas/TransferDestinationResponse'
+          type: array
+          title: Destinations
+      type: object
+      required:
+      - destinations
+      title: TransferDestinationListResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    WorkspaceMemberResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        email:
+          type: string
+          title: Email
+        workspace_role:
+          $ref: '#/components/schemas/WorkspaceRole'
+        is_workspace_admin:
+          type: boolean
+          title: Is Workspace Admin
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+          default: 0
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - workspace_role
+      - is_workspace_admin
+      title: WorkspaceMemberResponse
+      description: Response model for a workspace member.
+    DialUsageResponse:
+      properties:
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+        total_calls:
+          type: integer
+          title: Total Calls
+        total_minutes:
+          type: integer
+          title: Total Minutes
+        transferred_calls:
+          type: integer
+          title: Transferred Calls
+        monthly_dial_minute_cap:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Monthly Dial Minute Cap
+      type: object
+      required:
+      - period_start
+      - total_calls
+      - total_minutes
+      - transferred_calls
+      title: DialUsageResponse
+      description: Per-period dial usage rollup for billing/cap display.
+    WorkspaceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        credit_balance:
+          $ref: '#/components/schemas/CreditBalance'
+        member_count:
+          type: integer
+          title: Member Count
+        dial_agent_settings:
+          anyOf:
+          - $ref: '#/components/schemas/DialAgentSettings'
+          - type: 'null'
+        auto_dial_enabled:
+          type: boolean
+          title: Auto Dial Enabled
+          default: false
+        feature_toggles:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Feature Toggles
+          default: {}
+      type: object
+      required:
+      - id
+      - name
+      - credit_balance
+      - member_count
+      title: WorkspaceResponse
+      description: Response model for workspace details.
+    TransferDestinationCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        e164:
+          type: string
+          maxLength: 32
+          minLength: 1
+          title: E164
+        is_default:
+          type: boolean
+          title: Is Default
+          default: false
+      type: object
+      required:
+      - name
+      - e164
+      title: TransferDestinationCreateRequest
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

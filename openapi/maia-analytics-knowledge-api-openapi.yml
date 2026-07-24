@@ -1,0 +1,273 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah knowledge API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: knowledge
+paths:
+  /api/v1/knowledge:
+    get:
+      tags:
+      - knowledge
+      summary: List Knowledge Entries
+      description: List the caller's entries for a scope (user or workspace).
+      operationId: list_knowledge_entries_api_v1_knowledge_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: scope
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/KnowledgeScope'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeEntryResponse'
+                title: Response List Knowledge Entries Api V1 Knowledge Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - knowledge
+      summary: Create Knowledge Entry
+      description: Create a titled user- or workspace-scoped knowledge entry.
+      operationId: create_knowledge_entry_api_v1_knowledge_post
+      security:
+      - FirebaseAuthMiddleware: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeEntryCreateRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/knowledge/{entry_id}:
+    patch:
+      tags:
+      - knowledge
+      summary: Update Knowledge Entry
+      description: Replace an entry's title + content (caller must be entitled to edit it).
+      operationId: update_knowledge_entry_api_v1_knowledge__entry_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entry Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeEntryUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - knowledge
+      summary: Delete Knowledge Entry
+      description: Delete an entry the caller is entitled to edit.
+      operationId: delete_knowledge_entry_api_v1_knowledge__entry_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entry Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    KnowledgeEntryUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: KnowledgeEntryUpdateRequest
+      description: Request body for replacing an entry's title + content.
+    KnowledgeEntryCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - title
+      - content
+      title: KnowledgeEntryCreateRequest
+      description: Request body for creating a user- or workspace-scoped entry.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    KnowledgeEntryResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_core:
+          type: boolean
+          title: Is Core
+          description: Whether this is the reserved always-injected core entry (MAIA-2833).
+          readOnly: true
+      type: object
+      required:
+      - id
+      - scope
+      - title
+      - content
+      - created_at
+      - updated_at
+      - is_core
+      title: KnowledgeEntryResponse
+      description: A titled knowledge entry as returned to clients.
+    KnowledgeScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      title: KnowledgeScope
+      description: 'Tier a knowledge entry applies to.
+
+
+        Resolution is additive and ordered ``user -> workspace`` — precedence is
+
+        ordering only, not override (no shadowing in v1). "System" knowledge is the
+
+        agent''s existing system prompt — a separate, pre-existing mechanism that does
+
+        not live in this table — so there is no ``system`` scope here.'
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

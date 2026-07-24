@@ -1,0 +1,564 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah auth API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: auth
+paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+      - auth
+      summary: Local Login
+      description: Return a local mock token when Firebase auth is disabled.
+      operationId: local_login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocalLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalTokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/me:
+    get:
+      tags:
+      - auth
+      summary: Get Current User Info
+      description: 'Returns information about the currently authenticated user.
+
+
+        Requires a valid Firebase ID token in the Authorization header.
+
+        Includes auto-linking for users created in DB who log in via Google SSO.'
+      operationId: get_current_user_info_api_v1_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/auth/check:
+    get:
+      tags:
+      - auth
+      summary: Check Authentication
+      description: 'Checks if the user is authenticated and returns user info if they are.
+
+
+        Does not require authentication - returns null if no valid token is provided.
+
+        Falls back to email lookup if Firebase UID doesn''t match database ID.
+
+        When found via email fallback, updates the user''s database ID to match the new
+
+        Firebase-derived ID to prevent future mismatches.'
+      operationId: check_authentication_api_v1_auth_check_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/UserProfile'
+                - type: 'null'
+                title: Response Check Authentication Api V1 Auth Check Get
+  /api/v1/auth/user-exists:
+    get:
+      tags:
+      - auth
+      summary: Check User Exists
+      description: 'Checks if a user with the given email exists in the database.
+
+
+        Rate Limited: 10 requests per minute per IP address.
+
+
+        Security considerations:
+
+        - Rate limiting prevents automated user enumeration attacks
+
+        - Consistent response timing mitigates timing-based attacks
+
+        - All requests are logged for security monitoring
+
+
+        Does not require authentication - public endpoint for login flow validation.'
+      operationId: check_user_exists_api_v1_auth_user_exists_get
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Email
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExistsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/password-reset-email:
+    post:
+      tags:
+      - auth
+      summary: Request Password Reset Email
+      description: 'Send a password reset email through MAIA''s branded transactional channel.
+
+
+        Rate Limited: 5 requests per minute per IP address.
+
+
+        Does not require authentication — public endpoint for the forgot-password
+
+        flow. Always returns 202 regardless of whether the email maps to an
+
+        account: the lookup and send happen in a background task after the
+
+        response, so account existence leaks through neither status, body, nor
+
+        timing.'
+      operationId: request_password_reset_email_api_v1_auth_password_reset_email_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetEmailRequest'
+        required: true
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/session:
+    post:
+      tags:
+      - auth
+      summary: Mint Session
+      description: 'Mint an HttpOnly session cookie from the caller''s Firebase JWT.
+
+
+        The client calls this whenever Firebase auth state changes. The cookie
+
+        replaces the `?token=<jwt>` query param on tile URLs (MAIA-1715) — Mapbox
+
+        caches URLs but always picks up cookies fresh from the jar, so the
+
+        "tile-URL goes stale during long idle" bug class is eliminated.'
+      operationId: mint_session_api_v1_auth_session_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Mint Session Api V1 Auth Session Post
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/auth/sign-out:
+    post:
+      tags:
+      - auth
+      summary: Sign Out
+      description: 'Clear the MAIA session cookie. Unauthenticated — clients should be able
+
+        to clear their cookie even if they no longer have a valid session.'
+      operationId: sign_out_api_v1_auth_sign_out_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Sign Out Api V1 Auth Sign Out Post
+  /api/v1/auth/profile:
+    put:
+      tags:
+      - auth
+      summary: Update User Profile
+      description: 'Update the current user''s profile information.
+
+        Requires authentication.'
+      operationId: update_user_profile_api_v1_auth_profile_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileUpdateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    WorkspaceRole:
+      type: string
+      enum:
+      - writer
+      - reader
+      title: WorkspaceRole
+      description: 'Role within a workspace determining permission level.
+
+
+        WRITER = can edit workspace_write projects
+
+        READER = can only view workspace projects'
+    LocalTokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - access_token
+      - user_id
+      title: LocalTokenResponse
+      description: Response model for AUTH_DISABLED local mock login.
+    UserExistsResponse:
+      properties:
+        exists:
+          type: boolean
+          title: Exists
+        has_password:
+          type: boolean
+          title: Has Password
+      type: object
+      required:
+      - exists
+      - has_password
+      title: UserExistsResponse
+      description: Response model for checking if a user exists.
+    UserProfileUpdateResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: UserProfileUpdateResponse
+      description: Response model for user profile update.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PlanType:
+      type: string
+      enum:
+      - beta
+      title: PlanType
+      description: Available user plan types with different feature restrictions.
+    UserProfile:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          format: email
+          title: Email
+        username:
+          type: string
+          title: Username
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+          default: false
+        plan_type:
+          $ref: '#/components/schemas/PlanType'
+          default: beta
+        allowed_geographies:
+          items:
+            type: string
+          type: array
+          title: Allowed Geographies
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+        is_internal:
+          type: boolean
+          title: Is Internal
+          default: false
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+          default: false
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_role:
+          $ref: '#/components/schemas/WorkspaceRole'
+          default: writer
+        is_workspace_admin:
+          type: boolean
+          title: Is Workspace Admin
+          default: false
+        workspace_member_count:
+          type: integer
+          title: Workspace Member Count
+          default: 1
+        column_preferences:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: boolean
+              type: object
+            type: object
+          - type: 'null'
+          title: Column Preferences
+        feature_toggles:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Feature Toggles
+        plan:
+          $ref: '#/components/schemas/Plan'
+          description: Get plan configuration for this user's plan type.
+          readOnly: true
+        available_geographies:
+          items:
+            type: string
+          type: array
+          title: Available Geographies
+          description: 'Get FIPS codes of counties this user can query.
+
+
+            Sourced from `workspace_counties` (rows with load_status=''succeeded'')
+
+            via `enrich_profile_with_workspace_data` — see MAIA-1562. Empty list
+
+            means the user''s workspace has no counties loaded yet.'
+          readOnly: true
+      type: object
+      required:
+      - id
+      - email
+      - username
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - workspace_id
+      - plan
+      - available_geographies
+      title: UserProfile
+      description: 'Data Transfer Object for database User entity.
+
+
+        This represents a user stored in the database with enrichment credits,
+
+        distinct from the Firebase User model used for authentication.'
+    PasswordResetEmailRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+      type: object
+      required:
+      - email
+      title: PasswordResetEmailRequest
+      description: Request model for sending a password reset email.
+    LocalLoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: LocalLoginRequest
+      description: Request model for AUTH_DISABLED local mock login.
+    UserProfileUpdateRequest:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
+        column_preferences:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: boolean
+              type: object
+            type: object
+          - type: 'null'
+          title: Column Preferences
+      type: object
+      title: UserProfileUpdateRequest
+      description: Request model for updating user profile information.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Plan:
+      properties:
+        type:
+          $ref: '#/components/schemas/PlanType'
+        max_features_per_layer:
+          type: integer
+          title: Max Features Per Layer
+        max_layers_per_project:
+          type: integer
+          title: Max Layers Per Project
+        default_enrichment_credits:
+          type: integer
+          title: Default Enrichment Credits
+      type: object
+      required:
+      - type
+      - max_features_per_layer
+      - max_layers_per_project
+      - default_enrichment_credits
+      title: Plan
+      description: Plan configuration including type and limits.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

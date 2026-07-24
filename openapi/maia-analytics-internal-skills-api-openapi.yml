@@ -1,0 +1,491 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah internal-skills API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: internal-skills
+paths:
+  /api/v1/internal/skills/draft:
+    post:
+      tags:
+      - internal-skills
+      summary: Draft System Skill
+      description: 'Draft a system skill from a plain-language prompt (LLM; no persistence).
+
+
+        Powers the admin "Build with MAIA" mode: the draft pre-fills the create form,
+
+        which staff review and save through the audited create path. ``current_*``
+
+        let ``prompt`` act as revision feedback on an existing draft.'
+      operationId: draft_system_skill_api_v1_internal_skills_draft_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSkillDraftRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSkillDraftResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/skills:
+    get:
+      tags:
+      - internal-skills
+      summary: List System Skills
+      description: List every MAIA-curated (system) skill with its workspace-availability set.
+      operationId: list_system_skills_api_v1_internal_skills_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AdminSkillResponse'
+                type: array
+                title: Response List System Skills Api V1 Internal Skills Get
+      security:
+      - FirebaseAuthMiddleware: []
+    post:
+      tags:
+      - internal-skills
+      summary: Create System Skill
+      description: 'Create a curated (system) skill, available globally or to specific
+
+        workspaces, optionally flagged as a new-project starter.'
+      operationId: create_system_skill_api_v1_internal_skills_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSkillWriteRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSkillResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/skills/for-owner:
+    get:
+      tags:
+      - internal-skills
+      summary: List Owner Skills
+      description: 'List a specific user''s or workspace''s own skills (admin read-only view).
+
+
+        ``scope`` must be ``user`` or ``workspace`` (system skills have no owner → 422).'
+      operationId: list_owner_skills_api_v1_internal_skills_for_owner_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: scope
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/SkillScope'
+      - name: owner_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Owner Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SkillResponse'
+                title: Response List Owner Skills Api V1 Internal Skills For Owner Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/skills/{skill_id}:
+    patch:
+      tags:
+      - internal-skills
+      summary: Update System Skill
+      description: 'Replace a curated skill''s content, starter flag, and availability.
+
+
+        ``workspace_ids`` sets availability: empty makes it global, a set restricts
+
+        it to those workspaces.'
+      operationId: update_system_skill_api_v1_internal_skills__skill_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSkillWriteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSkillResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - internal-skills
+      summary: Delete System Skill
+      description: Delete a system skill.
+      operationId: delete_system_skill_api_v1_internal_skills__skill_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    SkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_starter:
+          type: boolean
+          title: Is Starter
+          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
+          default: false
+      type: object
+      required:
+      - id
+      - scope
+      - name
+      - description
+      - body
+      - created_at
+      - updated_at
+      title: SkillResponse
+      description: A skill as returned to clients (full record, including body).
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SkillScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      - system
+      title: SkillScope
+      description: 'Tier a skill applies to.
+
+
+        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
+
+        scope: globally-available skills that are read-only through the public
+
+        service/API and writable only via the internal admin override,
+
+        plus the in-code create-skill playbook registry. ``user`` skills are owned by
+
+        a single user, ``workspace`` skills by a workspace, ``system`` skills by
+
+        neither.'
+    AdminSkillWriteRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
+        is_starter:
+          type: boolean
+          title: Is Starter
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillWriteRequest
+      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
+
+
+        ``workspace_ids`` sets availability on both create and update: empty is a
+
+        global skill (visible to every workspace); a set restricts it to those
+
+        workspaces. ``is_starter`` is independent of availability.
+
+
+        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
+
+        caller from before the multi-workspace cutover would otherwise have it
+
+        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
+
+        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminSkillDraftRequest:
+      properties:
+        prompt:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Prompt
+        current_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Name
+        current_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Description
+        current_body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Body
+      type: object
+      required:
+      - prompt
+      title: AdminSkillDraftRequest
+      description: 'Draft a system skill from a plain-language description (no persistence).
+
+
+        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
+
+        feedback rather than a fresh request; omit them for a first draft. The draft
+
+        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
+
+        uncapped beyond the prompt length.'
+    AdminSkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_starter:
+          type: boolean
+          title: Is Starter
+          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+          description: The workspaces this curated (system) skill is available in. Empty means global (every workspace).
+      type: object
+      required:
+      - id
+      - scope
+      - name
+      - description
+      - body
+      - created_at
+      - updated_at
+      title: AdminSkillResponse
+      description: 'A curated skill as returned to the internal admin catalog.
+
+
+        Adds the ``workspace_ids`` availability set, which the public
+
+        ``SkillResponse`` deliberately omits: for a skill restricted to a set of
+
+        workspaces, that set contains *other* tenants'' workspace ids, so exposing it
+
+        on the public read paths (picker / gallery) would leak cross-tenant data to
+
+        any workspace the skill is visible in. Only the internal admin surface
+
+        (``require_internal``) sees the availability set.'
+    AdminSkillDraftResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillDraftResponse
+      description: A drafted skill's three authored fields, for pre-filling the editor.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

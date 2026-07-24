@@ -1,0 +1,625 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah dial API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: dial
+paths:
+  /api/v1/dial/{project_id}/contacts/{contact_id}:
+    post:
+      tags:
+      - dial
+      summary: Start Dial
+      operationId: start_dial_api_v1_dial__project_id__contacts__contact_id__post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartDialRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCallResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/dial/{project_id}/contacts/{contact_id}/calls:
+    get:
+      tags:
+      - dial
+      summary: List Calls
+      operationId: list_calls_api_v1_dial__project_id__contacts__contact_id__calls_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCallListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/dial/{project_id}/campaigns:
+    post:
+      tags:
+      - dial
+      summary: Start Campaign
+      operationId: start_campaign_api_v1_dial__project_id__campaigns_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartCampaignRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCampaignResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - dial
+      summary: List Campaigns
+      operationId: list_campaigns_api_v1_dial__project_id__campaigns_get
+      security:
+      - FirebaseAuthMiddleware: []
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCampaignListResponse'
+  /api/v1/dial/{project_id}/campaigns/{campaign_id}/pause:
+    post:
+      tags:
+      - dial
+      summary: Pause Campaign
+      operationId: pause_campaign_api_v1_dial__project_id__campaigns__campaign_id__pause_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Campaign Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCampaignResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/dial/{project_id}/campaigns/{campaign_id}/resume:
+    post:
+      tags:
+      - dial
+      summary: Resume Campaign
+      operationId: resume_campaign_api_v1_dial__project_id__campaigns__campaign_id__resume_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Campaign Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCampaignResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/dial/{project_id}/campaigns/{campaign_id}/cancel:
+    post:
+      tags:
+      - dial
+      summary: Cancel Campaign
+      operationId: cancel_campaign_api_v1_dial__project_id__campaigns__campaign_id__cancel_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Campaign Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCampaignResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/dial/{project_id}/campaigns/{campaign_id}:
+    get:
+      tags:
+      - dial
+      summary: Get Campaign Detail
+      operationId: get_campaign_detail_api_v1_dial__project_id__campaigns__campaign_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Campaign Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialCampaignDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/dial/webhooks/retell/{workspace_id}:
+    post:
+      tags:
+      - dial
+      summary: Retell Webhook
+      operationId: retell_webhook_api_v1_dial_webhooks_retell__workspace_id__post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    DialCampaignDetailResponse:
+      properties:
+        campaign:
+          $ref: '#/components/schemas/DialCampaignResponse'
+        calls:
+          items:
+            $ref: '#/components/schemas/DialCallResponse'
+          type: array
+          title: Calls
+      type: object
+      required:
+      - campaign
+      - calls
+      title: DialCampaignDetailResponse
+    StartCampaignRequest:
+      properties:
+        contact_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Contact Ids
+        name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Name
+        transfer_destination_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Transfer Destination Id
+        transfer_destination_override:
+          anyOf:
+          - type: string
+            maxLength: 32
+            minLength: 1
+          - type: 'null'
+          title: Transfer Destination Override
+      type: object
+      required:
+      - contact_ids
+      title: StartCampaignRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DialCampaignResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        started_by:
+          type: string
+          format: uuid
+          title: Started By
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          type: string
+          title: Status
+        contact_count:
+          type: integer
+          title: Contact Count
+        transfer_destination:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transfer Destination
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - project_id
+      - started_by
+      - name
+      - status
+      - contact_count
+      - transfer_destination
+      - completed_at
+      - created_at
+      - updated_at
+      title: DialCampaignResponse
+    DialCampaignListResponse:
+      properties:
+        campaigns:
+          items:
+            $ref: '#/components/schemas/DialCampaignResponse'
+          type: array
+          title: Campaigns
+      type: object
+      required:
+      - campaigns
+      title: DialCampaignListResponse
+    DialCallListResponse:
+      properties:
+        calls:
+          items:
+            $ref: '#/components/schemas/DialCallResponse'
+          type: array
+          title: Calls
+      type: object
+      required:
+      - calls
+      title: DialCallListResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DialCallResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        saved_contact_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Saved Contact Id
+        started_by:
+          type: string
+          format: uuid
+          title: Started By
+        campaign_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Campaign Id
+        retell_call_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Call Id
+        to_number:
+          type: string
+          title: To Number
+        transfer_destination:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transfer Destination
+        status:
+          type: string
+          title: Status
+        outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Outcome
+        disconnect_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Disconnect Reason
+        transcript:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transcript
+        recording_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recording Url
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+        duration_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Seconds
+        last_event_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event Type
+        contact_outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact Outcome
+        interest_topics:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Interest Topics
+        interest_unclear:
+          type: boolean
+          title: Interest Unclear
+        callback_window:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Callback Window
+        notes_for_rep:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes For Rep
+        requested_dnc:
+          type: boolean
+          title: Requested Dnc
+        disclosure_acknowledged:
+          type: boolean
+          title: Disclosure Acknowledged
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        saved_contact_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Saved Contact Name
+      type: object
+      required:
+      - id
+      - workspace_id
+      - project_id
+      - saved_contact_id
+      - started_by
+      - campaign_id
+      - retell_call_id
+      - to_number
+      - transfer_destination
+      - status
+      - outcome
+      - disconnect_reason
+      - transcript
+      - recording_url
+      - started_at
+      - ended_at
+      - duration_seconds
+      - last_event_type
+      - contact_outcome
+      - interest_topics
+      - interest_unclear
+      - callback_window
+      - notes_for_rep
+      - requested_dnc
+      - disclosure_acknowledged
+      - created_at
+      - updated_at
+      title: DialCallResponse
+      description: API response — inherits DialCall, hides the internal `events_log`.
+    StartDialRequest:
+      properties:
+        transfer_destination_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Transfer Destination Id
+        transfer_destination_override:
+          anyOf:
+          - type: string
+            maxLength: 32
+            minLength: 1
+          - type: 'null'
+          title: Transfer Destination Override
+      type: object
+      title: StartDialRequest
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

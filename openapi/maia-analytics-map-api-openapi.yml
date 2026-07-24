@@ -1,0 +1,402 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah map API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: map
+paths:
+  /api/v1/map/{layer_id}/tiles/{z}/{x}/{y}.pbf:
+    get:
+      tags:
+      - map
+      summary: Get Layer Mvt Tile
+      description: 'Serve an MVT tile for a layer.
+
+
+        ``v`` is a client-supplied cache-busting token — change it (e.g., to a
+
+        timestamp) when you know the underlying data has moved. ``filter_id``
+
+        references a server-side FilterSpec (POSTed via ``/filters``); when
+
+        present, the tile contains only matching rows. Favorites-only filtering
+
+        pulls the user''s favorite ids inline so the tile WHERE-clause includes
+
+        them — without that, the tile would visually drop the favorites filter
+
+        even though the table respects it. ``viz`` names a layer column to embed
+
+        as a feature property at every zoom (below the include-all zoom only the
+
+        core name/owner/address columns ship otherwise) so the client can drive a
+
+        value-weighted visualization; unknown columns are dropped silently.'
+      operationId: get_layer_mvt_tile_api_v1_map__layer_id__tiles__z___x___y__pbf_get
+      parameters:
+      - name: z
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Z
+      - name: x
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: X
+      - name: y
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Y
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+          default: '0'
+          title: V
+      - name: filter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filter Id
+      - name: viz
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Viz
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/map/{layer_id}/agg-tiles/{z}/{x}/{y}.pbf:
+    get:
+      tags:
+      - map
+      summary: Get Layer Mvt Agg Tile
+      description: 'Serve an aggregate (bin-count) MVT tile for low-zoom rendering.
+
+
+        Emits one MVT point per occupied grid cell with a ``count`` property —
+
+        the client renders bubbles sized by count at zoom levels below the
+
+        detail-layer threshold so panning over dense data doesn''t tessellate
+
+        tens of thousands of features the user can''t actually see.
+
+
+        ``filter_id`` — same as detail tiles; the aggregate counts then reflect
+
+        the active filter instead of the layer total. Favorites-only resolution
+
+        matches ``get_layer_mvt_tile`` so agg bubbles count only the favorites
+
+        when that toggle is on.'
+      operationId: get_layer_mvt_agg_tile_api_v1_map__layer_id__agg_tiles__z___x___y__pbf_get
+      parameters:
+      - name: z
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Z
+      - name: x
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: X
+      - name: y
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Y
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+          default: '0'
+          title: V
+      - name: filter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filter Id
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/map/{layer_id}/viz-stats:
+    get:
+      tags:
+      - map
+      summary: Get Layer Viz Stats
+      description: 'Whole-layer quantile breaks for one numeric column.
+
+
+        Drives classed (quantile) map styling on the client — the color/size
+
+        scale must come from the full dataset, not the rendered viewport, or the
+
+        same feature changes class as the user pans.'
+      operationId: get_layer_viz_stats_api_v1_map__layer_id__viz_stats_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: column
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 200
+          title: Column
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerVizStatsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/map/{layer_id}/extent:
+    get:
+      tags:
+      - map
+      summary: Get Layer Extent
+      description: Get the bounding box of a layer's features, optionally filtered.
+      operationId: get_layer_extent_api_v1_map__layer_id__extent_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerExtentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    LayerExtentResponse:
+      properties:
+        bbox:
+          anyOf:
+          - prefixItems:
+            - type: number
+            - type: number
+            - type: number
+            - type: number
+            type: array
+            maxItems: 4
+            minItems: 4
+          - type: 'null'
+          title: Bbox
+      type: object
+      required:
+      - bbox
+      title: LayerExtentResponse
+      description: Response model for layer extent.
+    LayerVizStatsResponse:
+      properties:
+        breaks:
+          items:
+            type: number
+          type: array
+          title: Breaks
+        min:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max
+        count:
+          type: integer
+          title: Count
+        geometry_kind:
+          anyOf:
+          - type: string
+            enum:
+            - point
+            - line
+            - polygon
+          - type: 'null'
+          title: Geometry Kind
+      type: object
+      required:
+      - breaks
+      - min
+      - max
+      - count
+      - geometry_kind
+      title: LayerVizStatsResponse
+      description: 'Whole-layer stats for one numeric column, for classed map styling.
+
+
+        ``breaks`` are the deduped ascending interior quintile boundaries
+
+        (p20/p40/p60/p80); together with ``min``/``max`` they delimit up to five
+
+        classes. Empty ``breaks`` with ``count`` 0 means the column has no
+
+        non-null values. ``geometry_kind`` tells the client which classed styling
+
+        applies (graduated circles for points, choropleth otherwise) — every
+
+        layer carries both point and fill style layers, so the client cannot
+
+        infer geometry from the style alone.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

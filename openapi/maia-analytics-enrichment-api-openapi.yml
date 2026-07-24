@@ -1,0 +1,2665 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah enrichment API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: enrichment
+paths:
+  /api/v1/enrichment/limits:
+    get:
+      tags:
+      - enrichment
+      summary: Get Enrichment Limits
+      description: 'Per-batch limits for column-wide bulk enrichment.
+
+
+        Returns the canonical server values backing the column-header Enrich
+
+        submenu''s clamps and confirm gates. The FE should fetch these once and
+
+        cache; never carry its own copy of these constants.'
+      operationId: get_enrichment_limits_api_v1_enrichment_limits_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentLimitsResponse'
+  /api/v1/enrichment/all:
+    get:
+      tags:
+      - enrichment
+      summary: Get All Enrichments
+      description: "Get all custom enrichments.\nRequires authentication. Allows read access to owned or example projects.\n\nArgs:\n    request: The request object containing project_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    List of all enrichments"
+      operationId: get_all_enrichments_api_v1_enrichment_all_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentListResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/create:
+    post:
+      tags:
+      - enrichment
+      summary: Create Enrichment
+      description: "Create a new enrichment with default values. Requires layer ownership.\n\nArgs:\n    request: The request object containing layer_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dictionary containing enrichment data"
+      operationId: create_enrichment_api_v1_enrichment_create_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnrichmentRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/enrich_async/status_batch:
+    post:
+      tags:
+      - enrichment
+      summary: Get Enrichment Status Batch
+      description: Get the status of multiple enrichment workflows.
+      operationId: get_enrichment_status_batch_api_v1_enrichment_enrich_async_status_batch_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentStatusBatchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentStatusListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/enrich_async/{enrichment_id}:
+    post:
+      tags:
+      - enrichment
+      summary: Enrich Row Async
+      description: "Enrich rows in the dataset asynchronously.\n\nSupports two selection modes (exactly one per request, enforced by\n``EnrichRowRequest`` validator):\n\n- ``feature_ids`` — explicit ids; legacy path, unchanged.\n- ``selection`` — filter spec + fingerprint + expected count. The\n  server validates the fingerprint (400 on mismatch), recomputes the\n  live count (409 on drift), and resolves the matching ids\n  server-side before enqueueing — no wire-payload of large id\n  arrays."
+      operationId: enrich_row_async_api_v1_enrichment_enrich_async__enrichment_id__post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichRowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentBatchStartResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/enrichment/{enrichment_id}:
+    put:
+      tags:
+      - enrichment
+      summary: Update Enrichment
+      description: "Update an enrichment. Requires ownership of the project containing the enrichment.\n\nThe mortgage entitlement check fetches the user profile lazily — only a\nretarget onto the mortgage tool pays the profile DB round-trip.\n\nArgs:\n    enrichment_id: The ID of the enrichment to update (pre-validated)\n    request: The request object containing updated fields\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dictionary containing enrichment data"
+      operationId: update_enrichment_api_v1_enrichment__enrichment_id__put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnrichmentRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/delete:
+    post:
+      tags:
+      - enrichment
+      summary: Delete Enrichment
+      description: "Delete an enrichment. Requires ownership of the project containing the enrichment.\n\nArgs:\n    request: The request object containing enrichment_id and project_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dict with success status and message"
+      operationId: delete_enrichment_api_v1_enrichment_delete_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentDelete'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentDeleteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/workflow/status/{workflow_id}:
+    get:
+      tags:
+      - enrichment
+      summary: Get Enrichment Status
+      description: Get the status of a single enrichment workflow.
+      operationId: get_enrichment_status_api_v1_enrichment_workflow_status__workflow_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/enrichment/agent_workflow/status/{workflow_id}:
+    get:
+      tags:
+      - enrichment
+      summary: Get Enrichment Agent Task Status
+      description: Get the status of an enrichment agent (creation/update) workflow.
+      operationId: get_enrichment_agent_task_status_api_v1_enrichment_agent_workflow_status__workflow_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentAgentStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/enrichment/all_user:
+    get:
+      tags:
+      - enrichment
+      summary: Get All User Enrichments
+      description: 'Get all enrichments.
+
+        Requires authentication.'
+      operationId: get_all_user_enrichments_api_v1_enrichment_all_user_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUserEnrichmentsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/add_to_layer:
+    post:
+      tags:
+      - enrichment
+      summary: Add Enrichment To Layer
+      description: "Add an enrichment to a layer. Requires ownership of the project containing the layer.\n\nArgs:\n    request: The request object containing enrichment_id and layer_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    message with success status"
+      operationId: add_enrichment_to_layer_api_v1_enrichment_add_to_layer_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEnrichmentToLayerRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddEnrichmentToLayerResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/delete_from_library:
+    post:
+      tags:
+      - enrichment
+      summary: Delete Enrichment From Library
+      description: "Delete an enrichment.\nRequires authentication.\n\nArgs:\n    request: The request object containing enrichment_id\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dict with success status and message"
+      operationId: delete_enrichment_from_library_api_v1_enrichment_delete_from_library_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentDeleteFromLibraryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentDeleteFromLibraryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/credits:
+    get:
+      tags:
+      - enrichment
+      summary: Get Enrichment Credits
+      description: Get the number of enrichments credits available for this user.
+      operationId: get_enrichment_credits_api_v1_enrichment_credits_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentCreditsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/in-flight/{project_id}:
+    get:
+      tags:
+      - enrichment
+      summary: Get In Flight Tasks
+      description: 'Get all in-flight enrichment workflows for a project.
+
+
+        Queries DBOS workflow status filtered to non-terminal row-enrichment
+
+        workflows and aggregates per-field for the polling UI.'
+      operationId: get_in_flight_tasks_api_v1_enrichment_in_flight__project_id__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InFlightTasksResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/in-flight:
+    get:
+      tags:
+      - enrichment
+      summary: Get All In Flight Tasks
+      description: Get all in-flight enrichment workflows across the user's projects.
+      operationId: get_all_in_flight_tasks_api_v1_enrichment_in_flight_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllInFlightTasksResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/cancel/bulk:
+    post:
+      tags:
+      - enrichment
+      summary: Cancel Enrichment Workflows Bulk
+      description: 'Bulk-cancel in-flight DBOS enrichment workflows.
+
+
+        Best-effort + idempotent, matching the single-cancel contract. Returns
+
+        204 unconditionally — workflows the caller doesn''t own, workflows
+
+        without a reservation row, and workflows already in a terminal state
+
+        are silently skipped. The FE''s column-level cancel sends every
+
+        workflow_id it tracked and relies on polling to converge each one to
+
+        REVOKED.'
+      operationId: cancel_enrichment_workflows_bulk_api_v1_enrichment_cancel_bulk_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkCancelEnrichmentRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/enrichment/cancel/{workflow_id}:
+    post:
+      tags:
+      - enrichment
+      summary: Cancel Enrichment Workflow
+      description: 'Cancel an in-flight DBOS enrichment workflow + refund any unsettled credits [MAIA-1468].
+
+
+        Returns 204 on success (idempotent on terminal states). 404 if the
+
+        workflow has no reservation row (Celery-routed enrichment or unknown ID)
+
+        or if the user doesn''t own the workspace it belongs to. Cross-workspace
+
+        access is 404 not 403 to avoid leaking workflow existence.
+
+
+        The ``_current_user`` Depends enforces authn; workspace authz is resolved
+
+        inside the service via the request-scoped ``UserService`` (already bound
+
+        to the current user via DI).'
+      operationId: cancel_enrichment_workflow_api_v1_enrichment_cancel__workflow_id__post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    InFlightTasksResponse:
+      properties:
+        tasks:
+          items:
+            $ref: '#/components/schemas/InFlightTaskResponse'
+          type: array
+          title: Tasks
+          description: List of in-flight tasks for the project
+        count:
+          type: integer
+          title: Count
+          description: Total number of in-flight tasks
+        batches:
+          items:
+            $ref: '#/components/schemas/BatchEnrichmentInfo'
+          type: array
+          title: Batches
+          description: Run-scoped progress per enrichment action (MAIA-2116)
+        totals_by_field:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Totals By Field
+          description: 'DEPRECATED (MAIA-2116): rolling per-field totals; use `batches`'
+        field_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FieldEnrichmentInfo'
+          type: object
+          title: Field Info
+          description: 'DEPRECATED (MAIA-2116): rolling per-field info; use `batches`'
+      type: object
+      required:
+      - tasks
+      - count
+      title: InFlightTasksResponse
+      description: Response schema for listing in-flight enrichment tasks.
+    AgeRange:
+      properties:
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max
+        is_approximate:
+          type: boolean
+          title: Is Approximate
+          default: true
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: The reasoning for the age range.
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+          description: The sources for the age range.
+      type: object
+      title: AgeRange
+      description: Age range from PDL. Can represent exact age (min == max) or range.
+    ResourceReference:
+      properties:
+        resource_type:
+          $ref: '#/components/schemas/ResourceType'
+          description: The type of resource
+        operation:
+          $ref: '#/components/schemas/ResourceOperation'
+          description: The operation that was performed on the resource
+        resource_id:
+          type: string
+          title: Resource Id
+          description: The ID of the resource
+        display_name:
+          type: string
+          title: Display Name
+          description: Display name for the resource
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+          description: ISO timestamp when resource was created in this chat
+        feature_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Feature Count
+          description: Number of features in the created resource
+        task_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Id
+          description: Celery task ID for async operations like deep research
+      type: object
+      required:
+      - resource_type
+      - operation
+      - resource_id
+      - display_name
+      title: ResourceReference
+      description: Reference to a resource created or modified during chat.
+    EnrichmentUpdates:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        tool:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Params
+        dtype:
+          anyOf:
+          - type: string
+            enum:
+            - string
+            - float
+            - boolean
+            - list[str]
+            - jsonb
+            - int
+            - url
+          - type: string
+            const: categorical
+          - type: string
+            enum:
+            - ContactModel
+            - TenantLeaseConcise
+            - OwnerResidentialMailingAddress
+            - MortgageProfile
+          - type: 'null'
+          title: Dtype
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      title: EnrichmentUpdates
+      description: 'Schema for enrichment update fields.
+
+
+        This provides a structured representation of fields that can be updated.
+
+        Add specific fields here instead of using a generic Dict[str, Any].'
+    EnrichmentDeleteFromLibraryRequest:
+      properties:
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+          examples:
+          - 00000000-0000-0000-0000-000000000001
+      type: object
+      required:
+      - enrichment_id
+      title: EnrichmentDeleteFromLibraryRequest
+      description: "Request schema for deleting an enrichment from the library.\n\nAttributes:\n    enrichment_id: Unique identifier for the enrichment to delete"
+    EnrichmentStatusListResponse:
+      properties:
+        statuses:
+          items:
+            $ref: '#/components/schemas/EnrichmentStatusResponse'
+          type: array
+          title: Statuses
+      type: object
+      required:
+      - statuses
+      title: EnrichmentStatusListResponse
+      description: Response model for returning a list of enrichment task statuses.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    OccupancyStatus:
+      type: string
+      enum:
+      - leased
+      - vacant
+      - owner_occupied
+      - partially_leased
+      - unknown
+      title: OccupancyStatus
+    PDLCompany:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        size:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Size
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        founded:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Founded
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/PDLLocation'
+          - type: 'null'
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        linkedin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Id
+        facebook_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facebook Url
+        twitter_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twitter Url
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+      type: object
+      title: PDLCompany
+      description: Company information from PDL.
+    PDLEducation:
+      properties:
+        school:
+          anyOf:
+          - $ref: '#/components/schemas/PDLSchool'
+          - type: 'null'
+        degrees:
+          items:
+            type: string
+          type: array
+          title: Degrees
+        majors:
+          items:
+            type: string
+          type: array
+          title: Majors
+        minors:
+          items:
+            type: string
+          type: array
+          title: Minors
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        gpa:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Gpa
+      type: object
+      title: PDLEducation
+      description: Education information from PDL.
+    TenantLeaseConcise:
+      properties:
+        tenant_legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Legal Name
+          description: Tenant legal name or primary occupant name.
+        lease_start_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Lease Start Date
+          description: Lease commencement / tenant move-in date (if known).
+        lease_end_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Lease End Date
+          description: Lease expiration date for the current in-place term.
+        in_place_rent_psf_yr:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: In Place Rent Psf Yr
+          description: $ / SF / Year current in-place base rent (net of abatements if possible).
+        expense_structure:
+          anyOf:
+          - $ref: '#/components/schemas/ExpenseStructure'
+          - type: 'null'
+          description: Expense pass-through structure (NNN, modified gross, etc.).
+        escalation_type:
+          anyOf:
+          - $ref: '#/components/schemas/LeaseEscalationType'
+          - type: 'null'
+          description: How base rent escalates (fixed %, CPI, hybrid, none).
+        occupancy_status:
+          anyOf:
+          - $ref: '#/components/schemas/OccupancyStatus'
+          - type: 'null'
+          description: Leased / Vacant / Owner-occupied / Partial / Unknown — good single filter.
+        num_tenants:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Num Tenants
+          description: Number of distinct tenants in the building (1 = single-tenant).
+        delinquency_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delinquency Status
+          description: Description of the tenant's delinquency status.
+        as_of:
+          type: string
+          format: date-time
+          title: As Of
+          description: UTC timestamp when this record was compiled/last updated.
+      type: object
+      title: TenantLeaseConcise
+      description: 'Concise tenant / lease model optimized for REIT screens.
+
+        Includes a small set of critical fields and computed helpers
+
+        (lease duration, months remaining, rent delta). Use `to_dict()`
+
+        to include derived values in output.'
+    EnrichmentAgentTaskPayload:
+      properties:
+        status:
+          type: string
+          title: Status
+        output_type:
+          type: string
+          title: Output Type
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        resources:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceReference'
+            type: array
+          - type: 'null'
+          title: Resources
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        output:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Output
+        deep_research_timed_out:
+          type: boolean
+          title: Deep Research Timed Out
+          default: false
+      type: object
+      required:
+      - status
+      - output_type
+      title: EnrichmentAgentTaskPayload
+      description: Payload returned by the enrichment agent background task.
+    SSRTableQueryParams:
+      properties:
+        startRow:
+          type: integer
+          minimum: 0.0
+          title: Startrow
+          default: 0
+        endRow:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Endrow
+          default: 100
+        sortModel:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SortEntry'
+            type: array
+          - type: 'null'
+          title: Sortmodel
+        filterModel:
+          anyOf:
+          - additionalProperties:
+              oneOf:
+              - $ref: '#/components/schemas/CompoundFilter-Input'
+              - oneOf:
+                - $ref: '#/components/schemas/TextCondition'
+                - $ref: '#/components/schemas/NumberCondition'
+                - $ref: '#/components/schemas/SetCondition'
+                - $ref: '#/components/schemas/DateCondition'
+                - $ref: '#/components/schemas/BooleanCondition'
+                discriminator:
+                  propertyName: filterType
+                  mapping:
+                    boolean: '#/components/schemas/BooleanCondition'
+                    date: '#/components/schemas/DateCondition'
+                    number: '#/components/schemas/NumberCondition'
+                    set: '#/components/schemas/SetCondition'
+                    text: '#/components/schemas/TextCondition'
+            type: object
+          - type: 'null'
+          title: Filtermodel
+        filterId:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+        groupKeys:
+          anyOf:
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - type: 'null'
+            type: array
+          - type: 'null'
+          title: Groupkeys
+        rowGroupCols:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/RowGroupCol'
+            type: array
+          - type: 'null'
+          title: Rowgroupcols
+        searchText:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+        geometry:
+          anyOf:
+          - $ref: '#/components/schemas/GeoJSONPolygon'
+          - type: 'null'
+        favoritesOnly:
+          type: boolean
+          title: Favoritesonly
+          default: false
+      type: object
+      title: SSRTableQueryParams
+      description: 'Combined query-param shape for the 5 AG-Grid SSR endpoints.
+
+
+        Aliases match AG Grid''s camelCase wire format (``startRow``, ``filterModel``, …)
+
+        so the client contract is unchanged. Handlers parse JSON-encoded query
+
+        strings into this model via the ``parse_ssr_query_params`` dep; any
+
+        validation failure surfaces as 422 with a field path.'
+    TextCondition:
+      properties:
+        filterType:
+          type: string
+          const: text
+          title: Filtertype
+          default: text
+        type:
+          type: string
+          enum:
+          - contains
+          - notContains
+          - equals
+          - notEqual
+          - startsWith
+          - endsWith
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: TextCondition
+    PDLSchool:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/PDLLocation'
+          - type: 'null'
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        linkedin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Id
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+      type: object
+      title: PDLSchool
+      description: School information from PDL.
+    ExpenseStructure:
+      type: string
+      enum:
+      - nnn
+      - modified_gross
+      - full_service_gross
+      - industrial_gross
+      - other
+      title: ExpenseStructure
+    TenureRange:
+      properties:
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: The reasoning for the tenure range.
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+          description: The sources for the tenure range.
+      type: object
+      title: TenureRange
+      description: 'Job tenure range representing when someone started at their current position/company.
+
+
+        Used for employment duration (e.g., via PDL data).
+
+        Can represent exact year (min == max) or range of possible years.
+
+        Confidence is inferred: exact year = confirmed, range = approximate.'
+    EnrichmentDelete:
+      properties:
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+          examples:
+          - 00000000-0000-0000-0000-000000000001
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+          examples:
+          - 00000000-0000-0000-0000-000000000001
+      type: object
+      required:
+      - enrichment_id
+      - project_id
+      title: EnrichmentDelete
+      description: "Request schema for deleting an enrichment.\n\nAttributes:\n    enrichment_id: Unique identifier for the enrichment to delete"
+    PDLLocation:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        locality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locality
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        continent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Continent
+        metro:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metro
+        geo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geo
+        street_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Street Address
+        address_line_2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line 2
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+      type: object
+      title: PDLLocation
+      description: Location information from PDL.
+    EnrichmentDeleteResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: EnrichmentDeleteResponse
+      description: "Response schema for enrichment deletion endpoint.\n\nAttributes:\n    message: Descriptive message about the deletion result"
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateEnrichmentRequest:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+          examples:
+          - 00000000-0000-0000-0000-000000000001
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+          examples:
+          - 00000000-0000-0000-0000-000000000000
+      type: object
+      required:
+      - project_id
+      - layer_id
+      title: CreateEnrichmentRequest
+      description: "Request schema for creating an enrichment.\n\nAttributes:\n    project_id: Unique identifier for the project"
+    EnrichmentDeleteFromLibraryResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: EnrichmentDeleteFromLibraryResponse
+      description: Response schema for deleting an enrichment from the library.
+    SetCondition:
+      properties:
+        filterType:
+          type: string
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
+      type: object
+      title: SetCondition
+    PDLExperience:
+      properties:
+        company:
+          anyOf:
+          - $ref: '#/components/schemas/PDLCompany'
+          - type: 'null'
+        title:
+          anyOf:
+          - $ref: '#/components/schemas/PDLTitle'
+          - type: 'null'
+        location_names:
+          items:
+            type: string
+          type: array
+          title: Location Names
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        is_primary:
+          type: boolean
+          title: Is Primary
+          default: false
+      type: object
+      title: PDLExperience
+      description: Work experience from PDL.
+    GeoJSONPolygon:
+      properties:
+        type:
+          type: string
+          enum:
+          - Polygon
+          - MultiPolygon
+          title: Type
+        coordinates:
+          items: {}
+          type: array
+          title: Coordinates
+      type: object
+      required:
+      - type
+      - coordinates
+      title: GeoJSONPolygon
+      description: 'Narrow GeoJSON subset — matches the spatial-filter payload the
+
+        frontend draws. Accept Polygon and MultiPolygon only; reject Point /
+
+        LineString / feature collections, which ``ST_Intersects`` with a bbox
+
+        wouldn''t produce meaningful results against.'
+    EnrichmentResponse:
+      properties:
+        enrichment:
+          $ref: '#/components/schemas/EnrichmentModel'
+      type: object
+      required:
+      - enrichment
+      title: EnrichmentResponse
+      description: "Base response schema for enrichment operations.\n\nAttributes:\n    enrichment: EnrichmentModel containing enrichment data"
+    FieldEnrichmentInfo:
+      properties:
+        total_count:
+          type: integer
+          title: Total Count
+          description: Original total task count for this field
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+          description: When the first enrichment for this field was queued
+      type: object
+      required:
+      - total_count
+      - started_at
+      title: FieldEnrichmentInfo
+      description: 'Info about enrichment progress for a single field/column.
+
+
+        DEPRECATED [MAIA-2116]: ``total_count`` is a rolling 1-hour per-field
+
+        workflow count, which made the FE progress denominator drift and span
+
+        unrelated runs. Superseded by ``BatchEnrichmentInfo`` (run-scoped). Kept
+
+        during the FE cutover; remove once no client reads ``field_info``.'
+    ResourceType:
+      type: string
+      enum:
+      - enrichment
+      - layer
+      - view
+      title: ResourceType
+      description: Enum for different resource types that can be referenced in chat.
+    BatchEnrichmentInfo:
+      properties:
+        coordinator_workflow_id:
+          type: string
+          title: Coordinator Workflow Id
+          description: The coordinator workflow id identifying this run/batch
+        field_name:
+          type: string
+          title: Field Name
+          description: The enrichment field name
+        launched_total:
+          type: integer
+          title: Launched Total
+          description: Rows this action launched, fixed at kickoff (manifest size)
+        resolved_count:
+          type: integer
+          title: Resolved Count
+          description: Launched rows that have reached a terminal state
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+          description: When this batch was enqueued
+      type: object
+      required:
+      - coordinator_workflow_id
+      - field_name
+      - launched_total
+      - resolved_count
+      - started_at
+      title: BatchEnrichmentInfo
+      description: 'Run-scoped progress for a single enrichment action [MAIA-2116].
+
+
+        One per kickoff, keyed on the MAIA-2111 coordinator. ``launched_total`` is
+
+        the fixed denominator (the coordinator manifest''s row count — immune to the
+
+        rolling window AND to waved fan-out); ``resolved_count`` is the numerator
+
+        (manifest children that reached a terminal state).'
+    EnrichmentLimitsResponse:
+      properties:
+        filtered_ids_default_limit:
+          type: integer
+          title: Filtered Ids Default Limit
+          description: Default page size on /features/filtered-ids when `limit` is omitted from the query string.
+        filtered_ids_max_limit:
+          type: integer
+          title: Filtered Ids Max Limit
+          description: Hard upper bound on /features/filtered-ids `limit`. Requests above this return 422.
+      type: object
+      required:
+      - filtered_ids_default_limit
+      - filtered_ids_max_limit
+      title: EnrichmentLimitsResponse
+      description: 'Per-batch limits for column-wide enrichment.
+
+
+        Backs the FE column-header Enrich submenu''s ''All in list'' clamp and
+
+        its >100k confirm gate. Both values are the canonical server limits;
+
+        the FE should never carry its own copy.'
+    EnrichmentCitation:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+          description: Optional URL of the source that supports the enrichment value.
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+          description: Optional human-readable title for the source.
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+          description: Optional snippet or excerpt from the cited material.
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+          description: Provider or domain the citation originated from.
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Type
+          description: Provider-specific type identifier for the cited source.
+      type: object
+      title: EnrichmentCitation
+      description: Metadata describing a cited source returned by an enrichment.
+    AllUserEnrichmentsResponse:
+      properties:
+        enrichments:
+          items:
+            $ref: '#/components/schemas/EnrichmentModel'
+          type: array
+          title: Enrichments
+        available_enrichment_names:
+          items:
+            $ref: '#/components/schemas/EnrichmentNameConstants'
+          type: array
+          title: Available Enrichment Names
+          description: Available enrichment names from constants
+      type: object
+      required:
+      - enrichments
+      title: AllUserEnrichmentsResponse
+      description: Response model for returning a list of all user enrichments.
+    AddEnrichmentToLayerRequest:
+      properties:
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+          examples:
+          - 00000000-0000-0000-0000-000000000001
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+          examples:
+          - 00000000-0000-0000-0000-000000000000
+      type: object
+      required:
+      - enrichment_id
+      - layer_id
+      title: AddEnrichmentToLayerRequest
+      description: Request model for adding an enrichment to a project.
+    SortEntry:
+      properties:
+        colId:
+          type: string
+          title: Colid
+        sort:
+          type: string
+          enum:
+          - asc
+          - desc
+          title: Sort
+        sortMode:
+          anyOf:
+          - type: string
+            enum:
+            - default
+            - null_push
+            - count
+          - type: 'null'
+          title: Sortmode
+          default: default
+      type: object
+      required:
+      - colId
+      - sort
+      title: SortEntry
+      description: 'AG Grid sort descriptor. Accepts camelCase wire format (``colId``,
+
+        ``sortMode``) and also the snake_case equivalents used by internal
+
+        Python callers.'
+    EnrichRowResponse:
+      properties:
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: integer
+          - items:
+              $ref: '#/components/schemas/ContactModel'
+            type: array
+          - items:
+              $ref: '#/components/schemas/TenantLeaseConcise'
+            type: array
+          - type: 'null'
+          title: Value
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+        citations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnrichmentCitation'
+            type: array
+          - type: 'null'
+          title: Citations
+        state:
+          $ref: '#/components/schemas/EnrichmentState'
+      type: object
+      required:
+      - value
+      - state
+      title: EnrichRowResponse
+      description: "Response schema for enriching a specific row.\n\nAttributes:\n    value: The enriched value (result of the enrichment)\n    reasoning: Explanation or rationale for the enrichment value\n    citations: List of web search sources that support the enrichment value\n    state: The final state of the enrichment for this row"
+    PDLProfile:
+      properties:
+        network:
+          type: string
+          title: Network
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Username
+      type: object
+      required:
+      - network
+      title: PDLProfile
+      description: Social profile from PDL.
+    BulkCancelEnrichmentRequest:
+      properties:
+        workflow_ids:
+          items:
+            type: string
+          type: array
+          maxItems: 100000
+          minItems: 1
+          title: Workflow Ids
+      type: object
+      required:
+      - workflow_ids
+      title: BulkCancelEnrichmentRequest
+      description: 'Bulk-cancel request body. The service chunks the reservation lookup
+
+        internally so callers don''t have to. ``max_length`` is a DOS guard, not
+
+        a chunking signal.'
+    EnrichmentStatusBatchRequest:
+      properties:
+        workflow_ids:
+          items:
+            type: string
+          type: array
+          title: Workflow Ids
+      type: object
+      required:
+      - workflow_ids
+      title: EnrichmentStatusBatchRequest
+      description: Request model for getting the status of multiple enrichment workflows.
+    EnrichRowRequest:
+      properties:
+        feature_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Feature Ids
+          examples:
+          - - 00000000-0000-0000-0000-000000000001
+        selection:
+          anyOf:
+          - $ref: '#/components/schemas/FilterSelectionRequest'
+          - type: 'null'
+        high_priority:
+          type: boolean
+          title: High Priority
+          description: Execute with high priority if True
+          default: false
+        point_action:
+          type: boolean
+          title: Point Action
+          description: True for a deliberate single-cell enrichment. Only a point action skips the coordinator; column kickoffs stay coordinator-keyed even when they resolve to a single row.
+          default: false
+      type: object
+      title: EnrichRowRequest
+      description: "Request schema for enriching rows.\n\nTwo mutually-exclusive selection modes:\n\n- ``feature_ids`` — explicit ids the client has materialized (legacy\n  path; row-detail trigger and small-N enrich-from-cell).\n- ``selection`` — the filter spec the client saw at confirm time;\n  the server recomputes the matching id set and fingerprint/count\n  under a live session. Used by the column-wide enrich confirm gate\n  where the id list would exceed wire-payload limits.\n\nExactly one must be provided; the model-validator enforces this so\na request that drops both or duplicates both is rejected with 422."
+    FilterSelectionRequest:
+      properties:
+        filter_spec:
+          $ref: '#/components/schemas/SSRTableQueryParams'
+        enrichment_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichment State
+        enrichment_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichment Name
+        fingerprint:
+          type: string
+          title: Fingerprint
+        expected_count:
+          type: integer
+          minimum: 1.0
+          title: Expected Count
+      type: object
+      required:
+      - filter_spec
+      - fingerprint
+      - expected_count
+      title: FilterSelectionRequest
+      description: 'Snapshot-consumer payload.
+
+
+        Caller asserts: "when I called ``/filtered-count`` with this spec I
+
+        saw ``expected_count`` rows and the server returned this
+
+        ``fingerprint``; act on that selection." The server recomputes both
+
+        and rejects with ``SelectionDriftResponse`` on mismatch.'
+    RowGroupCol:
+      properties:
+        id:
+          type: string
+          title: Id
+        field:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field
+        displayName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Displayname
+      type: object
+      required:
+      - id
+      title: RowGroupCol
+      description: 'AG Grid row-group column descriptor.
+
+
+        ``id`` is required. ``field`` mirrors AG Grid''s ``ColumnVO.field``, which
+
+        is optional on the wire — valueGetter-backed columns identify themselves by
+
+        ``id`` alone. The builder reads whichever is present (``id or field``).'
+    ProjectInFlightTasks:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+          description: The project ID
+        tasks:
+          items:
+            $ref: '#/components/schemas/InFlightTaskResponse'
+          type: array
+          title: Tasks
+          description: List of in-flight tasks for this project
+        count:
+          type: integer
+          title: Count
+          description: Number of in-flight tasks for this project
+        batches:
+          items:
+            $ref: '#/components/schemas/BatchEnrichmentInfo'
+          type: array
+          title: Batches
+          description: Run-scoped progress per enrichment action (MAIA-2116)
+        totals_by_field:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Totals By Field
+          description: 'DEPRECATED (MAIA-2116): rolling per-field totals; use `batches`'
+        field_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FieldEnrichmentInfo'
+          type: object
+          title: Field Info
+          description: 'DEPRECATED (MAIA-2116): rolling per-field info; use `batches`'
+      type: object
+      required:
+      - project_id
+      - tasks
+      - count
+      title: ProjectInFlightTasks
+      description: In-flight tasks for a single project.
+    EnrichmentNameConstants:
+      type: string
+      enum:
+      - Company Name
+      - URL
+      - Building Address
+      - Industry
+      - Parcel Number
+      - Use Code
+      - Use Description
+      - Zoning
+      - Improvement Value
+      - Land Value
+      - Parcel Owner
+      - City
+      - County
+      - Location Name
+      - Full Address
+      - zoning_category
+      - building_area_sqm
+      - Has Solar
+      - Is Owner
+      - geometry
+      - Image URL
+      - Dummy Enrichment
+      - FIPS
+      - project_id
+      - layer_id
+      - id
+      - Parcel Address
+      - scity
+      title: EnrichmentNameConstants
+    EnrichmentBatchStartResponse:
+      properties:
+        workflow_ids:
+          items:
+            type: string
+          type: array
+          title: Workflow Ids
+        feature_ids:
+          items:
+            type: string
+          type: array
+          title: Feature Ids
+        coordinator_workflow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Coordinator Workflow Id
+      type: object
+      required:
+      - workflow_ids
+      - feature_ids
+      title: EnrichmentBatchStartResponse
+      description: 'Response from POST /enrichment/enrich_async/{enrichment_id}.
+
+
+        Enqueue-only; clients drive cell freshness via the polling endpoint.
+
+        ``feature_ids[i]`` corresponds to ``workflow_ids[i]`` — clients use this
+
+        parallel mapping to attribute polled workflow results back to rows when
+
+        they didn''t materialize the id list themselves (selection path).'
+    ContactModel:
+      properties:
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+          description: Unique identifier for the contact. Required for PDL contacts, auto-generated for web search contacts.
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        middle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Name
+        middle_initial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Initial
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        last_initial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Initial
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_title_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title Role
+        job_title_sub_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title Sub Role
+        job_title_levels:
+          items:
+            type: string
+          type: array
+          title: Job Title Levels
+        job_title_class:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title Class
+        job_company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Name
+        job_company_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Id
+        job_company_website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Website
+        job_company_size:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Size
+        job_company_industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Industry
+        job_company_location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Name
+        job_company_location_locality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Locality
+        job_company_location_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Region
+        job_company_location_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Country
+        job_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Start Date
+        job_last_changed:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Last Changed
+        job_last_verified:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Last Verified
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        linkedin_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Username
+        linkedin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Id
+        has_email:
+          type: boolean
+          title: Has Email
+          default: false
+        has_phone:
+          type: boolean
+          title: Has Phone
+          default: false
+        has_personal_email:
+          type: boolean
+          title: Has Personal Email
+          default: false
+        has_work_email:
+          type: boolean
+          title: Has Work Email
+          default: false
+        has_mobile_phone:
+          type: boolean
+          title: Has Mobile Phone
+          default: false
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        location_locality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Locality
+        location_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Region
+        location_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Country
+        location_continent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Continent
+        twitter_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twitter Url
+        twitter_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twitter Username
+        facebook_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facebook Url
+        facebook_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facebook Username
+        github_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Github Url
+        github_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Github Username
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+        sex:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sex
+        age_range:
+          anyOf:
+          - $ref: '#/components/schemas/AgeRange'
+          - type: 'null'
+        skills:
+          items:
+            type: string
+          type: array
+          title: Skills
+        interests:
+          items:
+            type: string
+          type: array
+          title: Interests
+        tenure:
+          anyOf:
+          - $ref: '#/components/schemas/TenureRange'
+          - type: 'null'
+        ownership_duration:
+          anyOf:
+          - $ref: '#/components/schemas/OwnershipDuration'
+          - type: 'null'
+        experience:
+          items:
+            $ref: '#/components/schemas/PDLExperience'
+          type: array
+          title: Experience
+        education:
+          items:
+            $ref: '#/components/schemas/PDLEducation'
+          type: array
+          title: Education
+        profiles:
+          items:
+            $ref: '#/components/schemas/PDLProfile'
+          type: array
+          title: Profiles
+        dataset_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dataset Version
+      type: object
+      title: ContactModel
+      description: 'Person contact model parsed from PDL Person Search API.
+
+
+        This model represents a person with their contact information,
+
+        current job, work history, and education.'
+    EnrichmentAgentStatusResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+          description: The ID of the DBOS workflow (or legacy Celery task).
+        status:
+          type: string
+          title: Status
+          description: The current status of the workflow (PENDING, SUCCESS, FAILURE, etc.).
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/EnrichmentAgentTaskPayload'
+          - type: 'null'
+        error_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Info
+          description: Error information if the workflow failed.
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+          description: Timestamp when the workflow completed.
+      type: object
+      required:
+      - workflow_id
+      - status
+      title: EnrichmentAgentStatusResponse
+      description: 'Status response for enrichment agent (creation/update) tasks.
+
+
+        Mirrors `EnrichmentStatusResponse` shape — also intentionally non-inheriting
+
+        so the `workflow_id` rename stays local to the enrichment surface.'
+    EnrichmentListResponse:
+      properties:
+        enrichments:
+          items:
+            $ref: '#/components/schemas/EnrichmentModel'
+          type: array
+          title: Enrichments
+      type: object
+      required:
+      - enrichments
+      title: EnrichmentListResponse
+      description: "Response schema for listing all enrichments.\n\nAttributes:\n    enrichments: List of enrichment data"
+    EnrichmentModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Layer Id
+        name:
+          type: string
+          title: Name
+          default: Unconfigured enrichment
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          default: This enrichment is not configured with a tool.
+        tool:
+          type: string
+          title: Tool
+          default: unconfigured
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        dtype:
+          type: string
+          title: Dtype
+          description: Must be one of string, boolean, list[str], jsonb, int, float, categorical, url
+          default: string
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        credits_per_row:
+          type: integer
+          title: Credits Per Row
+          description: Return the number of credits per row for this tool.
+          readOnly: true
+        is_configured:
+          type: boolean
+          title: Is Configured
+          description: "Check if the enrichment is configured with a valid tool.\n\nReturns:\n    bool: True if tool is configured, False otherwise"
+          readOnly: true
+        is_configuration_failed:
+          type: boolean
+          title: Is Configuration Failed
+          description: "Check if the enrichment's configuration failed.\n\nReturns:\n    bool: True if configuration was attempted but failed"
+          readOnly: true
+        is_data_source:
+          type: boolean
+          title: Is Data Source
+          description: "Check if the enrichment is a data source.\n\nReturns:\n    bool: True if the enrichment is a data source, False otherwise"
+          readOnly: true
+      type: object
+      required:
+      - credits_per_row
+      - is_configured
+      - is_configuration_failed
+      - is_data_source
+      title: EnrichmentModel
+      description: 'Enrichment model that combines both properties and chat history.
+
+
+        This unified model simplifies the domain representation and aligns more closely
+
+        with how data is stored in the database, reducing unnecessary abstractions.'
+    OwnershipDuration:
+      properties:
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: The reasoning for the ownership duration.
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+          description: The sources for the ownership duration.
+      type: object
+      title: OwnershipDuration
+      description: 'Property ownership duration representing when ownership began.
+
+
+        Used for property/parcel ownership (e.g., via deed records).
+
+        Can represent exact year (min == max) or range of possible years.
+
+        Confidence is inferred: exact year = confirmed, range = approximate.'
+    NumberCondition:
+      properties:
+        filterType:
+          type: string
+          const: number
+          title: Filtertype
+          default: number
+        type:
+          type: string
+          enum:
+          - equals
+          - notEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - lessThan
+          - lessThanOrEqual
+          - inRange
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filter
+        filterTo:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filterto
+        units:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Units
+      type: object
+      required:
+      - type
+      title: NumberCondition
+    ResourceOperation:
+      type: string
+      enum:
+      - create
+      - update
+      - delete
+      title: ResourceOperation
+      description: Enum for operations that can be performed on resources.
+    AddEnrichmentToLayerResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: AddEnrichmentToLayerResponse
+      description: Response model for adding an enrichment to a project.
+    EnrichmentState:
+      type: string
+      enum:
+      - unenriched
+      - enriched
+      - attempted
+      - user_edited
+      - pending
+      title: EnrichmentState
+      description: Enum representing the state of an enrichment value.
+    UpdateEnrichmentRequest:
+      properties:
+        updates:
+          $ref: '#/components/schemas/EnrichmentUpdates'
+          examples:
+          - name: New Name
+      type: object
+      required:
+      - updates
+      title: UpdateEnrichmentRequest
+      description: "Request schema for updating an enrichment.\n\nAttributes:\n    updates: Structured updates for the enrichment"
+    BooleanCondition:
+      properties:
+        filterType:
+          type: string
+          const: boolean
+          title: Filtertype
+          default: boolean
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - equals
+          - notEqual
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: BooleanCondition
+    DateCondition:
+      properties:
+        filterType:
+          type: string
+          const: date
+          title: Filtertype
+          default: date
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - inRange
+          - equals
+          - notEqual
+          - lessThan
+          - greaterThan
+          - unavailable
+          title: Type
+        dateFrom:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Datefrom
+        dateTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dateto
+      type: object
+      required:
+      - type
+      title: DateCondition
+    AllInFlightTasksResponse:
+      properties:
+        projects:
+          items:
+            $ref: '#/components/schemas/ProjectInFlightTasks'
+          type: array
+          title: Projects
+          description: List of projects with in-flight tasks
+        total_count:
+          type: integer
+          title: Total Count
+          description: Total number of in-flight tasks across all projects
+      type: object
+      required:
+      - projects
+      - total_count
+      title: AllInFlightTasksResponse
+      description: Response schema for listing all in-flight enrichment tasks across all projects.
+    CompoundFilter-Input:
+      properties:
+        filterType:
+          type: string
+          enum:
+          - text
+          - number
+          - set
+          - date
+          - boolean
+          title: Filtertype
+        operator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Operator
+        conditions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: array
+          title: Conditions
+        condition1:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition1
+        condition2:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition2
+      type: object
+      required:
+      - filterType
+      - operator
+      title: CompoundFilter
+    InFlightTaskResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+          description: The DBOS workflow ID
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+          description: The enrichment being executed
+        feature_id:
+          type: string
+          title: Feature Id
+          description: The feature being enriched
+        field_name:
+          type: string
+          title: Field Name
+          description: The enrichment field name
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+          description: When the workflow was enqueued
+        phase:
+          type: string
+          enum:
+          - queued
+          - active
+          title: Phase
+          description: 'Per-cell lifecycle phase: ''queued'' = ENQUEUED/DELAYED (waiting for a concurrency slot), ''active'' = PENDING (dispatched and executing). Lets a cell distinguish a long queue wait from a run.'
+        coordinator_workflow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Coordinator Workflow Id
+          description: The run/batch this task belongs to, so the FE can group resumed tasks per action (MAIA-2116). None for pre-2111 rows.
+        task_type:
+          type: string
+          enum:
+          - individual
+          - column
+          title: Task Type
+          description: Type of enrichment task
+          default: column
+      type: object
+      required:
+      - workflow_id
+      - enrichment_id
+      - feature_id
+      - field_name
+      - started_at
+      - phase
+      title: InFlightTaskResponse
+      description: Response schema for a single in-flight enrichment workflow.
+    LeaseEscalationType:
+      type: string
+      enum:
+      - fixed_percent
+      - cpi
+      - hybrid
+      - none
+      - other
+      title: LeaseEscalationType
+    EnrichmentCreditsResponse:
+      properties:
+        available_credits:
+          type: integer
+          title: Available Credits
+          examples:
+          - 10
+        used_credits:
+          type: integer
+          title: Used Credits
+          examples:
+          - 5
+        reserved_credits:
+          type: integer
+          title: Reserved Credits
+          examples:
+          - 2
+      type: object
+      required:
+      - available_credits
+      - used_credits
+      - reserved_credits
+      title: EnrichmentCreditsResponse
+      description: Response schema for enrichment credits.
+    PDLTitle:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        sub_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sub Role
+        levels:
+          items:
+            type: string
+          type: array
+          title: Levels
+        class:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Class
+      type: object
+      title: PDLTitle
+      description: Job title information from PDL.
+    EnrichmentStatusResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+          description: The ID of the DBOS workflow (or legacy Celery task).
+        status:
+          type: string
+          title: Status
+          description: The current status of the workflow (PENDING, SUCCESS, FAILURE, etc.).
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/EnrichRowResponse'
+          - type: 'null'
+        error_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Info
+          description: Error information if the workflow failed.
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+          description: Timestamp when the workflow completed.
+      type: object
+      required:
+      - workflow_id
+      - status
+      title: EnrichmentStatusResponse
+      description: "Response schema for enrichment status endpoint.\n\nAttributes:\n    workflow_id: The ID of the DBOS workflow\n    status: Status of the enrichment workflow (PENDING, SUCCESS, FAILURE, etc.)\n    result: Response data containing enrichment value and reasoning (if successful) of type EnrichRowResponse"
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

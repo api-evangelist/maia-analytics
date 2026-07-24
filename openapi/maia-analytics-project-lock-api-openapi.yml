@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah project-lock API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: project-lock
+paths:
+  /api/v1/project/{project_id}/lock:
+    get:
+      tags:
+      - project-lock
+      summary: Get Lock Status
+      description: Get current lock status (who holds it, if anyone). Read access only.
+      operationId: get_lock_status_api_v1_project__project_id__lock_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLockStatus'
+      security:
+      - FirebaseAuthMiddleware: []
+    post:
+      tags:
+      - project-lock
+      summary: Acquire Lock
+      description: Acquire the project editing lock. Refreshes TTL if already held by caller.
+      operationId: acquire_lock_api_v1_project__project_id__lock_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLockStatus'
+      security:
+      - FirebaseAuthMiddleware: []
+    delete:
+      tags:
+      - project-lock
+      summary: Release Lock
+      description: Release the project editing lock. Only the holder can release.
+      operationId: release_lock_api_v1_project__project_id__lock_delete
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: boolean
+                type: object
+                title: Response Release Lock Api V1 Project  Project Id  Lock Delete
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}/lock/heartbeat:
+    post:
+      tags:
+      - project-lock
+      summary: Lock Heartbeat
+      description: Refresh the lock TTL. Call every ~30s while holding the lock.
+      operationId: lock_heartbeat_api_v1_project__project_id__lock_heartbeat_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLockStatus'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    ProjectLockStatus:
+      properties:
+        is_locked:
+          type: boolean
+          title: Is Locked
+          description: Whether the project is currently locked.
+        locked_by_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By User Id
+          description: User ID of the lock holder, if locked.
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+          description: Display name of the lock holder for UI.
+        locked_by_avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Avatar Color
+          description: Avatar color name of the lock holder for UI.
+        is_current_user:
+          type: boolean
+          title: Is Current User
+          description: True when the current user holds the lock.
+          default: false
+        ttl_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ttl Seconds
+          description: Remaining TTL of the lock in seconds, if locked.
+      type: object
+      required:
+      - is_locked
+      title: ProjectLockStatus
+      description: Status of the project editing lock.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

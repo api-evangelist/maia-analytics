@@ -1,0 +1,657 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah example-projects API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: example-projects
+paths:
+  /api/v1/internal/example-projects/:
+    get:
+      tags:
+      - example-projects
+      summary: List Example Projects
+      description: List all example projects ordered by created_at.
+      operationId: list_example_projects_api_v1_internal_example_projects__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExampleProjectListResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/example-projects/search:
+    get:
+      tags:
+      - example-projects
+      summary: Search Projects
+      description: List created projects in the admin's workspace for mark-as-example picker.
+      operationId: search_projects_api_v1_internal_example_projects_search_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/search-all:
+    get:
+      tags:
+      - example-projects
+      summary: Search All Projects
+      description: List created projects across all workspaces for the admin duplicate-any picker.
+      operationId: search_all_projects_api_v1_internal_example_projects_search_all_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/mark-example:
+    post:
+      tags:
+      - example-projects
+      summary: Mark As Example
+      description: Mark a project as an example project.
+      operationId: mark_as_example_api_v1_internal_example_projects__project_id__mark_example_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExampleProjectListItem'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/unmark-example:
+    post:
+      tags:
+      - example-projects
+      summary: Unmark As Example
+      description: Unmark a project as an example (sets visibility to private).
+      operationId: unmark_as_example_api_v1_internal_example_projects__project_id__unmark_example_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExampleProjectListItem'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/duplicate:
+    post:
+      tags:
+      - example-projects
+      summary: Duplicate Example Project
+      description: 'Deliver a curated project to a workspace.
+
+
+        Delivery is a durable cross-Neon-branch workflow: the response carries a
+
+        ``workflow_id`` and the client tracks progress via the Recent duplications
+
+        panel (which polls the per-row status).'
+      operationId: duplicate_example_project_api_v1_internal_example_projects__project_id__duplicate_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDuplicateProjectRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDuplicateProjectResponse'
+        '409':
+          description: The project covers counties the target workspace hasn't loaded; re-submit with acknowledge_missing_counties=true to deliver anyway.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissingCountyCoverageResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/duplicate/{workflow_id}/status:
+    get:
+      tags:
+      - example-projects
+      summary: Get Duplicate Status
+      description: Poll a cross-branch delivery workflow's terminal state.
+      operationId: get_duplicate_status_api_v1_internal_example_projects_duplicate__workflow_id__status_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDeliveryStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/duplications/recent:
+    get:
+      tags:
+      - example-projects
+      summary: List Recent Duplications
+      description: Recent duplications (newest first) for the admin tracker panel.
+      operationId: list_recent_duplications_api_v1_internal_example_projects_duplications_recent_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDuplicationLogResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/preview:
+    get:
+      tags:
+      - example-projects
+      summary: Get Project Preview
+      description: Get project preview with metadata and layer summary.
+      operationId: get_project_preview_api_v1_internal_example_projects__project_id__preview_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectPreviewResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    MissingCountyCoverageResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/MissingCountyCoverageDetail'
+      type: object
+      required:
+      - detail
+      title: MissingCountyCoverageResponse
+      description: 'Wire shape of the county-coverage 409.
+
+
+        FastAPI serializes ``HTTPException(detail=...)`` as ``{"detail": ...}``, so
+
+        the documented response body must carry the wrapper — clients read
+
+        ``data.detail.missing_counties``.'
+    AdminExampleProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminExampleProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminExampleProjectListResponse
+      description: Response schema for example project list endpoint.
+    AdminDuplicateProjectResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+      type: object
+      required:
+      - workflow_id
+      title: AdminDuplicateProjectResponse
+      description: 'Response schema for the duplicate (workspace delivery) endpoint.
+
+
+        Delivery is a durable cross-Neon-branch workflow that returns only a
+
+        ``workflow_id``; the delivered project id isn''t known until the workflow''s
+
+        clone step runs, so the UI tracks progress via the Recent duplications panel.'
+    AdminDuplicationLogResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminDuplicationLogResponse
+      description: Recent duplications, newest first, for the admin tracker panel.
+    MissingCountyCoverageDetail:
+      properties:
+        code:
+          type: string
+          title: Code
+          default: missing_county_coverage
+        missing_counties:
+          items:
+            $ref: '#/components/schemas/MissingCounty'
+          type: array
+          title: Missing Counties
+      type: object
+      required:
+      - missing_counties
+      title: MissingCountyCoverageDetail
+      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
+    AdminProjectPreviewResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        layers:
+          items:
+            $ref: '#/components/schemas/AdminLayerSummary'
+          type: array
+          title: Layers
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      - layers
+      title: AdminProjectPreviewResponse
+      description: Response schema for project preview endpoint.
+    AdminDuplicationLogEntry:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        source_project_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Project Name
+        target_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Name
+        duplicate_type:
+          type: string
+          title: Duplicate Type
+        status:
+          type: string
+          title: Status
+        delivered_project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Delivered Project Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - source_project_name
+      - target_name
+      - duplicate_type
+      - status
+      - delivered_project_id
+      - created_at
+      title: AdminDuplicationLogEntry
+      description: 'One recent duplication for the admin tracker.
+
+
+        ``status`` is PENDING | SUCCESS | FAILURE. Synchronous user duplications are
+
+        always SUCCESS (logged after the copy committed); workspace deliveries
+
+        resolve their durable workflow''s live status. ``delivered_project_id`` is the
+
+        resulting project once it exists (immediately for the user path, on SUCCESS
+
+        for the workspace path), used to link straight to the copy.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AdminDeliveryStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - status
+      title: AdminDeliveryStatusResponse
+      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
+    AdminExampleProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      title: AdminExampleProjectListItem
+      description: Summary schema for example project list items.
+    MissingCounty:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - fips
+      - name
+      title: MissingCounty
+      description: A county the source project covers but the target workspace lacks.
+    AdminProjectSearchResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectSearchResult'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminProjectSearchResponse
+      description: Response schema for project search endpoint.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminLayerSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        feature_count:
+          type: integer
+          title: Feature Count
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - feature_count
+      title: AdminLayerSummary
+      description: Layer summary for project preview.
+    AdminProjectSearchResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        visibility:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visibility
+      type: object
+      required:
+      - id
+      - name
+      - owner_display_name
+      - workspace_name
+      - created_at
+      - updated_at
+      - visibility
+      title: AdminProjectSearchResult
+      description: Search result item for project search.
+    AdminDuplicateProjectRequest:
+      properties:
+        target_workspace_id:
+          type: string
+          format: uuid
+          title: Target Workspace Id
+        acknowledge_missing_counties:
+          type: boolean
+          title: Acknowledge Missing Counties
+          default: false
+      type: object
+      required:
+      - target_workspace_id
+      title: AdminDuplicateProjectRequest
+      description: Request schema for delivering a curated project to a workspace.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

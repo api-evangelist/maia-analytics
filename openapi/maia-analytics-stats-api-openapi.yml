@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah stats API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: stats
+paths:
+  /api/v1/internal/stats/:
+    get:
+      tags:
+      - stats
+      summary: Get Stats
+      description: Return summary statistics for the admin dashboard.
+      operationId: get_stats_api_v1_internal_stats__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStatsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    AdminStatsResponse:
+      properties:
+        workspace_count:
+          type: integer
+          title: Workspace Count
+        user_count:
+          type: integer
+          title: User Count
+        project_count:
+          type: integer
+          title: Project Count
+        example_project_count:
+          type: integer
+          title: Example Project Count
+      type: object
+      required:
+      - workspace_count
+      - user_count
+      - project_count
+      - example_project_count
+      title: AdminStatsResponse
+      description: Summary statistics for the admin dashboard.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

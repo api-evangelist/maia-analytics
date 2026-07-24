@@ -1,0 +1,681 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah users API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: users
+paths:
+  /api/v1/internal/users/:
+    get:
+      tags:
+      - users
+      summary: List Users
+      description: List all users with optional search by name or email.
+      operationId: list_users_api_v1_internal_users__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 200
+          - type: 'null'
+          title: Search
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - users
+      summary: Create User
+      description: Create a new user account with Firebase Auth and DB record.
+      operationId: create_user_api_v1_internal_users__post
+      security:
+      - FirebaseAuthMiddleware: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCreateUserRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}:
+    get:
+      tags:
+      - users
+      summary: Get User Detail
+      description: Get detailed user information.
+      operationId: get_user_detail_api_v1_internal_users__user_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - users
+      summary: Update User
+      description: Update user profile fields.
+      operationId: update_user_api_v1_internal_users__user_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/move-workspace:
+    post:
+      tags:
+      - users
+      summary: Move User Workspace
+      description: Move a user to a different workspace.
+      operationId: move_user_workspace_api_v1_internal_users__user_id__move_workspace_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMoveWorkspaceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/projects:
+    get:
+      tags:
+      - users
+      summary: List User Projects
+      description: List all created projects owned by a user, annotated with lock status.
+      operationId: list_user_projects_api_v1_internal_users__user_id__projects_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/suspend:
+    post:
+      tags:
+      - users
+      summary: Suspend User
+      description: Suspend a user's account, blocking them from logging in.
+      operationId: suspend_user_api_v1_internal_users__user_id__suspend_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/unsuspend:
+    post:
+      tags:
+      - users
+      summary: Unsuspend User
+      description: Restore login access for a suspended user.
+      operationId: unsuspend_user_api_v1_internal_users__user_id__unsuspend_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/send-invite:
+    post:
+      tags:
+      - users
+      summary: Send Invite Email
+      description: Send an invite email (password setup link or Google SSO invite).
+      operationId: send_invite_email_api_v1_internal_users__user_id__send_invite_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSendInviteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AdminProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminProjectListResponse
+      description: Response schema for admin project list endpoints.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AdminCreateUserRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        display_name:
+          type: string
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        is_internal:
+          type: boolean
+          title: Is Internal
+          default: false
+        auth_method:
+          type: string
+          enum:
+          - google
+          - password
+          title: Auth Method
+          default: google
+        password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Password
+        send_invite:
+          type: boolean
+          title: Send Invite
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - email
+      - display_name
+      - workspace_id
+      title: AdminCreateUserRequest
+      description: 'Request schema for creating a new user account.
+
+
+        Rejects unknown fields with 422 — legacy callers sending the removed
+
+        `create_workspace_allowed_geographies` key should fail loud rather than
+
+        silently no-op (see MAIA-1562).'
+    AdminProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        is_locked:
+          type: boolean
+          title: Is Locked
+          default: false
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+      type: object
+      required:
+      - id
+      - name
+      - status
+      - created_at
+      - updated_at
+      title: AdminProjectListItem
+      description: Summary schema for project list items in admin views.
+    AdminUserListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminUserListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminUserListResponse
+      description: Response schema for user list endpoint.
+    AdminSendInviteResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: AdminSendInviteResponse
+      description: Response schema for send invite email endpoint.
+    AdminUserDetailResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+        plan_type:
+          type: string
+          title: Plan Type
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        project_count:
+          type: integer
+          title: Project Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - role
+      - workspace_id
+      - workspace_name
+      - is_internal
+      - is_suspended
+      - has_completed_onboarding
+      - plan_type
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - project_count
+      - created_at
+      - updated_at
+      - last_active_at
+      title: AdminUserDetailResponse
+      description: Full user detail response for admin view.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminUserListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+        plan_type:
+          type: string
+          title: Plan Type
+        project_count:
+          type: integer
+          title: Project Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - workspace_id
+      - workspace_name
+      - is_internal
+      - is_suspended
+      - has_completed_onboarding
+      - plan_type
+      - project_count
+      - created_at
+      - last_active_at
+      title: AdminUserListItem
+      description: Summary schema for user list items.
+    AdminMoveWorkspaceRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      type: object
+      required:
+      - workspace_id
+      title: AdminMoveWorkspaceRequest
+      description: Request schema for moving a user to a different workspace.
+    AdminUserUpdateRequest:
+      properties:
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
+      type: object
+      title: AdminUserUpdateRequest
+      description: Request schema for updating user fields.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

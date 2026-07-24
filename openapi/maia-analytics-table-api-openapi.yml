@@ -1,0 +1,1869 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah table API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: table
+paths:
+  /api/v1/table/{layer_id}/features/paginated:
+    get:
+      tags:
+      - table
+      summary: Get Layer Features Paginated
+      description: 'Paginated features from the workspace sandbox for AG Grid SSR.
+
+
+        Query params use AG Grid''s native camelCase (``startRow``, ``sortModel``,
+
+        etc.) to match the ``IServerSideGetRowsRequest`` shape.'
+      operationId: get_layer_features_paginated_api_v1_table__layer_id__features_paginated_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFeaturesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/columns:
+    get:
+      tags:
+      - table
+      summary: Get Layer Columns Metadata
+      description: Column metadata + aggregate stats for a layer, without fetching row data.
+      operationId: get_layer_columns_metadata_api_v1_table__layer_id__columns_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColumnsMetadataResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/columns/{column_id}/values:
+    get:
+      tags:
+      - table
+      summary: Get Column Distinct Values
+      description: Distinct values + counts for a column — populates AG Grid's set filter.
+      operationId: get_column_distinct_values_api_v1_table__layer_id__columns__column_id__values_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: column_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Column Id
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Search
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 5000
+          minimum: 1
+          default: 500
+          title: Limit
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DistinctValuesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/features/filtered-ids:
+    get:
+      tags:
+      - table
+      summary: Get Layer Filtered Ids
+      description: 'Feature ids matching the current filter set, capped by ``limit``.
+
+
+        Powers map filter sync (which features to show on the map given the
+
+        current table filters), spatial polygon filtering (draw polygon →
+
+        filter table to features inside it), and enrichment targeting (find
+
+        unenriched rows for a given enrichment, capped). ``total`` reflects
+
+        the full match count regardless of ``limit``.
+
+
+        Honors ``favoritesOnly`` so map-filter sync and enrichment targeting
+
+        stay consistent with the table when the favorites toggle is on.'
+      operationId: get_layer_filtered_ids_api_v1_table__layer_id__features_filtered_ids_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: enrichmentState
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Enrichmentstate
+      - name: enrichmentName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichmentname
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500000
+          minimum: 1
+          default: 100000
+          title: Limit
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilteredIdsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/features/filtered-count:
+    get:
+      tags:
+      - table
+      summary: Get Layer Filtered Count
+      description: 'Total row count matching the current filter set; no ids materialized.
+
+
+        Counterpart to ``/filtered-ids`` for callers that only need the total —
+
+        skips the sort + id fetch. Backs the column-wide bulk-enrich confirm gate.'
+      operationId: get_layer_filtered_count_api_v1_table__layer_id__features_filtered_count_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: enrichmentState
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Enrichmentstate
+      - name: enrichmentName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichmentname
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilteredCountResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/features/navigate:
+    get:
+      tags:
+      - table
+      summary: Navigate Layer Feature
+      description: 'Server-side prev/next cursor for the focused-feature panel.
+
+
+        Runs a single CTE on the current filtered set per call — no cap on
+
+        set size and no client-side id materialization, so navigation works
+
+        past the old 100k boundary. ``wrap`` controls behavior at the
+
+        endpoints (true → loop, false → ``None``).'
+      operationId: navigate_layer_feature_api_v1_table__layer_id__features_navigate_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: currentId
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          title: Currentid
+      - name: wrap
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Wrap
+      - name: enrichmentState
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Enrichmentstate
+      - name: enrichmentName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichmentname
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigateCursorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/export:
+    get:
+      tags:
+      - table
+      summary: Export Layer Features
+      description: 'Stream the filtered layer rows as CSV or XLSX.
+
+
+        Replaces the page-scoped client-side export for SSR-backed layers.
+
+        Row shaping mirrors ``client/src/components/Table/csvExportUtils.ts``
+
+        — contact/tenant sub-field expansion, reasoning columns, and a
+
+        ``Favorited`` column when requested. Exceeding
+
+        ``settings.MAX_EXPORT_ROWS`` returns 413 before any byte streams.'
+      operationId: export_layer_features_api_v1_table__layer_id__export_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      - name: format
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - csv
+            - xlsx
+            type: string
+          - type: 'null'
+          title: Format
+      - name: columns
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Columns
+      - name: includeReasoning
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Includereasoning
+      - name: includeProvenance
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: true
+          title: Includeprovenance
+      - name: selectedContactFields
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selectedcontactfields
+      - name: includeFavorites
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Includefavorites
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/feature/{feature_id}:
+    get:
+      tags:
+      - table
+      summary: Get Feature Detail
+      description: 'Full properties + GeoJSON geometry for a single feature.
+
+
+        Powers the feature detail panel and ``MapboxService.flyToFeature()``.
+
+        Enrichment wrappers always include ``reasoning`` and ``citations`` when
+
+        a sidecar row exists.'
+      operationId: get_feature_detail_api_v1_table__layer_id__feature__feature_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: feature_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Feature Id
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/search:
+    get:
+      tags:
+      - table
+      summary: Search Layer Features
+      description: Case-insensitive substring search across feature display fields.
+      operationId: search_layer_features_api_v1_table__layer_id__search_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 200
+          title: Q
+      - name: fields
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: string
+          - type: 'null'
+          title: Fields
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Firebase ID token for MVT authentication
+          title: Token
+        description: Firebase ID token for MVT authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/table/{layer_id}/features:
+    post:
+      tags:
+      - table
+      summary: Add Feature To Layer
+      description: Add a complete GeoJSON feature to a layer.
+      operationId: add_feature_to_layer_api_v1_table__layer_id__features_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureAddRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureAddResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/table/{project_id}/features/from-source:
+    post:
+      tags:
+      - table
+      summary: Create Layer From Feature
+      description: 'Create a new typed layer seeded with one Overture feature.
+
+
+        Used when a nearby-features add targets an Overture table (building/parcel/
+
+        place) with no layer in the project yet. Idempotent on the feature ref.'
+      operationId: create_layer_from_feature_api_v1_table__project_id__features_from_source_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLayerFromFeatureRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLayerFromFeatureResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/table/{project_id}/search/{lat}/{lng}:
+    get:
+      tags:
+      - table
+      summary: Search Feature
+      description: Find a feature by latitude, longitude, or address.
+      operationId: search_feature_api_v1_table__project_id__search__lat___lng__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: lat
+        in: path
+        required: true
+        schema:
+          type: number
+          title: Lat
+      - name: lng
+        in: path
+        required: true
+        schema:
+          type: number
+          title: Lng
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindFeatureResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    FeatureAddRequest:
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+          - LineString
+          - Polygon
+          - MultiPoint
+          - MultiLineString
+          - MultiPolygon
+          title: Type
+        coordinates:
+          items: {}
+          type: array
+          title: Coordinates
+        properties:
+          additionalProperties: true
+          type: object
+          title: Properties
+          default: {}
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+        source_feature_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Feature Id
+      type: object
+      required:
+      - type
+      - coordinates
+      - layer_id
+      title: FeatureAddRequest
+      description: Lightweight request for adding GeoJSON features.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SourceTable:
+      type: string
+      enum:
+      - parcel
+      - building
+      - place
+      - address
+      title: SourceTable
+      description: 'The table a resolved feature lives in — what a caller pulls its data from,
+
+        and the feature''s kind. A text match in the ``address`` or ``place`` table
+
+        resolves (point-in-feature) to a ``parcel``/``building``; a ``parcel`` attribute
+
+        match resolves to the parcel itself.'
+    FeatureDetailResponse:
+      properties:
+        properties:
+          additionalProperties: true
+          type: object
+          title: Properties
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+        enrichments:
+          additionalProperties:
+            $ref: '#/components/schemas/EnrichmentValueBaseModel'
+          type: object
+          title: Enrichments
+      type: object
+      required:
+      - properties
+      - geometry
+      title: FeatureDetailResponse
+      description: 'Full properties + GeoJSON geometry for a single feature.
+
+
+        Powers the feature detail panel and ``MapboxService.flyToFeature()``.
+
+        Base attributes live in ``properties``; enrichment wrappers live in
+
+        ``enrichments``, keyed by enrichment UUID so consumers can look them up
+
+        by ``config.id`` without reconciling column names. The paginated
+
+        endpoint keeps column-name-keyed wrappers in row data for AG Grid SSR.'
+    FeatureSearchResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/FeatureSearchResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - results
+      title: FeatureSearchResponse
+      description: Response for GET /table/{layer_id}/search.
+    FilteredIdsResponse:
+      properties:
+        ids:
+          items:
+            type: string
+          type: array
+          title: Ids
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - ids
+      - total
+      title: FilteredIdsResponse
+      description: 'Feature ids matching the current filter set, plus the unfiltered total.
+
+
+        ``total`` reflects the full match count even when ``limit`` truncates ``ids`` —
+
+        callers use it for "showing X of Y" UI and bulk-action sizing decisions.'
+    DistinctValuesResponse:
+      properties:
+        values:
+          items:
+            $ref: '#/components/schemas/DistinctValue'
+          type: array
+          title: Values
+        truncated:
+          type: boolean
+          title: Truncated
+      type: object
+      required:
+      - values
+      - truncated
+      title: DistinctValuesResponse
+      description: Response for the per-column distinct-values endpoint (AG Grid set filter).
+    DistinctValue:
+      properties:
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Value
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - value
+      - count
+      title: DistinctValue
+      description: 'A single distinct value and its occurrence count for the set-filter list.
+
+
+        ``value`` is the server-rendered text of the column value (the SQL
+
+        projects ``(col)::text``) so a client echoing it back into a set filter
+
+        matches the ``col::text IN`` predicate byte-for-byte. The non-string
+
+        scalars appear only on list-shape JSONB columns, whose envelopes are
+
+        exploded into their elements after the query.'
+    FindFeatureResponse:
+      properties:
+        suggestions:
+          items:
+            $ref: '#/components/schemas/FeatureSuggestion'
+          type: array
+          title: Suggestions
+        out_of_county:
+          type: boolean
+          title: Out Of County
+          default: false
+      type: object
+      required:
+      - suggestions
+      title: FindFeatureResponse
+      description: Response model for finding a feature.
+    EnrichmentValueBaseModel:
+      properties:
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: 1-2 sentence explanation of the enrichment value.
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: The enrichment value.
+        citations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnrichmentCitation'
+            type: array
+          - type: 'null'
+          title: Citations
+          description: List of citations from web search sources that support the enrichment value if any were used.
+        state:
+          $ref: '#/components/schemas/EnrichmentState'
+          description: The status of the enrichment value.
+          default: unenriched
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      title: EnrichmentValueBaseModel
+      description: Enrichment value domain model.
+    Feature:
+      properties:
+        id:
+          type: string
+          title: Id
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+        base_attributes:
+          additionalProperties: true
+          type: object
+          title: Base Attributes
+        enrichments:
+          additionalProperties: true
+          type: object
+          title: Enrichments
+        agent_attributes:
+          additionalProperties: true
+          type: object
+          title: Agent Attributes
+      type: object
+      required:
+      - id
+      - geometry
+      - layer_id
+      - base_attributes
+      - enrichments
+      title: Feature
+      description: 'Flattened feature model.
+
+
+        Uses lazy validation for enrichments to keep model creation fast.
+
+        Access raw enrichments for performance, validated enrichments when type safety is needed.'
+    FeatureAddResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        data_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Data Version
+        feature_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Feature Id
+      type: object
+      required:
+      - success
+      title: FeatureAddResponse
+      description: 'Response model for adding a feature.
+
+
+        ``data_version`` is the layer''s new version after a successful add (bumped
+
+        in the same transaction). None on failure since a failed create does not
+
+        bump. The FE uses this to rotate the tile URL''s ``?v=``.'
+    EnrichmentCitation:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+          description: Optional URL of the source that supports the enrichment value.
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+          description: Optional human-readable title for the source.
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+          description: Optional snippet or excerpt from the cited material.
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+          description: Provider or domain the citation originated from.
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Type
+          description: Provider-specific type identifier for the cited source.
+      type: object
+      title: EnrichmentCitation
+      description: Metadata describing a cited source returned by an enrichment.
+    CreateLayerFromFeatureResponse:
+      properties:
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+        layer_name:
+          type: string
+          title: Layer Name
+      type: object
+      required:
+      - layer_id
+      - layer_name
+      title: CreateLayerFromFeatureResponse
+      description: 'Response for creating a new typed layer seeded with one Overture feature.
+
+
+        Returned when the user adds a nearby feature whose Overture table has no
+
+        layer in the project yet; the client uses ``layer_id`` to focus/refresh the
+
+        newly created layer.'
+    CreateLayerFromFeatureRequest:
+      properties:
+        source_table:
+          $ref: '#/components/schemas/SourceTable'
+        source_feature_id:
+          type: string
+          title: Source Feature Id
+      type: object
+      required:
+      - source_table
+      - source_feature_id
+      title: CreateLayerFromFeatureRequest
+      description: Request to create a new typed layer seeded with one Overture feature.
+    PaginatedFeaturesResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/PaginatedFeatureRow'
+          type: array
+          title: Rows
+        last_row:
+          type: integer
+          title: Last Row
+        column_meta:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/ColumnMeta'
+            type: object
+          - type: 'null'
+          title: Column Meta
+      type: object
+      required:
+      - rows
+      - last_row
+      title: PaginatedFeaturesResponse
+      description: 'Response for the paginated sandbox query endpoint.
+
+
+        ``last_row`` is the exact filtered match count, computed alongside the
+
+        page via a single windowed ``COUNT(*) OVER()``. AG Grid uses it to size
+
+        the scrollbar and drive the "X of Y" footer without a follow-up call.'
+    ColumnDetail:
+      properties:
+        name:
+          type: string
+          title: Name
+        pg_type:
+          type: string
+          title: Pg Type
+        type:
+          type: string
+          title: Type
+        source:
+          type: string
+          enum:
+          - base
+          - enrichment
+          - agent
+          title: Source
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        categorical_options:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Categorical Options
+        stats:
+          $ref: '#/components/schemas/ColumnStats'
+        enrichment:
+          anyOf:
+          - $ref: '#/components/schemas/EnrichmentColumnConfig'
+          - type: 'null'
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      type: object
+      required:
+      - name
+      - pg_type
+      - type
+      - source
+      - stats
+      title: ColumnDetail
+      description: Rich per-column metadata for the columns endpoint.
+    FilteredCountResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        fingerprint:
+          type: string
+          title: Fingerprint
+      type: object
+      required:
+      - total
+      - fingerprint
+      title: FilteredCountResponse
+      description: 'Total row count matching the current filter set, no ids materialized.
+
+
+        Use over ``filtered-ids`` when only the count is needed — skips the sort
+
+        pass and id fetch. Backs the bulk-enrich confirm gate.
+
+
+        ``fingerprint`` is a deterministic hash of every field on
+
+        ``SSRTableQueryParams`` (minus pagination) plus the enrichment
+
+        predicates that ride alongside; snapshot consumers like
+
+        ``/enrich_async`` echo this value back in a ``FilterSelectionRequest``
+
+        so the server can detect client-side spec drift between count and
+
+        action.'
+    ColumnMeta:
+      properties:
+        type:
+          type: string
+          title: Type
+        source:
+          type: string
+          enum:
+          - base
+          - enrichment
+          - agent
+          title: Source
+        enrichment_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichment Id
+        sidecar_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sidecar Column
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      type: object
+      required:
+      - type
+      - source
+      title: ColumnMeta
+      description: 'Per-column metadata returned on the first page.
+
+
+        ``sidecar_column`` is set only for enrichment columns and names the typed
+
+        `additions` column (`value_text` / `value_numeric` /
+
+        `value_boolean` / `value_jsonb`) that drives sort and filter.
+
+
+        ``display_name`` is the user-facing header name. Resolved via
+
+        ``get_column_display_names`` so dotted paths produced by JSONB flattening
+
+        (``names.primary``, ``addresses.list.0.element.postcode``) map to the same
+
+        friendly names the legacy pre-SSR table used; user overrides on
+
+        ``LayerColumn.display_name`` win on key conflict.'
+    FeatureSearchResult:
+      properties:
+        featureId:
+          type: string
+          title: Featureid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        owner:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        parcelnumb:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parcelnumb
+        matchField:
+          type: string
+          title: Matchfield
+      type: object
+      required:
+      - featureId
+      - matchField
+      title: FeatureSearchResult
+      description: A single hit from GET /table/{layer_id}/search.
+    PaginatedFeatureRow:
+      additionalProperties: true
+      type: object
+    EnrichmentState:
+      type: string
+      enum:
+      - unenriched
+      - enriched
+      - attempted
+      - user_edited
+      - pending
+      title: EnrichmentState
+      description: Enum representing the state of an enrichment value.
+    ColumnsMetadataResponse:
+      properties:
+        tile_url_template:
+          type: string
+          title: Tile Url Template
+        total_rows:
+          type: integer
+          title: Total Rows
+        columns:
+          additionalProperties:
+            $ref: '#/components/schemas/ColumnDetail'
+          type: object
+          title: Columns
+      type: object
+      required:
+      - tile_url_template
+      - total_rows
+      - columns
+      title: ColumnsMetadataResponse
+      description: 'Response for GET /table/{layer_id}/columns.
+
+
+        ``tile_url_template`` is a literal template; the client substitutes
+
+        ``{layer_id}`` before handing the URL to Mapbox.'
+    FeatureSuggestion:
+      properties:
+        feature:
+          $ref: '#/components/schemas/Feature'
+        recommended_layer:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Recommended Layer
+        source_table:
+          anyOf:
+          - $ref: '#/components/schemas/SourceTable'
+          - type: 'null'
+        source_feature_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Feature Id
+        already_in_layer:
+          type: boolean
+          title: Already In Layer
+          default: false
+      type: object
+      required:
+      - feature
+      title: FeatureSuggestion
+      description: 'Feature suggestion for a feature.
+
+
+        ``recommended_layer`` is the project layer this feature would be added to, or
+
+        None when the project has no layer for its Overture table yet. In that case
+
+        ``source_table`` + ``source_feature_id`` (the Overture table and row id the
+
+        feature came from) let the client create a new typed layer seeded with just
+
+        this feature. ``already_in_layer`` is True when this feature is already a row
+
+        in ``recommended_layer`` — the client shows an "Added" state, not an add
+
+        button.'
+    EnrichmentColumnConfig:
+      properties:
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+        dtype:
+          type: string
+          title: Dtype
+        tool:
+          type: string
+          title: Tool
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        sidecar_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sidecar Column
+      type: object
+      required:
+      - enrichment_id
+      - dtype
+      - tool
+      - params
+      - sidecar_column
+      title: EnrichmentColumnConfig
+      description: Enrichment config surfaced for enrichment-source columns.
+    NavigateCursorResponse:
+      properties:
+        prev_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prev Id
+        next_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Id
+        position:
+          type: integer
+          title: Position
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - prev_id
+      - next_id
+      - position
+      - total
+      title: NavigateCursorResponse
+      description: 'Server-side cursor result for prev/next navigation.
+
+
+        Replaces the legacy client-side id-array cache (capped at 100k);
+
+        each navigation invocation runs a single CTE on the live filtered
+
+        set, so we cap-free up to whatever the filtered set actually
+
+        contains. ``position`` is 0-based; ``total`` is the filtered set
+
+        size.'
+    ColumnStats:
+      properties:
+        total_rows:
+          type: integer
+          title: Total Rows
+        enriched_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Enriched Count
+        unenriched_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Unenriched Count
+      type: object
+      required:
+      - total_rows
+      title: ColumnStats
+      description: 'Aggregate counts for one column.
+
+
+        Only enrichment columns carry ``enriched_count``/``unenriched_count`` (from
+
+        the ``additions`` sidecar). Base columns carry ``total_rows`` alone.'
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

@@ -1,0 +1,4034 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah project API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: project
+paths:
+  /api/v1/project/all:
+    get:
+      tags:
+      - project
+      summary: Get All Projects
+      description: "Get all projects for the authenticated user.\n\nArgs:\n    project_service: Project service for business logic\n    user_profile: Current user's profile (for workspace role and can_edit)\n\nReturns:\n    List of projects visible to the user with can_edit computed per project"
+      operationId: get_all_projects_api_v1_project_all_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/sandbox:
+    post:
+      tags:
+      - project
+      summary: Create Sandbox Project
+      description: 'Create a single-click county sandbox project pre-loaded with the
+
+        county''s boundary layer.
+
+
+        Two-phase: this handler runs phase 1 (validate FIPS, insert PENDING
+
+        project row, return ``project_id``) synchronously and enqueues phase 2
+
+        (Neon name resolve, CREATE MATERIALIZED VIEW, register boundary layer,
+
+        flip status to READY) on the Celery `sandbox_boundary` queue. Celery is
+
+        used instead of FastAPI ``BackgroundTasks`` so a Cloud Run instance
+
+        restart between response and task completion can''t strand the project
+
+        in ``PENDING`` — the broker persists the job until a worker acks.
+
+
+        Workspace RBAC: rejects FIPS codes not in the user''s available
+
+        geographies (403). FIPS not loaded into the workspace''s
+
+        ``workspace_counties`` table is a 404 before any project row is
+
+        inserted. Failures inside the background task mark the project
+
+        ``status=FAILED`` (visible on the project page); the task itself retries
+
+        with exponential backoff before reaching that state.'
+      operationId: create_sandbox_project_api_v1_project_sandbox_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxProjectRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxProjectResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/sandbox/from-feature:
+    post:
+      tags:
+      - project
+      summary: Create Sandbox Project From Feature
+      description: 'Create a sandbox project from a confirmed resolved feature (address entry).
+
+
+        The create-flow inversion: unlike ``POST /sandbox`` (county picked first),
+
+        the county scope is *derived* from the matched feature before the project''s
+
+        RLS role is provisioned. Two-phase — this handler derives scope, inserts the
+
+        PENDING project + role synchronously, and enqueues the async layer seed;
+
+        ``status`` flips to ``ready`` and the layer arrives via SSE.
+
+
+        No ``available_geographies`` 403: the matched feature is in-coverage by
+
+        construction (the resolver only searched this workspace''s loaded sandbox).
+
+        Unknown ``feature_id`` → 404; a county somehow not loaded → 404 before any
+
+        project row is inserted; a matched feature whose ``_county_fips`` is
+
+        NULL/malformed (a sandbox data-integrity fault, not a caller error) → 422.'
+      operationId: create_sandbox_project_from_feature_api_v1_project_sandbox_from_feature_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressCreateFlowRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressProjectResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/sandbox/from-features:
+    post:
+      tags:
+      - project
+      summary: Create Sandbox Project From Features
+      description: 'Create one sandbox project from several confirmed features (paste flow).
+
+
+        The multi-feature twin of ``/sandbox/from-feature``: derives one shared county
+
+        from every feature''s marker before inserting the project, then enqueues a single
+
+        seed for all of them. Unknown ``feature_id`` → 404; a NULL/malformed marker →
+
+        422; features spanning more than one county → 422 (a project is scoped to one
+
+        county under RLS, so the paste must be split). ``status`` flips to ``ready`` and
+
+        the layers arrive via SSE.'
+      operationId: create_sandbox_project_from_features_api_v1_project_sandbox_from_features_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressBatchCreateFlowRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressProjectResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/address/resolve:
+    post:
+      tags:
+      - project
+      summary: Resolve Address
+      description: 'Resolve free text to ranked, label-hydrated candidates for address entry.
+
+
+        Pre-project: bounded to ``request.county_fips`` when the caller picked a
+
+        county first, otherwise across every county the caller''s workspace has
+
+        loaded (the sandbox partition is the access control either way). A read
+
+        failure surfaces as 503 rather than the raw error, which can carry a
+
+        sandbox connection URI.'
+      operationId: resolve_address_api_v1_project_address_resolve_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressResolveRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressResolveResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/address/resolve-many:
+    post:
+      tags:
+      - project
+      summary: Resolve Addresses Batch
+      description: 'Resolve a pasted handful of addresses in one batch for the paste review list.
+
+
+        One typed outcome per input row in input order (matched / ambiguous /
+
+        not_in_dataset / empty_input), county-bounded like the single resolve. Candidate
+
+        labels for every row are hydrated in a single read, then re-split per row. A read
+
+        failure surfaces as 503 rather than the raw error (which can carry a sandbox URI).'
+      operationId: resolve_addresses_batch_api_v1_project_address_resolve_many_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressResolveManyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressResolveManyResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/address/feature-geometry:
+    get:
+      tags:
+      - project
+      summary: Get Address Feature Geometry
+      description: 'Drawable geometry + bbox for one resolved candidate, pre-project.
+
+
+        404 covers both a malformed/unknown ``feature_id`` and a row with null
+
+        geometry — either way there is nothing to draw. Read failures map to 503,
+
+        mirroring ``/address/resolve``.'
+      operationId: get_address_feature_geometry_api_v1_project_address_feature_geometry_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: source_table
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/SourceTable'
+      - name: feature_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Feature Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressFeatureGeometryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/project/sandbox/warm-county:
+    post:
+      tags:
+      - project
+      summary: Warm County Boundary
+      description: 'Pre-warm the boundary MV for a county without creating a project.
+
+
+        Called from the picker the moment a user soft-selects a county, so
+
+        the Neon roundtrip (TIGER GEOID lookup + CREATE MATERIALIZED VIEW +
+
+        index) overlaps with prompt composition instead of blocking the
+
+        subsequent project-create. Idempotent — the MV is workspace-scoped
+
+        and deterministically named by ``county_fips``; concurrent warms are
+
+        serialized inside ``ensure_county_boundary_mv`` by an advisory lock
+
+        and the second caller fast-paths on the existing MV.
+
+
+        Workspace RBAC mirrors ``create_sandbox_project``: FIPS not in the
+
+        user''s available geographies → 403, FIPS not loaded into the
+
+        workspace''s ``workspace_counties`` table → 404, FIPS not present in
+
+        the workspace''s ``tiger_county`` table → 404. No project row is
+
+        created on any path — the warm flow is read-only at the app-DB level.'
+      operationId: warm_county_boundary_api_v1_project_sandbox_warm_county_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxWarmCountyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxWarmCountyResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}:
+    get:
+      tags:
+      - project
+      summary: Get Project
+      description: 'Get a single project by ID.
+
+
+        Requires read access (ownership, workspace membership, example, or admin
+
+        view/write mode). Admin view mode forces can_edit=False; admin write mode
+
+        forces can_edit=True. Both force is_owner=False.'
+      operationId: get_project_api_v1_project__project_id__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+    put:
+      tags:
+      - project
+      summary: Update Project
+      description: "Update a project's basic information (name and/or description).\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    project_data: Project update parameters containing optional name/description\n    project_service: Project service for business logic\n\nReturns:\n    Response with success status, message, and updated project data\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it\n    ValueError: If no fields to update are provided"
+      operationId: update_project_api_v1_project__project_id__put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectUpdateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+    delete:
+      tags:
+      - project
+      summary: Delete Project
+      description: "Delete a project.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    project_service: Project service for business logic\n\nReturns:\n    Dict with success status and message\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it"
+      operationId: delete_project_api_v1_project__project_id__delete
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDeleteResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}/default-view:
+    put:
+      tags:
+      - project
+      summary: Set Project Default View
+      description: "Set (or clear) the project's durable default view.\n\nThe default view is the view anonymous share-link visitors and first-time\nviewers land on when the URL carries no explicit ``?view=``. Settable by any\neditor (validated by the dependency).\n\nRaises:\n    HTTPException: 404 if project not found or the caller can't write it,\n        400 if ``view_id`` isn't one of the project's views."
+      operationId: set_project_default_view_api_v1_project__project_id__default_view_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDefaultViewRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectUpdateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}/views/reorder:
+    patch:
+      tags:
+      - project
+      summary: Reorder Views
+      description: "Reorder a project's views to match the supplied id order.\n\nDeclared *before* the ``/{view_id}`` PATCH route: FastAPI matches routes in\ndeclaration order, so the literal ``reorder`` segment must register first or\n``{view_id}`` would capture it (``view_id=\"reorder\"``).\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    request: The full ordered list of view ids\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and the views in their new order\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it,\n        400 if ``view_ids`` isn't a permutation of the project's views."
+      operationId: reorder_views_api_v1_project__project_id__views_reorder_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewsReorderRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewsReorderResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}/views/{view_id}:
+    patch:
+      tags:
+      - project
+      summary: Update View
+      description: "Update a single view with partial data and atomic ownership validation.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    view_id: String ID of the view to update\n    request: Request containing the partial view update data\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and updated view data\n\nRaises:\n    HTTPException: 404 if project/view not found or user doesn't own it,\n        409 if ``expected_version`` is stale (the view changed concurrently)."
+      operationId: update_view_api_v1_project__project_id__views__view_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: view_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: View Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewUpdateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - project
+      summary: Delete View
+      description: "Delete a view from a project.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    view_id: String ID of the view to delete\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and message\n\nRaises:\n    HTTPException: 404 if project/view not found or user doesn't own it"
+      operationId: delete_view_api_v1_project__project_id__views__view_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: view_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: View Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewDeleteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/project/{project_id}/views:
+    get:
+      tags:
+      - project
+      summary: Get Views
+      description: "Get all views for a project.\n\nArgs:\n    project_id: UUID of the project (validated for read access - owned or example)\n    view_service: View service for business logic\n\nReturns:\n    Response containing list of views\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't have access"
+      operationId: get_views_api_v1_project__project_id__views_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewsGetResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+    post:
+      tags:
+      - project
+      summary: Create View
+      description: "Create a new view for a project.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    request: Request containing the view to create\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and created view data\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it"
+      operationId: create_view_api_v1_project__project_id__views_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewCreateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}/chats:
+    get:
+      tags:
+      - project
+      summary: Get Project Chat
+      description: "Get the chat for a specific project.\n\nArgs:\n    project_id: The ID of the project to get chat for (validated for read access).\n    agent_service: The AgentService instance (dependency).\n    user_repo: User repository for resolving sender display names.\n    project_repo: Project repository for checking project visibility.\n    user_profile: Current user's profile for internal status check.\n\nReturns:\n    The chat history for the project, or None if no chat exists.\n\nRaises:\n    HTTPException: 400 for validation errors.\n    HTTPException: 404 if project not found or user doesn't have access.\n    HTTPException: 500 for unexpected errors."
+      operationId: get_project_chat_api_v1_project__project_id__chats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatHistoryResponseSchema'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/project/{project_id}/share:
+    get:
+      tags:
+      - project
+      summary: Get Share Info
+      description: "Get share link info for a project.\n\nReturns one of three states:\n- Never shared: is_shared=False, share=None\n- Previously shared (revoked): is_shared=False, share={is_active: False, ...}\n- Currently shared: is_shared=True, share={is_active: True, ...}\n\nAlso includes workspace context (name, member count, project visibility)\nfor the share dialog. Requires write access to the project.\n\nArgs:\n    project_id: UUID of the project (validated for write access)\n    user_profile: Current user's profile (for workspace_id)\n    share_service: ProjectShareService for share link operations\n\nReturns:\n    Share info with is_shared flag, optional share details, and workspace context"
+      operationId: get_share_info_api_v1_project__project_id__share_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareInfoResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+    post:
+      tags:
+      - project
+      summary: Generate Share Link
+      description: "Generate a share link for a project (idempotent).\n\nIf an active share link already exists, returns it. Otherwise creates\na new one with a unique token. Requires write access to the project.\n\nArgs:\n    project_id: UUID of the project (validated for write access)\n    share_service: ProjectShareService for share link operations\n\nReturns:\n    Share link details including full URL, token, and status"
+      operationId: generate_share_link_api_v1_project__project_id__share_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinkResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+    delete:
+      tags:
+      - project
+      summary: Revoke Share Link
+      description: "Revoke the active share link for a project.\n\nPermanently invalidates the current share token. Re-enabling sharing\nwill generate a new token (old links stay dead). Requires write access to the project.\n\nArgs:\n    project_id: UUID of the project (validated for write access)\n    share_service: ProjectShareService for share link operations\n\nReturns:\n    Success confirmation\n\nRaises:\n    HTTPException: 404 if no active share link exists"
+      operationId: revoke_share_link_api_v1_project__project_id__share_delete
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareRevokeResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    ThinkingPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        signature:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signature
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: thinking
+          title: Part Kind
+          default: thinking
+      type: object
+      required:
+      - content
+      title: ThinkingPart
+      description: A thinking response from a model.
+    AudioUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: audio-url
+          title: Kind
+          default: audio-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: AudioUrl
+      description: A URL to an audio file.
+    AddressResolveRequest:
+      properties:
+        query:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Query
+        county_fips:
+          anyOf:
+          - type: string
+            pattern: ^\d{5}$
+          - type: 'null'
+          title: County Fips
+      type: object
+      required:
+      - query
+      title: AddressResolveRequest
+      description: 'Autocomplete resolve for address entry: free text (street address, place
+
+        name, or parcel number) — no project exists yet on this path. ``county_fips``
+
+        (5-digit GEOID) bounds the match to the picked county; absent, it matches
+
+        across every county the caller''s workspace has loaded.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ViewModel-Input:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        layerFilters:
+          additionalProperties:
+            additionalProperties:
+              oneOf:
+              - $ref: '#/components/schemas/CompoundFilter-Input'
+              - oneOf:
+                - $ref: '#/components/schemas/TextCondition'
+                - $ref: '#/components/schemas/NumberCondition'
+                - $ref: '#/components/schemas/SetCondition'
+                - $ref: '#/components/schemas/DateCondition'
+                - $ref: '#/components/schemas/BooleanCondition'
+                discriminator:
+                  propertyName: filterType
+                  mapping:
+                    boolean: '#/components/schemas/BooleanCondition'
+                    date: '#/components/schemas/DateCondition'
+                    number: '#/components/schemas/NumberCondition'
+                    set: '#/components/schemas/SetCondition'
+                    text: '#/components/schemas/TextCondition'
+            type: object
+          type: object
+          title: Layerfilters
+        mapFilters:
+          anyOf:
+          - $ref: '#/components/schemas/MapFilterModel'
+          - type: 'null'
+        layerColumnVisibility:
+          additionalProperties:
+            additionalProperties:
+              type: boolean
+            type: object
+          type: object
+          title: Layercolumnvisibility
+        layerColumnOrder:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+          title: Layercolumnorder
+        layerColumnPinned:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+          title: Layercolumnpinned
+        layerColumnSort:
+          additionalProperties:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+          type: object
+          title: Layercolumnsort
+        layerColumnWidths:
+          additionalProperties:
+            additionalProperties:
+              type: integer
+            type: object
+          type: object
+          title: Layercolumnwidths
+        layerGroupByColumn:
+          additionalProperties:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: object
+          title: Layergroupbycolumn
+        layerVisibility:
+          anyOf:
+          - additionalProperties:
+              type: boolean
+            type: object
+          - type: 'null'
+          title: Layervisibility
+        layerViz:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Layerviz
+        basemap:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Basemap
+        currentLayerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Currentlayerid
+        isEditable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Iseditable
+        showFavoritesOnly:
+          type: boolean
+          title: Showfavoritesonly
+          default: false
+        version:
+          type: integer
+          title: Version
+          default: 0
+      type: object
+      required:
+      - id
+      - name
+      title: ViewModel
+      description: Model for a view
+    ViewsGetResponse:
+      properties:
+        views:
+          items:
+            $ref: '#/components/schemas/ViewModel-Output'
+          type: array
+          title: Views
+      type: object
+      required:
+      - views
+      title: ViewsGetResponse
+      description: "Response model for getting project views.\n\nAttributes:\n    views: List of view models"
+    NativeToolReturnPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        content:
+          $ref: '#/components/schemas/ToolReturnContent'
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-return
+          title: Part Kind
+          default: builtin-tool-return
+      type: object
+      required:
+      - tool_name
+      - content
+      title: NativeToolReturnPart
+      description: 'A tool return message from a native tool.
+
+
+        For native tools with a stable cross-provider shape (currently `tool_search`), a
+
+        `NativeToolReturnPart` may be promoted to a typed subclass like
+
+        [`NativeToolSearchReturnPart`][pydantic_ai.messages.NativeToolSearchReturnPart]
+
+        with a narrowed `content` `TypedDict`. See `NativeToolCallPart` for the pattern.'
+    ViewModel-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        layerFilters:
+          additionalProperties:
+            additionalProperties:
+              oneOf:
+              - $ref: '#/components/schemas/CompoundFilter-Output'
+              - oneOf:
+                - $ref: '#/components/schemas/TextCondition'
+                - $ref: '#/components/schemas/NumberCondition'
+                - $ref: '#/components/schemas/SetCondition'
+                - $ref: '#/components/schemas/DateCondition'
+                - $ref: '#/components/schemas/BooleanCondition'
+                discriminator:
+                  propertyName: filterType
+                  mapping:
+                    boolean: '#/components/schemas/BooleanCondition'
+                    date: '#/components/schemas/DateCondition'
+                    number: '#/components/schemas/NumberCondition'
+                    set: '#/components/schemas/SetCondition'
+                    text: '#/components/schemas/TextCondition'
+            type: object
+          type: object
+          title: Layerfilters
+        mapFilters:
+          anyOf:
+          - $ref: '#/components/schemas/MapFilterModel'
+          - type: 'null'
+        layerColumnVisibility:
+          additionalProperties:
+            additionalProperties:
+              type: boolean
+            type: object
+          type: object
+          title: Layercolumnvisibility
+        layerColumnOrder:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+          title: Layercolumnorder
+        layerColumnPinned:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+          title: Layercolumnpinned
+        layerColumnSort:
+          additionalProperties:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+          type: object
+          title: Layercolumnsort
+        layerColumnWidths:
+          additionalProperties:
+            additionalProperties:
+              type: integer
+            type: object
+          type: object
+          title: Layercolumnwidths
+        layerGroupByColumn:
+          additionalProperties:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: object
+          title: Layergroupbycolumn
+        layerVisibility:
+          anyOf:
+          - additionalProperties:
+              type: boolean
+            type: object
+          - type: 'null'
+          title: Layervisibility
+        layerViz:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Layerviz
+        basemap:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Basemap
+        currentLayerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Currentlayerid
+        isEditable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Iseditable
+        showFavoritesOnly:
+          type: boolean
+          title: Showfavoritesonly
+          default: false
+        version:
+          type: integer
+          title: Version
+          default: 0
+      type: object
+      required:
+      - id
+      - name
+      title: ViewModel
+      description: Model for a view
+    BatchOutcomeKind:
+      type: string
+      enum:
+      - matched
+      - ambiguous
+      - not_in_dataset
+      - empty_input
+      title: BatchOutcomeKind
+      description: 'Per-row bucket for a batch resolve, derived from a single row''s
+
+        ``ResolutionResult`` plus its raw input. Coarser than the single-address
+
+        ``ResolutionOutcome``: it splits ``matched`` by CARDINALITY (one candidate vs.
+
+        several) and distinguishes a blank input row, so a caller can route each row
+
+        (seed / disambiguate / report-missing / flag-blank) without re-deriving. The
+
+        accept/reject verdict on candidates still lives with the agent / human — this
+
+        is a count, not a confidence threshold.'
+    ProjectListResponse:
+      properties:
+        projects:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectResponse'
+            type: array
+          - type: 'null'
+          title: Projects
+      type: object
+      title: ProjectListResponse
+      description: "Response model for listing all projects\n\nAttributes:\n    projects: List of projects if available"
+    ModelResponse:
+      properties:
+        parts:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextPart'
+            - $ref: '#/components/schemas/ToolSearchCallPart'
+            - $ref: '#/components/schemas/LoadCapabilityCallPart'
+            - $ref: '#/components/schemas/ToolCallPart'
+            - $ref: '#/components/schemas/NativeToolSearchCallPart'
+            - $ref: '#/components/schemas/NativeToolCallPart'
+            - $ref: '#/components/schemas/NativeToolSearchReturnPart'
+            - $ref: '#/components/schemas/NativeToolReturnPart'
+            - $ref: '#/components/schemas/ThinkingPart'
+            - $ref: '#/components/schemas/CompactionPart'
+            - $ref: '#/components/schemas/FilePart'
+          type: array
+          title: Parts
+        usage:
+          $ref: '#/components/schemas/RequestUsage'
+        model_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        kind:
+          type: string
+          const: response
+          title: Kind
+          default: response
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Url
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        provider_response_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Response Id
+        finish_reason:
+          anyOf:
+          - type: string
+            enum:
+            - stop
+            - length
+            - content_filter
+            - tool_call
+            - error
+          - type: 'null'
+          title: Finish Reason
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        state:
+          type: string
+          enum:
+          - complete
+          - incomplete
+          - interrupted
+          title: State
+          default: complete
+      type: object
+      required:
+      - parts
+      title: ModelResponse
+      description: A response from a model, e.g. a message from the model to the Pydantic AI app.
+    ToolSearchReturnPart:
+      properties:
+        tool_name:
+          type: string
+          const: search_tools
+          title: Tool Name
+          default: search_tools
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        content:
+          $ref: '#/components/schemas/ToolSearchReturnContent'
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - content
+      title: ToolSearchReturnPart
+      description: 'Typed view of a [`ToolReturnPart`][pydantic_ai.messages.ToolReturnPart] for the local `search_tools` function return.
+
+
+        Used on the local-fallback path (and as the synthetic-injection target on
+
+        non-native providers receiving cross-provider history). The native server-side
+
+        path uses
+
+        [`NativeToolSearchReturnPart`][pydantic_ai.messages.NativeToolSearchReturnPart]
+
+        instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `content` with a narrower
+
+        [`ToolSearchReturnContent`][pydantic_ai.messages.ToolSearchReturnContent]
+
+        `TypedDict`.'
+    AddressResolveManyRequest:
+      properties:
+        queries:
+          items:
+            type: string
+            maxLength: 256
+          type: array
+          maxItems: 25
+          minItems: 1
+          title: Queries
+        county_fips:
+          anyOf:
+          - type: string
+            pattern: ^\d{5}$
+          - type: 'null'
+          title: County Fips
+      type: object
+      required:
+      - queries
+      title: AddressResolveManyRequest
+      description: 'Batch resolve for paste-a-handful entry: a few free-text address rows, one
+
+        per pasted line (blanks already dropped client-side but tolerated here).
+
+        ``county_fips`` bounds every row to the soft-selected county, exactly like the
+
+        single resolve. ``max_length`` is the light-case guard — larger lists route to
+
+        the Phase 2 review table, not this endpoint.'
+    CompoundFilter-Output:
+      properties:
+        filterType:
+          type: string
+          enum:
+          - text
+          - number
+          - set
+          - date
+          - boolean
+          title: Filtertype
+        operator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Operator
+        conditions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Output'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: array
+          title: Conditions
+        condition1:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Output'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition1
+        condition2:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Output'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition2
+      type: object
+      required:
+      - filterType
+      - operator
+      title: CompoundFilter
+    ProjectUpdateResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectResponse'
+          - type: 'null'
+      type: object
+      required:
+      - success
+      - message
+      title: ProjectUpdateResponse
+      description: "Response model for project update endpoint.\n\nAttributes:\n    success: Boolean indicating if the project was updated successfully\n    message: Descriptive message about the result\n    project: Optional updated project data (only present on success)"
+    ViewCreateResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        view:
+          $ref: '#/components/schemas/ViewModel-Output'
+      type: object
+      required:
+      - success
+      - view
+      title: ViewCreateResponse
+      description: "Response model for creating a new view.\n\nAttributes:\n    success: Boolean indicating if the creation was successful\n    view: The created view model"
+    UserPromptPart:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - items:
+              anyOf:
+              - type: string
+              - $ref: '#/components/schemas/TextContent'
+              - oneOf:
+                - $ref: '#/components/schemas/ImageUrl'
+                - $ref: '#/components/schemas/AudioUrl'
+                - $ref: '#/components/schemas/DocumentUrl'
+                - $ref: '#/components/schemas/VideoUrl'
+                - $ref: '#/components/schemas/BinaryContent'
+                - $ref: '#/components/schemas/UploadedFile'
+                discriminator:
+                  propertyName: kind
+                  mapping:
+                    audio-url: '#/components/schemas/AudioUrl'
+                    binary: '#/components/schemas/BinaryContent'
+                    document-url: '#/components/schemas/DocumentUrl'
+                    image-url: '#/components/schemas/ImageUrl'
+                    uploaded-file: '#/components/schemas/UploadedFile'
+                    video-url: '#/components/schemas/VideoUrl'
+              - $ref: '#/components/schemas/CachePoint'
+            type: array
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        part_kind:
+          type: string
+          const: user-prompt
+          title: Part Kind
+          default: user-prompt
+      type: object
+      required:
+      - content
+      title: UserPromptPart
+      description: 'A user prompt, generally written by the end user.
+
+
+        Content comes from the `user_prompt` parameter of [`Agent.run`][pydantic_ai.agent.AbstractAgent.run],
+
+        [`Agent.run_sync`][pydantic_ai.agent.AbstractAgent.run_sync], and [`Agent.run_stream`][pydantic_ai.agent.AbstractAgent.run_stream].'
+    ProjectDeleteResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: ProjectDeleteResponse
+      description: "Response model for project deletion endpoint\n\nAttributes:\n    message: Descriptive message about the result"
+    BinaryContent:
+      properties:
+        data:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/octet-stream
+          title: Data
+        media_type:
+          anyOf:
+          - type: string
+            enum:
+            - audio/wav
+            - audio/mpeg
+            - audio/ogg
+            - audio/flac
+            - audio/aiff
+            - audio/aac
+          - type: string
+            enum:
+            - image/jpeg
+            - image/png
+            - image/gif
+            - image/webp
+          - type: string
+            enum:
+            - application/pdf
+            - text/plain
+            - text/csv
+            - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+            - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+            - text/html
+            - text/markdown
+            - application/msword
+            - application/vnd.ms-excel
+          - type: string
+          title: Media Type
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: binary
+          title: Kind
+          default: binary
+        identifier:
+          type: string
+          title: Identifier
+          description: 'Identifier for the binary content, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `BinaryContent`.
+
+
+            This identifier is only automatically passed to the model when the `BinaryContent` is returned by a tool.
+
+            If you''re passing the `BinaryContent` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `BinaryContent`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - data
+      - media_type
+      - identifier
+      title: BinaryContent
+      description: Binary content, e.g. an audio or image file.
+    ErrorDetails:
+      properties:
+        type:
+          type: string
+          title: Type
+        loc:
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+          type: array
+          title: Loc
+        msg:
+          type: string
+          title: Msg
+        input:
+          title: Input
+        ctx:
+          additionalProperties: true
+          type: object
+          title: Ctx
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - type
+      - loc
+      - msg
+      - input
+      title: ErrorDetails
+    ProjectTitleSource:
+      type: string
+      enum:
+      - placeholder
+      - auto
+      - user
+      title: ProjectTitleSource
+      description: "Provenance + lifecycle for the project's name field.\n\nReplaces an em-dash string heuristic (`\" — \" not in project.name`)\nthat gated whether the sandbox auto-titler should rename a project\nfrom its skeleton name. Encoding the decision as a typed enum makes\nthe check a single comparison and prevents future titlers that\nhappen to produce em-dashes from silently disabling the branch.\n\n- PLACEHOLDER: title is initial scaffolding (sandbox skeleton's\n  \"Boulder County\", initial scaffold name); eligible to be\n  replaced by the next titler.\n- AUTO: title set by an LLM auto-titler (agent_service\n  first-message rename or project setup using the user's plan\n  name); final.\n- USER: title set by an explicit user rename via PUT\n  /projects/{id}; final."
+    ProjectResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          default: ''
+        additional_project_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Project Info
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+          default: pending
+        title_source:
+          $ref: '#/components/schemas/ProjectTitleSource'
+          default: user
+        is_plan_ready:
+          type: boolean
+          title: Is Plan Ready
+          default: false
+        views:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ViewModel-Output'
+            type: array
+          - type: 'null'
+          title: Views
+        default_view_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Default View Id
+        project_plan:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectPlan'
+          - type: 'null'
+        thumbnail_bounds:
+          anyOf:
+          - $ref: '#/components/schemas/ThumbnailBounds'
+          - type: 'null'
+        is_sandbox:
+          type: boolean
+          title: Is Sandbox
+          default: false
+        visibility:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectVisibility'
+          - type: 'null'
+        is_owner:
+          type: boolean
+          title: Is Owner
+          default: true
+        can_edit:
+          type: boolean
+          title: Can Edit
+          default: true
+        owner_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Name
+        shared_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Shared By Name
+        owner_branded_as_maia:
+          type: boolean
+          title: Owner Branded As Maia
+          default: false
+        last_edited_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edited By Name
+        last_edited_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Edited At
+        last_edit_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edit Description
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      title: ProjectResponse
+      description: "API response model for a project with string IDs.\n\nAttributes:\n    id: String representation of project UUID\n    name: Display name of the project\n    description: Optional description of the project\n    status: Project lifecycle status (pending/ready/failed/archived). 'ready' replaces the old is_created=True.\n    is_plan_ready: Whether the project plan is ready for the user to create the project\n    visibility: Project visibility status (None=private, workspace_read=view only, workspace_write=editable, example=curated)\n    is_owner: Whether the requesting user owns this project\n    owner_name: Display name of the project owner"
+    SpatialOperationType:
+      type: string
+      enum:
+      - intersects
+      - buffer
+      - disjoint
+      title: SpatialOperationType
+    ToolReturnContent:
+      anyOf:
+      - oneOf:
+        - $ref: '#/components/schemas/ImageUrl'
+        - $ref: '#/components/schemas/AudioUrl'
+        - $ref: '#/components/schemas/DocumentUrl'
+        - $ref: '#/components/schemas/VideoUrl'
+        - $ref: '#/components/schemas/BinaryContent'
+        - $ref: '#/components/schemas/UploadedFile'
+        discriminator:
+          propertyName: kind
+          mapping:
+            audio-url: '#/components/schemas/AudioUrl'
+            binary: '#/components/schemas/BinaryContent'
+            document-url: '#/components/schemas/DocumentUrl'
+            image-url: '#/components/schemas/ImageUrl'
+            uploaded-file: '#/components/schemas/UploadedFile'
+            video-url: '#/components/schemas/VideoUrl'
+      - items:
+          $ref: '#/components/schemas/ToolReturnContent'
+        type: array
+      - additionalProperties:
+          $ref: '#/components/schemas/ToolReturnContent'
+        type: object
+      - {}
+    ToolSearchMatch:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - description
+      title: ToolSearchMatch
+      description: A single match in a tool-search result.
+    SandboxWarmCountyRequest:
+      properties:
+        county_fips:
+          type: string
+          maxLength: 5
+          minLength: 5
+          title: County Fips
+          description: 5-digit US county FIPS code (e.g. '12103' for Pinellas, FL)
+      type: object
+      required:
+      - county_fips
+      title: SandboxWarmCountyRequest
+      description: 'Pre-warm a county boundary MV without creating a project.
+
+
+        Called when the user soft-selects a county in the picker so the
+
+        boundary MV builds in parallel with prompt composition. The
+
+        subsequent project-create call short-circuits the slow Neon work
+
+        because the MV is already materialized.'
+    ChatHistoryResponseSchema:
+      properties:
+        chat:
+          anyOf:
+          - $ref: '#/components/schemas/ChatHistorySchema'
+          - type: 'null'
+          description: The chat history for the project, or None if no chat exists.
+        users:
+          additionalProperties:
+            $ref: '#/components/schemas/ChatUserInfo'
+          type: object
+          title: Users
+          description: Map of user_id to display info for message attribution.
+      type: object
+      required:
+      - chat
+      title: ChatHistoryResponseSchema
+      description: Schema for the chat history of a project.
+    AddressResolveManyResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/BatchResolutionRow'
+          type: array
+          title: Rows
+      type: object
+      required:
+      - rows
+      title: AddressResolveManyResponse
+      description: Per-row outcomes for a pasted batch, one row per input in input order.
+    AddressBatchCreateFlowRequest:
+      properties:
+        features:
+          items:
+            $ref: '#/components/schemas/AddressCreateFlowRequest'
+          type: array
+          maxItems: 25
+          minItems: 1
+          title: Features
+      type: object
+      required:
+      - features
+      title: AddressBatchCreateFlowRequest
+      description: 'Create one sandbox project from several confirmed features (paste flow).
+
+
+        Every feature must derive to the same county (a project is scoped to one
+
+        county under RLS); the server enforces this and 422s a cross-county batch.'
+    ProjectStatus:
+      type: string
+      enum:
+      - pending
+      - ready
+      - failed
+      - archived
+      title: ProjectStatus
+      description: "Lifecycle status for a project.\n\nReplaces the boolean ``is_created`` whose name implied \"was created\"\n(always True once inserted) but semantically meant \"is ready for the\ndashboard to show.\" Promoting to an enum lets new states (FAILED,\nARCHIVED) join without contorting the boolean.\n\n- PENDING: row inserted, sandbox resources not yet materialized\n- READY:   resources in place; visible on dashboard\n- FAILED:  build raised mid-flight (sandbox saga rollback uses\n           hard-delete instead, so this state is reserved for\n           future async build paths that can't roll back atomically)\n- ARCHIVED: user-archived; hidden by default"
+    LoadCapabilityArgs:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The id of the capability to load.
+      type: object
+      required:
+      - id
+      title: LoadCapabilityArgs
+      description: Typed arguments for a `load_capability` tool call.
+    ViewsReorderRequest:
+      properties:
+        view_ids:
+          items:
+            type: string
+          type: array
+          title: View Ids
+      type: object
+      required:
+      - view_ids
+      title: ViewsReorderRequest
+      description: "Request model for reordering a project's views.\n\nAttributes:\n    view_ids: The full ordered list of view ids; must be an exact\n        permutation of the project's current view ids."
+    NativeToolSearchCallPart:
+      properties:
+        tool_name:
+          type: string
+          const: tool_search
+          title: Tool Name
+          default: tool_search
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ToolSearchArgs'
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-call
+          title: Part Kind
+          default: builtin-tool-call
+      type: object
+      title: NativeToolSearchCallPart
+      description: 'Typed view of a [`NativeToolCallPart`][pydantic_ai.messages.NativeToolCallPart] for tool search.
+
+
+        Used on the native server-side tool-search path (Anthropic BM25/regex, OpenAI
+
+        Responses) where the provider executes the search and emits a native result.
+
+        The local-fallback path uses
+
+        [`ToolSearchCallPart`][pydantic_ai.messages.ToolSearchCallPart] instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `args` with a narrower type. The `str` variant covers the
+
+        streaming / partial-args case before parsing completes; once parsed,
+
+        `args` is a [`ToolSearchArgs`][pydantic_ai.messages.ToolSearchArgs]
+
+        `TypedDict`.'
+    ChatUserInfo:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+      type: object
+      title: ChatUserInfo
+      description: Sender info for chat message attribution.
+    ProjectPlan:
+      properties:
+        plan_name:
+          type: string
+          title: Plan Name
+          description: 'Name for this analysis plan. Use ''Geography — Description'' format: lead with the location, em dash, then the topic (e.g., ''Denver, CO — Owner Occupied Parcels'')'
+        geography:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geography
+          description: The project's geography as a short human-readable label (e.g. 'Denver, CO', 'Maricopa County, AZ') — the same location that leads plan_name. Surfaced in the UI; set it whenever the analysis is tied to a place, leave null when it isn't.
+        description:
+          type: string
+          title: Description
+          description: Overall description of what this plan accomplishes
+        layers:
+          items:
+            $ref: '#/components/schemas/LayerPlan'
+          type: array
+          title: Layers
+          description: All layers needed for this analysis, in dependency order
+        primary_layer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Primary Layer Name
+          description: Name of the primary layer — the entity the user will analyze, enrich, and act on. This layer is shown by default after project creation.
+        additional_project_info:
+          type: string
+          title: Additional Project Info
+          description: Additional context about the project including user's goals, role in company/identity, industry, and other helpful information for future context
+          default: ''
+        primary_layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Primary Layer Id
+          description: 'Return the layer_id of the primary layer.
+
+
+            Resolves primary_layer_name to a layer_id. Falls back to the last
+
+            layer for backward compatibility with plans created before this field.'
+          readOnly: true
+      type: object
+      required:
+      - plan_name
+      - description
+      - layers
+      - primary_layer_id
+      title: ProjectPlan
+      description: 'Tracks the current state of all layers in a project.
+
+
+        Initially created during project setup, then kept in sync as the agent
+
+        adds or removes layers. Used by the UI to
+
+        display a structured project overview. Not injected into agent context
+
+        for decision-making — agents use layer context instead.'
+    ViewUpdateResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        view:
+          $ref: '#/components/schemas/ViewModel-Output'
+      type: object
+      required:
+      - success
+      - view
+      title: ViewUpdateResponse
+      description: "Response model for updating a single view.\n\nAttributes:\n    success: Boolean indicating if the update was successful\n    view: The updated view model"
+    ShareLinkResponse:
+      properties:
+        share_url:
+          type: string
+          title: Share Url
+        share_token:
+          type: string
+          title: Share Token
+        is_active:
+          type: boolean
+          title: Is Active
+        view_count:
+          type: integer
+          title: View Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - share_url
+      - share_token
+      - is_active
+      - view_count
+      title: ShareLinkResponse
+      description: Response containing share link details for a project owner.
+    CachePoint:
+      properties:
+        kind:
+          type: string
+          const: cache-point
+          title: Kind
+          default: cache-point
+        ttl:
+          type: string
+          enum:
+          - 5m
+          - 1h
+          title: Ttl
+          default: 5m
+      type: object
+      title: CachePoint
+      description: 'A cache point marker for prompt caching.
+
+
+        Can be inserted into UserPromptPart.content to mark cache boundaries.
+
+        Models that don''t support caching will filter these out.
+
+
+        Supported by:
+
+
+        - Anthropic
+
+        - Amazon Bedrock (Converse API)
+
+        - OpenRouter (Anthropic and Gemini models)'
+    SpatialOperation:
+      properties:
+        operation:
+          $ref: '#/components/schemas/SpatialOperationType'
+          description: Type of PostGIS spatial operation to perform
+        distance_meters:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance Meters
+          description: Distance in meters for buffer operations
+      type: object
+      required:
+      - operation
+      title: SpatialOperation
+    CompactionPart:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: compaction
+          title: Part Kind
+          default: compaction
+      type: object
+      title: CompactionPart
+      description: 'A compaction part that summarizes previous conversation history.
+
+
+        Compaction parts contain an opaque or readable summary of prior messages,
+
+        produced by provider-specific compaction mechanisms. They must be round-tripped
+
+        back to the same provider in subsequent requests.
+
+
+        For Anthropic, `content` contains a readable text summary.
+
+        For OpenAI, `content` is `None` and the encrypted data is stored in `provider_details`.'
+    ChatHistorySchema:
+      properties:
+        project_id:
+          type: string
+          title: Project Id
+        chat_history:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: Chat History
+        active_run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Active Run Id
+          description: Workflow id of a currently-live chat run for this project, or None. Populated only when a run is genuinely in flight (DBOS ACTIVE) — the FE uses it to re-attach to the durable stream after a mid-run page refresh instead of showing static (pre-completion) history.
+        last_turn_continuable:
+          type: boolean
+          title: Last Turn Continuable
+          description: True when the most recent persisted turn failed terminally mid-way and left a continuable partial. The FE renders the Continue affordance on the last turn after a refresh, when the live partial_result terminal frame is no longer available.
+          default: false
+        selected_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selected Model
+          description: The chat's persisted model-picker selection (a curated picker key), or None for the default chain. Seeds the composer dropdown.
+      type: object
+      required:
+      - project_id
+      - chat_history
+      title: ChatHistorySchema
+      description: Schema for a single chat with its full history.
+    ProjectVisibilityUpdate:
+      type: string
+      enum:
+      - private
+      - workspace_read
+      - workspace_write
+      title: ProjectVisibilityUpdate
+      description: 'User-facing visibility options for updating project visibility.
+
+
+        Separate from ProjectVisibility to:
+
+        - Prevent setting visibility to ''example'' via the API
+
+        - Map ''private'' to None (NULL) in the database'
+    DateCondition:
+      properties:
+        filterType:
+          type: string
+          const: date
+          title: Filtertype
+          default: date
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - inRange
+          - equals
+          - notEqual
+          - lessThan
+          - greaterThan
+          - unavailable
+          title: Type
+        dateFrom:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Datefrom
+        dateTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dateto
+      type: object
+      required:
+      - type
+      title: DateCondition
+    CompoundFilter-Input:
+      properties:
+        filterType:
+          type: string
+          enum:
+          - text
+          - number
+          - set
+          - date
+          - boolean
+          title: Filtertype
+        operator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Operator
+        conditions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: array
+          title: Conditions
+        condition1:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition1
+        condition2:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition2
+      type: object
+      required:
+      - filterType
+      - operator
+      title: CompoundFilter
+    DocumentUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: document-url
+          title: Kind
+          default: document-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: DocumentUrl
+      description: The URL of the document.
+    RequestUsage:
+      properties:
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          default: 0
+        cache_write_tokens:
+          type: integer
+          title: Cache Write Tokens
+          default: 0
+        cache_read_tokens:
+          type: integer
+          title: Cache Read Tokens
+          default: 0
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          default: 0
+        input_audio_tokens:
+          type: integer
+          title: Input Audio Tokens
+          default: 0
+        cache_audio_read_tokens:
+          type: integer
+          title: Cache Audio Read Tokens
+          default: 0
+        output_audio_tokens:
+          type: integer
+          title: Output Audio Tokens
+          default: 0
+        details:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Details
+      type: object
+      title: RequestUsage
+      description: 'LLM usage associated with a single request.
+
+
+        This is an implementation of `genai_prices.types.AbstractUsage` so it can be used to calculate the price of the
+
+        request using [genai-prices](https://github.com/pydantic/genai-prices).'
+    ViewDeleteResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+          default: View deleted successfully
+      type: object
+      required:
+      - success
+      title: ViewDeleteResponse
+      description: "Response model for deleting a view.\n\nAttributes:\n    success: Boolean indicating if the deletion was successful\n    message: Optional message providing additional information"
+    ToolSearchArgs:
+      properties:
+        queries:
+          items:
+            type: string
+          type: array
+          title: Queries
+      type: object
+      required:
+      - queries
+      title: ToolSearchArgs
+      description: 'Typed arguments for a tool-search call.
+
+
+        Carried on
+
+        [`NativeToolSearchCallPart.args`][pydantic_ai.messages.NativeToolSearchCallPart.args]
+
+        (native server-side path) and
+
+        [`ToolSearchCallPart.args`][pydantic_ai.messages.ToolSearchCallPart.args]
+
+        (local-fallback path) as the canonical cross-provider shape. Each adapter
+
+        normalizes its provider''s wire format into this shape on parse, and rebuilds the
+
+        wire format from this shape on emit.'
+    FilePart:
+      properties:
+        content:
+          $ref: '#/components/schemas/BinaryContent'
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: file
+          title: Part Kind
+          default: file
+      type: object
+      required:
+      - content
+      title: FilePart
+      description: A file response from a model.
+    SetDefaultViewRequest:
+      properties:
+        view_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: View Id
+      type: object
+      title: SetDefaultViewRequest
+      description: "Request model for setting a project's durable default view.\n\nAttributes:\n    view_id: The view id to designate as the project default, or null to\n        clear it. A non-null id must be one of the project's current views."
+    AddressResolveResponse:
+      properties:
+        outcome:
+          $ref: '#/components/schemas/ResolutionOutcome'
+        candidates:
+          items:
+            $ref: '#/components/schemas/AddressCandidate'
+          type: array
+          title: Candidates
+      type: object
+      required:
+      - outcome
+      title: AddressResolveResponse
+      description: 'Ranked, label-hydrated candidates for one resolve. ``not_in_dataset``
+
+        means the reference isn''t in any county the workspace has loaded — the
+
+        surface reports "not in your coverage" rather than an empty dropdown.'
+    RetryPromptPart:
+      properties:
+        content:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ErrorDetails'
+            type: array
+          - type: string
+          title: Content
+        tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Name
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        part_kind:
+          type: string
+          const: retry-prompt
+          title: Part Kind
+          default: retry-prompt
+      type: object
+      required:
+      - content
+      title: RetryPromptPart
+      description: "A message back to a model asking it to try again.\n\nThis can be sent for a number of reasons:\n\n* Pydantic validation of tool arguments failed, here content is derived from a Pydantic\n  [`ValidationError`][pydantic_core.ValidationError]\n* a tool raised a [`ModelRetry`][pydantic_ai.exceptions.ModelRetry] exception\n* no tool was found for the tool name\n* the model returned plain text when a structured response was expected\n* Pydantic validation of a structured response failed, here content is derived from a Pydantic\n  [`ValidationError`][pydantic_core.ValidationError]\n* an output validator raised a [`ModelRetry`][pydantic_ai.exceptions.ModelRetry] exception"
+    BatchResolutionRow:
+      properties:
+        index:
+          type: integer
+          title: Index
+        query:
+          type: string
+          title: Query
+        kind:
+          $ref: '#/components/schemas/BatchOutcomeKind'
+        candidates:
+          items:
+            $ref: '#/components/schemas/AddressCandidate'
+          type: array
+          title: Candidates
+      type: object
+      required:
+      - index
+      - query
+      - kind
+      - candidates
+      title: BatchResolutionRow
+      description: 'One pasted row''s outcome for the review list. ``kind`` buckets the row
+
+        (matched / ambiguous / not_in_dataset / empty_input); ``candidates`` are the
+
+        ranked, label-hydrated matches (one for ``matched``, several for ``ambiguous``,
+
+        empty otherwise). ``index`` preserves the input row position.'
+    MapFilterModel:
+      properties:
+        geometries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Geometries
+        type:
+          type: string
+          const: intersects
+          title: Type
+      type: object
+      required:
+      - geometries
+      - type
+      title: MapFilterModel
+      description: Model for a map filter (spatial filter)
+    ToolSearchCallPart:
+      properties:
+        tool_name:
+          type: string
+          const: search_tools
+          title: Tool Name
+          default: search_tools
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ToolSearchArgs'
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      title: ToolSearchCallPart
+      description: 'Typed view of a [`ToolCallPart`][pydantic_ai.messages.ToolCallPart] for the local `search_tools` function call.
+
+
+        Used on the local-fallback path (and as the synthetic-injection target on
+
+        non-native providers receiving cross-provider history). The native server-side
+
+        path uses
+
+        [`NativeToolSearchCallPart`][pydantic_ai.messages.NativeToolSearchCallPart]
+
+        instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `args` with the canonical typed shape. The `str` variant covers the
+
+        streaming / partial-args case before parsing completes; once parsed,
+
+        `args` is a [`ToolSearchArgs`][pydantic_ai.messages.ToolSearchArgs]
+
+        `TypedDict`.'
+    ModelRequest:
+      properties:
+        parts:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SystemPromptPart'
+            - $ref: '#/components/schemas/UserPromptPart'
+            - $ref: '#/components/schemas/ToolSearchReturnPart'
+            - $ref: '#/components/schemas/LoadCapabilityReturnPart'
+            - $ref: '#/components/schemas/ToolReturnPart'
+            - $ref: '#/components/schemas/RetryPromptPart'
+          type: array
+          title: Parts
+        timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Timestamp
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        kind:
+          type: string
+          const: request
+          title: Kind
+          default: request
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - parts
+      title: ModelRequest
+      description: A request generated by Pydantic AI and sent to a model, e.g. a message from the Pydantic AI app to the model.
+    ProjectUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+          description: New name for the project
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+          description: New description for the project
+        visibility:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectVisibilityUpdate'
+          - type: 'null'
+          description: 'Project visibility: ''private'' (only owner), ''workspace_read'' (team can view), or ''workspace_write'' (team writers can edit)'
+      type: object
+      title: ProjectUpdate
+      description: "Request model for updating a project's basic information.\n\nAttributes:\n    name: Optional new name for the project\n    description: Optional new description for the project\n    visibility: Optional new visibility ('private', 'workspace_read', or 'workspace_write')"
+    SourceTable:
+      type: string
+      enum:
+      - parcel
+      - building
+      - place
+      - address
+      title: SourceTable
+      description: 'The table a resolved feature lives in — what a caller pulls its data from,
+
+        and the feature''s kind. A text match in the ``address`` or ``place`` table
+
+        resolves (point-in-feature) to a ``parcel``/``building``; a ``parcel`` attribute
+
+        match resolves to the parcel itself.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    VideoUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: video-url
+          title: Kind
+          default: video-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: VideoUrl
+      description: A URL to a video.
+    AddressCreateFlowRequest:
+      properties:
+        source_table:
+          $ref: '#/components/schemas/SourceTable'
+        feature_id:
+          type: string
+          title: Feature Id
+      type: object
+      required:
+      - source_table
+      - feature_id
+      title: AddressCreateFlowRequest
+      description: 'Create a sandbox project from a confirmed resolved feature reference.
+
+
+        The FE confirm card holds only ``(source_table, feature_id)`` — the server
+
+        derives the county scope from the matched feature and provisions the
+
+        RLS-scoped project, since the FE can''t do either.'
+    ViewUpdateModel:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        layerFilters:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                oneOf:
+                - $ref: '#/components/schemas/CompoundFilter-Input'
+                - oneOf:
+                  - $ref: '#/components/schemas/TextCondition'
+                  - $ref: '#/components/schemas/NumberCondition'
+                  - $ref: '#/components/schemas/SetCondition'
+                  - $ref: '#/components/schemas/DateCondition'
+                  - $ref: '#/components/schemas/BooleanCondition'
+                  discriminator:
+                    propertyName: filterType
+                    mapping:
+                      boolean: '#/components/schemas/BooleanCondition'
+                      date: '#/components/schemas/DateCondition'
+                      number: '#/components/schemas/NumberCondition'
+                      set: '#/components/schemas/SetCondition'
+                      text: '#/components/schemas/TextCondition'
+              type: object
+            type: object
+          - type: 'null'
+          title: Layerfilters
+        mapFilters:
+          anyOf:
+          - $ref: '#/components/schemas/MapFilterModel'
+          - type: 'null'
+        layerColumnVisibility:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: boolean
+              type: object
+            type: object
+          - type: 'null'
+          title: Layercolumnvisibility
+        layerColumnOrder:
+          anyOf:
+          - additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+          - type: 'null'
+          title: Layercolumnorder
+        layerColumnPinned:
+          anyOf:
+          - additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+          - type: 'null'
+          title: Layercolumnpinned
+        layerColumnSort:
+          anyOf:
+          - additionalProperties:
+              items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            type: object
+          - type: 'null'
+          title: Layercolumnsort
+        layerColumnWidths:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: integer
+              type: object
+            type: object
+          - type: 'null'
+          title: Layercolumnwidths
+        layerGroupByColumn:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - type: 'null'
+            type: object
+          - type: 'null'
+          title: Layergroupbycolumn
+        layerVisibility:
+          anyOf:
+          - additionalProperties:
+              type: boolean
+            type: object
+          - type: 'null'
+          title: Layervisibility
+        layerViz:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Layerviz
+        basemap:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Basemap
+        currentLayerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Currentlayerid
+        isEditable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Iseditable
+        showFavoritesOnly:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Showfavoritesonly
+      type: object
+      required:
+      - id
+      title: ViewUpdateModel
+      description: Model for partial view updates - all fields optional except id.
+    AddressCandidate:
+      properties:
+        source_table:
+          $ref: '#/components/schemas/SourceTable'
+        feature_id:
+          type: string
+          title: Feature Id
+        label:
+          type: string
+          title: Label
+        similarity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Similarity
+        matched_via:
+          type: string
+          title: Matched Via
+      type: object
+      required:
+      - source_table
+      - feature_id
+      - label
+      - matched_via
+      title: AddressCandidate
+      description: 'One ranked candidate the confirm surface can render and hand back to
+
+        ``POST /project/sandbox/from-feature`` as ``(source_table, feature_id)``.
+
+
+        ``similarity`` is the raw match signal (1.0 for an exact/normalized match,
+
+        trigram score otherwise) and ``matched_via`` the ``table.column`` that
+
+        produced the hit — surfaces map these to qualitative quality labels rather
+
+        than showing a numeric confidence.'
+    ResolutionOutcome:
+      type: string
+      enum:
+      - matched
+      - not_in_dataset
+      - not_loaded_county
+      title: ResolutionOutcome
+      description: 'Result classification. ``not_loaded_county`` (a real reference in a county
+
+        this workspace hasn''t loaded) is reserved for the forward-geocoder path, the
+
+        only place able to confirm a reference is real and name its county.'
+    LoadCapabilityReturnPart:
+      properties:
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_name:
+          type: string
+          const: load_capability
+          title: Tool Name
+          default: load_capability
+        content:
+          $ref: '#/components/schemas/LoadCapabilityReturn'
+        tool_kind:
+          type: string
+          const: capability-load
+          title: Tool Kind
+          default: capability-load
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - content
+      title: LoadCapabilityReturnPart
+      description: Typed `ToolReturnPart` for the `load_capability` tool.
+    UploadedFile:
+      properties:
+        file_id:
+          type: string
+          title: File Id
+        provider_name:
+          type: string
+          enum:
+          - anthropic
+          - openai
+          - google
+          - google-cloud
+          - google-gla
+          - google-vertex
+          - bedrock
+          - xai
+          title: Provider Name
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: uploaded-file
+          title: Kind
+          default: uploaded-file
+        media_type:
+          type: string
+          title: Media Type
+          description: 'Return the media type of the file, inferred from `file_id` if not explicitly provided.
+
+
+            Note: Inference relies on the file extension in `file_id`.
+
+            For opaque file IDs (e.g., `''file-abc123''`), the media type will default to `''application/octet-stream''`.
+
+            Inference relies on Python''s `mimetypes` module, whose results may vary across platforms.
+
+
+            Required by some providers (e.g., Bedrock) for certain file types.'
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `UploadedFile`.
+
+
+            This identifier is only automatically passed to the model when the `UploadedFile` is returned by a tool.
+
+            If you''re passing the `UploadedFile` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `UploadedFile`.'
+          readOnly: true
+      type: object
+      required:
+      - file_id
+      - provider_name
+      - media_type
+      - identifier
+      title: UploadedFile
+      description: 'A reference to a file uploaded to a provider''s file storage by ID.
+
+
+        This allows referencing files that have been uploaded via provider-specific file APIs
+
+        rather than providing the file content directly.
+
+
+        Supported by:
+
+
+        - [`AnthropicModel`][pydantic_ai.models.anthropic.AnthropicModel]
+
+        - [`OpenAIChatModel`][pydantic_ai.models.openai.OpenAIChatModel]
+
+        - [`OpenAIResponsesModel`][pydantic_ai.models.openai.OpenAIResponsesModel]
+
+        - [`BedrockConverseModel`][pydantic_ai.models.bedrock.BedrockConverseModel]
+
+        - [`GoogleModel`][pydantic_ai.models.google.GoogleModel] (Gemini API: [Files API](https://ai.google.dev/gemini-api/docs/files) URIs, Google Cloud: GCS `gs://` URIs)
+
+        - [`XaiModel`][pydantic_ai.models.xai.XaiModel]'
+    ThumbnailBounds:
+      properties:
+        min_lon:
+          type: number
+          title: Min Lon
+        min_lat:
+          type: number
+          title: Min Lat
+        max_lon:
+          type: number
+          title: Max Lon
+        max_lat:
+          type: number
+          title: Max Lat
+      type: object
+      required:
+      - min_lon
+      - min_lat
+      - max_lon
+      - max_lat
+      title: ThumbnailBounds
+      description: 'Bounding box for project thumbnail map rendering.
+
+
+        Represents the geographic extent of project features for generating
+
+        static map thumbnails via Mapbox.'
+    SystemPromptPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        dynamic_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dynamic Ref
+        part_kind:
+          type: string
+          const: system-prompt
+          title: Part Kind
+          default: system-prompt
+      type: object
+      required:
+      - content
+      title: SystemPromptPart
+      description: 'A system prompt, generally written by the application developer.
+
+
+        This gives the model context and guidance on how to respond.'
+    NativeToolCallPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        args:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-call
+          title: Part Kind
+          default: builtin-tool-call
+      type: object
+      required:
+      - tool_name
+      title: NativeToolCallPart
+      description: "A tool call to a native tool.\n\nFor native tools with a stable cross-provider shape (currently `tool_search`), this base\nclass can be promoted to a typed subclass with a narrowed `args` `TypedDict`. See\n[`NativeToolSearchCallPart`][pydantic_ai.messages.NativeToolSearchCallPart] for the\ncanonical example.\n\nAdding a typed subclass for a future native tool (see `pydantic_ai._tool_search` for\na worked example):\n\n1. Add a sibling `pydantic_ai/_<name>.py` module that defines the cross-provider\n   `TypedDict`s, the `NativeToolCallPart` / `NativeToolReturnPart` subclasses,\n   and registers their narrowers into `_NATIVE_CALL_NARROWERS` /\n   `_NATIVE_RETURN_NARROWERS` keyed by `tool_kind`. Subclass overrides\n   `tool_kind: Literal['<emitter>']` to match the emitting\n   [`AbstractNativeTool.kind`][pydantic_ai.native_tools.AbstractNativeTool.kind],\n   and shadows `args` / `content` with a narrower type.\n2. Late-import the new module from this file (alongside the existing tool-search\n   import) so registration runs whenever `pydantic_ai.messages` is imported.\n3. Add the subclass to `ModelResponsePart`'s discriminated union and to\n   `_model_response_part_discriminator` so Pydantic deserialization auto-promotes\n   on `model_validate` / `model_validate_json`.\n\nDispatch is by `tool_kind`, not `tool_name`. This protects users whose tools happen to\nshare a name with one of ours from accidentally getting their parts promoted (and\nfailing shape validation against the typed `args`/`content`).\n\nThe `provider_details` field carries genuinely non-portable provider extras\n(e.g. Anthropic's `strategy: 'bm25' | 'regex'` for tool search). Promote a field\nto a typed slot in `args` / `content` only when at least two of OpenAI, Anthropic,\nand Google support it (cf. [issue #3885](https://github.com/pydantic/pydantic-ai/issues/3885)).\n\nMCP server tools land here with `tool_kind='mcp_server'` (label stays in\n`tool_name='mcp_server:<label>'`); typed-subclass work for MCP is tracked by\n[issue #3561](https://github.com/pydantic/pydantic-ai/issues/3561)."
+    ProjectVisibility:
+      type: string
+      enum:
+      - example
+      - workspace_read
+      - workspace_write
+      title: ProjectVisibility
+      description: 'Visibility status for projects.
+
+
+        NULL/None = private (default, only owner can see)
+
+        WORKSPACE_READ = visible to all workspace members (read-only)
+
+        WORKSPACE_WRITE = editable by workspace writers
+
+        EXAMPLE = curated example project visible to all users'
+    ImageUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: image-url
+          title: Kind
+          default: image-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: ImageUrl
+      description: A URL to an image.
+    ViewCreateRequest:
+      properties:
+        view:
+          $ref: '#/components/schemas/ViewModel-Input'
+      type: object
+      required:
+      - view
+      title: ViewCreateRequest
+      description: "Request model for creating a new view.\n\nAttributes:\n    view: The view to create"
+    LoadCapabilityCallPart:
+      properties:
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_name:
+          type: string
+          const: load_capability
+          title: Tool Name
+          default: load_capability
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/LoadCapabilityArgs'
+          - type: 'null'
+          title: Args
+        tool_kind:
+          type: string
+          const: capability-load
+          title: Tool Kind
+          default: capability-load
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      title: LoadCapabilityCallPart
+      description: Typed `ToolCallPart` for the `load_capability` tool.
+    NativeToolSearchReturnPart:
+      properties:
+        tool_name:
+          type: string
+          const: tool_search
+          title: Tool Name
+          default: tool_search
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        content:
+          $ref: '#/components/schemas/ToolSearchReturnContent'
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-return
+          title: Part Kind
+          default: builtin-tool-return
+      type: object
+      required:
+      - content
+      title: NativeToolSearchReturnPart
+      description: 'Typed view of a [`NativeToolReturnPart`][pydantic_ai.messages.NativeToolReturnPart] for tool search.
+
+
+        Used on the native server-side tool-search path (Anthropic BM25/regex, OpenAI
+
+        Responses) where the provider executes the search and emits a native result.
+
+        The local-fallback path uses
+
+        [`ToolSearchReturnPart`][pydantic_ai.messages.ToolSearchReturnPart] instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `content` with a narrower
+
+        [`ToolSearchReturnContent`][pydantic_ai.messages.ToolSearchReturnContent]
+
+        `TypedDict`.'
+    ToolSearchReturnContent:
+      properties:
+        discovered_tools:
+          items:
+            $ref: '#/components/schemas/ToolSearchMatch'
+          type: array
+          title: Discovered Tools
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - discovered_tools
+      title: ToolSearchReturnContent
+      description: 'Typed return value of the framework-managed tool-search builtin.
+
+
+        Carried on
+
+        [`NativeToolSearchReturnPart.content`][pydantic_ai.messages.NativeToolSearchReturnPart.content]
+
+        (native server-side path) and
+
+        [`ToolSearchReturnPart.content`][pydantic_ai.messages.ToolSearchReturnPart.content]
+
+        (local-fallback path) as the canonical cross-provider shape.'
+    BooleanCondition:
+      properties:
+        filterType:
+          type: string
+          const: boolean
+          title: Filtertype
+          default: boolean
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - equals
+          - notEqual
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: BooleanCondition
+    AddressProjectResponse:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+        county_fips:
+          type: string
+          title: County Fips
+      type: object
+      required:
+      - project_id
+      - status
+      - county_fips
+      title: AddressProjectResponse
+      description: 'Response for the address create-flow.
+
+
+        ``status`` is always ``pending`` at sync-response time; the async DBOS seed
+
+        flips it to ``ready``/``failed`` and the seeded layer arrives via the
+
+        ``LayerStateChangedEvent`` SSE. ``county_fips`` is the 5-digit scope derived
+
+        from the matched feature.'
+    SandboxProjectRequest:
+      properties:
+        county_fips:
+          type: string
+          maxLength: 5
+          minLength: 5
+          title: County Fips
+          description: 5-digit US county FIPS code (e.g. '12103' for Pinellas, FL)
+      type: object
+      required:
+      - county_fips
+      title: SandboxProjectRequest
+      description: 'Single-click county sandbox entry. Caller passes the FIPS code of a
+
+        county already loaded into their workspace; server creates the project +
+
+        boundary layer atomically.'
+    SandboxWarmCountyResponse:
+      properties:
+        county_fips:
+          type: string
+          title: County Fips
+        ready:
+          type: boolean
+          title: Ready
+          default: true
+      type: object
+      required:
+      - county_fips
+      title: SandboxWarmCountyResponse
+      description: 'Confirms the workspace-shared county boundary MV is queryable.
+
+
+        Returned synchronously — the response shipping means the MV exists
+
+        in Neon. The picker is free to navigate the user into a sandbox
+
+        project for the same county without waiting on the create-project
+
+        background task to rebuild it.'
+    LoadCapabilityReturn:
+      properties:
+        instructions:
+          type: string
+          title: Instructions
+      type: object
+      title: LoadCapabilityReturn
+      description: Typed return value for the `load_capability` tool.
+    LayerPlan:
+      properties:
+        layer_name:
+          type: string
+          title: Layer Name
+          description: 'Descriptive name for this layer. For parcel and building layers, use type-first format: ''Parcels - {description}'' or ''Buildings - {description}'' (e.g., ''Parcels - Commercial'', ''Buildings - Large Commercial''). For other layers, use plain names (e.g., ''Schools'', ''Denver, CO Boundary''). Do not include spatial relationships in the name.'
+        description:
+          type: string
+          title: Description
+          description: Detailed description of what this layer contains and its purpose
+        table_name:
+          type: string
+          title: Table Name
+          description: Overture Maps table name to use for this layer
+        spatial_filters:
+          items:
+            $ref: '#/components/schemas/SpatialFilterSpec'
+          type: array
+          title: Spatial Filters
+          description: Spatial filters defining how this layer relates to other layers. Each filter specifies a reference layer and a spatial operation (INTERSECTS, BUFFER, DISJOINT). Empty list only for the starting geometry layer.
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+          description: RGBA color string for this layer's default style (e.g., 'rgba(54, 162, 235, 0.5)')
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+          description: Unique identifier for this layer (database UUID)
+      type: object
+      required:
+      - layer_name
+      - description
+      - table_name
+      - layer_id
+      title: LayerPlan
+      description: A plan for creating a single layer as part of a larger spatial analysis.
+    TextCondition:
+      properties:
+        filterType:
+          type: string
+          const: text
+          title: Filtertype
+          default: text
+        type:
+          type: string
+          enum:
+          - contains
+          - notContains
+          - equals
+          - notEqual
+          - startsWith
+          - endsWith
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: TextCondition
+    ToolReturnPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        content:
+          $ref: '#/components/schemas/ToolReturnContent'
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - tool_name
+      - content
+      title: ToolReturnPart
+      description: A tool return message, this encodes the result of running a tool.
+    SandboxProjectResponse:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+      type: object
+      required:
+      - project_id
+      title: SandboxProjectResponse
+      description: 'Response carrying the new project''s id so the client can navigate
+
+        straight into it.
+
+
+        The boundary layer is built asynchronously on a Celery worker — its
+
+        ``layer_id`` is not known at response time. The project page polls the
+
+        project until ``status`` flips from ``pending`` to ``ready`` or
+
+        ``failed`` and then refetches the layer list to discover the boundary.'
+    ViewUpdateRequest:
+      properties:
+        view:
+          $ref: '#/components/schemas/ViewUpdateModel'
+        expected_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Expected Version
+      type: object
+      required:
+      - view
+      title: ViewUpdateRequest
+      description: "Request model for updating a single view with partial updates.\n\nAttributes:\n    view: Partial view data with only the fields to update\n    expected_version: The view ``version`` the client's edit is based on.\n        When set, the write is compare-and-set: a stale base raises 409\n        instead of silently overwriting a newer same-view edit."
+    SetCondition:
+      properties:
+        filterType:
+          type: string
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
+      type: object
+      title: SetCondition
+    NumberCondition:
+      properties:
+        filterType:
+          type: string
+          const: number
+          title: Filtertype
+          default: number
+        type:
+          type: string
+          enum:
+          - equals
+          - notEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - lessThan
+          - lessThanOrEqual
+          - inRange
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filter
+        filterTo:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filterto
+        units:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Units
+      type: object
+      required:
+      - type
+      title: NumberCondition
+    ViewsReorderResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        views:
+          items:
+            $ref: '#/components/schemas/ViewModel-Output'
+          type: array
+          title: Views
+      type: object
+      required:
+      - success
+      - views
+      title: ViewsReorderResponse
+      description: "Response model for reordering a project's views.\n\nAttributes:\n    success: Boolean indicating if the reorder was successful\n    views: The views in their new order"
+    AddressFeatureGeometryResponse:
+      properties:
+        geometry:
+          additionalProperties: true
+          type: object
+          title: Geometry
+        bbox:
+          prefixItems:
+          - type: number
+          - type: number
+          - type: number
+          - type: number
+          type: array
+          maxItems: 4
+          minItems: 4
+          title: Bbox
+      type: object
+      required:
+      - geometry
+      - bbox
+      title: AddressFeatureGeometryResponse
+      description: 'Drawable shape for one candidate: GeoJSON ``geometry`` plus its envelope
+
+        ``bbox`` ``(min_lng, min_lat, max_lng, max_lat)`` so the confirm card can
+
+        draw the boundary and frame the camera in one request.'
+    TextContent:
+      properties:
+        content:
+          type: string
+          title: Content
+        metadata:
+          title: Metadata
+        kind:
+          type: string
+          const: text-content
+          title: Kind
+          default: text-content
+      type: object
+      required:
+      - content
+      title: TextContent
+      description: 'String content that is tagged with additional metadata.
+
+
+        This is useful for including metadata that can be accessed programmatically by the application, but is not sent to the LLM.'
+    SpatialFilterSpec:
+      properties:
+        reference_layer_name:
+          type: string
+          title: Reference Layer Name
+          description: Name of the layer to filter against
+        spatial_operation:
+          $ref: '#/components/schemas/SpatialOperation'
+          description: Spatial operation to apply (INTERSECTS, BUFFER, DISJOINT)
+      type: object
+      required:
+      - reference_layer_name
+      - spatial_operation
+      title: SpatialFilterSpec
+      description: 'A single spatial filter that references another layer with a spatial operation.
+
+
+        Used in layer plans to specify how a layer relates spatially to other layers.
+
+        Replaces the old pattern of separate geographic_bounds_layer_id + reference_layer_name.'
+    ToolCallPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        args:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      required:
+      - tool_name
+      title: ToolCallPart
+      description: A tool call from a model.
+    TextPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: text
+          title: Part Kind
+          default: text
+      type: object
+      required:
+      - content
+      title: TextPart
+      description: A plain text response from a model.
+    ShareRevokeResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+      type: object
+      required:
+      - success
+      title: ShareRevokeResponse
+      description: Response for DELETE (revoke) share link.
+    ShareInfoResponse:
+      properties:
+        is_shared:
+          type: boolean
+          title: Is Shared
+        share:
+          anyOf:
+          - $ref: '#/components/schemas/ShareLinkResponse'
+          - type: 'null'
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        workspace_member_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workspace Member Count
+        workspace_visibility:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Visibility
+        restricted_layer_names:
+          items:
+            type: string
+          type: array
+          title: Restricted Layer Names
+      type: object
+      required:
+      - is_shared
+      title: ShareInfoResponse
+      description: 'Response for GET share info.
+
+
+        Three possible states:
+
+        - Never shared: is_shared=False, share=None
+
+        - Previously shared (revoked): is_shared=False, share={is_active: False, ...}
+
+        - Currently shared: is_shared=True, share={is_active: True, ...}
+
+
+        Optional workspace context (for share dialog):
+
+        - workspace_name, workspace_member_count, workspace_visibility'
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

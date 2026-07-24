@@ -1,0 +1,102 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah favorite API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: favorite
+paths:
+  /api/v1/favorite/{project_id}:
+    get:
+      tags:
+      - favorite
+      summary: Get Project Favorites
+      description: Get current user's favorited feature IDs for a project.
+      operationId: get_project_favorites_api_v1_favorite__project_id__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+                title: Response Get Project Favorites Api V1 Favorite  Project Id  Get
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/favorite/{project_id}/{feature_id}:
+    post:
+      tags:
+      - favorite
+      summary: Toggle Favorite
+      description: Toggle a row favorite. Returns the new favorited state.
+      operationId: toggle_favorite_api_v1_favorite__project_id___feature_id__post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: feature_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          title: Feature Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+                title: Response Toggle Favorite Api V1 Favorite  Project Id   Feature Id  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

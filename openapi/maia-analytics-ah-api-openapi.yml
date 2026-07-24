@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: Ah
+paths:
+  /_ah/ready:
+    get:
+      summary: Ready
+      operationId: ready__ah_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadyResponse'
+      tags:
+      - Ah
+components:
+  schemas:
+    ReadyResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - status
+      title: ReadyResponse
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

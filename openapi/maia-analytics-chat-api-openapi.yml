@@ -1,0 +1,5627 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah chat API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: chat
+paths:
+  /api/v1/chat/feedback:
+    post:
+      tags:
+      - chat
+      summary: Submit Chat Feedback
+      description: "Receives and processes feedback for a specific chat message via the ChatService.\n\nArgs:\n    request: The feedback request data.\n    chat_service: The ChatService instance (dependency).\n\nReturns:\n    A confirmation response.\n\nRaises:\n    HTTPException: 400 if saving feedback fails (e.g., invalid data).\n    HTTPException: 500 for unexpected errors."
+      operationId: submit_chat_feedback_api_v1_chat_feedback_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatFeedbackRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatFeedbackResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/chat/models:
+    get:
+      tags:
+      - chat
+      summary: List Picker Models
+      description: 'Curated model-picker options for the chat composer dropdown.
+
+
+        Served from the backend registry so the client list cannot drift from the
+
+        keys ``ChatRequest.selected_model`` validates against. 404s when the
+
+        workspace''s model-picker toggle is off — off means the surface is absent.'
+      operationId: list_picker_models_api_v1_chat_models_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatModelsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/chat/stream:
+    post:
+      tags:
+      - chat
+      summary: Chat Main Agent
+      description: "Receives and processes a streaming chat request via the AgentService.\n\nThis endpoint streams the agent's response in real-time using Server-Sent Events.\n\nArgs:\n    request: The chat request data containing message and project_id (pre-validated).\n    agent_service: The AgentService instance (dependency).\n\nReturns:\n    StreamingResponse with Server-Sent Events containing streaming chat data.\n\nRaises:\n    HTTPException: 400 for validation errors.\n    HTTPException: 404 if project not found or user doesn't own it.\n    HTTPException: 500 for unexpected errors."
+      operationId: chat_main_agent_api_v1_chat_stream_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/chat/stream/resume:
+    post:
+      tags:
+      - chat
+      summary: Resume Chat Main Agent
+      description: 'Re-attach to a project''s in-flight chat run after a mid-stream refresh.
+
+
+        Read-only second reader: tails the existing workflow''s durable stream
+
+        (``read_stream`` replays from offset 0 → the full ordered sequence: the
+
+        user-message echo, every delta so far, then the terminal) WITHOUT starting
+
+        a run or claiming a slot. If no run is live the generator yields nothing; the
+
+        FE then sees no terminal and falls back to reloading persisted history (the
+
+        empty replay is the signal that the run finished and released its slot before
+
+        this reattach).'
+      operationId: resume_chat_main_agent_api_v1_chat_stream_resume_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatResumeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/chat/chat/interrupt:
+    post:
+      tags:
+      - chat
+      summary: Interrupt Chat
+      description: "Stop an in-flight chat run via the cooperative interrupt flag.\n\nStopping resolves the chat's ``active_workflow_id`` (liveness from the DBOS\nstatus row) and raises the single cooperative stop signal. The workflow\nobserves it at its next node boundary and finalizes normally — persisting\nthe sanitized partial turn, stamping last-edit, capturing the trace, and\nemitting the ``interrupted`` terminal — while in-flight tools observe the\nsame flag at their checkpoints and bail BEFORE committing DB side-effects.\nNo hard DBOS cancel is issued here: a hard cancel skips finalization and is\nonly seen at the next step boundary (tools would commit after Stop); it\nsurvives solely as the run monitor's escalation backstop for wedged runs.\n\nArgs:\n    request: The interrupt request containing project_id and reason (pre-validated).\n\nReturns:\n    ChatInterruptResponse with ``was_active`` True iff a live run was signalled.\n\nRaises:\n    HTTPException: 400 for an invalid project id; 500 for unexpected errors."
+      operationId: interrupt_chat_api_v1_chat_chat_interrupt_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatInterruptRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInterruptResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/chat/schemas:
+    get:
+      tags:
+      - chat
+      summary: Expose Schemas
+      description: 'Schema exposure endpoint for OpenAPI/TypeScript generation.
+
+        This endpoint is never called by the frontend but ensures all chat-related
+
+        schemas are included in the OpenAPI specification for type generation.'
+      operationId: expose_schemas_api_v1_chat_schemas_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaExposure'
+  /api/v1/chat/archives/{project_id}:
+    get:
+      tags:
+      - chat
+      summary: Get Chat Archives
+      description: Get archive metadata for a project's chat, without message bodies.
+      operationId: get_chat_archives_api_v1_chat_archives__project_id__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatArchiveMetadataResponseSchema'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/chat/archives/{project_id}/{archive_id}:
+    get:
+      tags:
+      - chat
+      summary: Get Chat Archive Content
+      description: 'Get one archive''s message bodies on demand, scoped to the project''s chat.
+
+
+        The archive UUID doubles as a strong ETag (content never changes once
+
+        written), so a matching ``If-None-Match`` short-circuits to 304 before the
+
+        expensive blob read. The validator is client-constructible from the URL,
+
+        so the short-circuit is gated on a cheap existence+scope check — a forged
+
+        validator for an out-of-scope or missing archive still 404s. Blob
+
+        validation is intentionally skipped on the 304 path: blobs are immutable
+
+        after write, so a validator for a corrupt archive cannot come from a real
+
+        200, and a fresh (unconditional) read still 422s.'
+      operationId: get_chat_archive_content_api_v1_chat_archives__project_id___archive_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: archive_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Archive Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveContentResponseSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ThinkingPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        signature:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signature
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: thinking
+          title: Part Kind
+          default: thinking
+      type: object
+      required:
+      - content
+      title: ThinkingPart
+      description: A thinking response from a model.
+    AudioUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: audio-url
+          title: Kind
+          default: audio-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: AudioUrl
+      description: A URL to an audio file.
+    AgeRange:
+      properties:
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max
+        is_approximate:
+          type: boolean
+          title: Is Approximate
+          default: true
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: The reasoning for the age range.
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+          description: The sources for the age range.
+      type: object
+      title: AgeRange
+      description: Age range from PDL. Can represent exact age (min == max) or range.
+    LayerStateChangedEvent:
+      properties:
+        type:
+          type: string
+          const: layer_state_changed
+          title: Type
+          default: layer_state_changed
+        projectId:
+          type: string
+          format: uuid
+          title: Projectid
+        layers:
+          items:
+            $ref: '#/components/schemas/LayerModel'
+          type: array
+          title: Layers
+          default: []
+        deletedLayerIds:
+          items:
+            type: string
+          type: array
+          title: Deletedlayerids
+          default: []
+      type: object
+      required:
+      - projectId
+      title: LayerStateChangedEvent
+      description: 'Fired after a layer metadata mutation commits (create / delete / rename /
+
+        restyle / recolor), over the same per-user channel — the layer sibling of
+
+        ``ViewStateChangedEvent``.
+
+
+        Payload-rich + version-stamped: the FE applies the carried layer(s) straight
+
+        to its React Query cache without a refetch round-trip, and uses each layer''s
+
+        ``metadata_version`` to discard stale or out-of-order events. Carries only the
+
+        *affected* layer(s) plus ``deletedLayerIds`` so the FE merges rather than
+
+        overwrites siblings.
+
+
+        Unlike views, the nested layers serialize in their **snake_case** wire shape —
+
+        ``LayerModel`` has no field aliases, and the FE reads the same snake_case keys
+
+        off ``GET /projects/{id}/layers`` through ``layerMappers.fromApiModel``. So no
+
+        ``field_serializer`` is needed here; the default dump is already the wire shape.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ChatStopReason:
+      type: string
+      enum:
+      - user_requested
+      - timeout
+      - lock_lost
+      title: ChatStopReason
+      description: 'Why a chat run was stopped — the cooperative flag''s reason taxonomy.
+
+
+        Carried in the Redis stop flag and, on the monitor''s escalation path, in the
+
+        durable stop event. ``USER_REQUESTED`` (and any unknown reason) synthesizes
+
+        the generic ``interrupted`` terminal; the two monitor-initiated reasons get
+
+        their specific error copy.'
+    StreamChatUserMessage:
+      properties:
+        type:
+          type: string
+          const: user_message
+          title: Type
+          default: user_message
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        content:
+          type: string
+          title: Content
+          description: The user's prompt text for this turn.
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+          description: Turn start, stamped once when the workflow first writes this event; durable-stream replay preserves the original value, so a reconnecting client anchors its elapsed-time display to the true start instead of the reconnect instant.
+      type: object
+      required:
+      - content
+      title: StreamChatUserMessage
+      description: 'The acting user''s prompt, emitted as the FIRST durable stream event.
+
+
+        The live sender already rendered its own message optimistically, so it
+
+        ignores this echo. A client that *reconnects* to an in-flight run (page
+
+        refresh mid-stream) has no optimistic bubble — it replays the durable stream
+
+        from offset 0 and renders the question from this event, then the deltas that
+
+        follow. This makes the stream the single source of truth for an in-progress
+
+        turn (persisted history only carries completed turns).'
+    SkillPlanPhase:
+      properties:
+        label:
+          type: string
+          maxLength: 200
+          title: Label
+          description: Short user-facing phase name, e.g. 'Filter parcels by zoning'.
+        status:
+          $ref: '#/components/schemas/SkillPlanPhaseStatus'
+          description: pending | in_progress | completed | skipped
+      type: object
+      required:
+      - label
+      - status
+      title: SkillPlanPhase
+    NativeToolReturnPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        content:
+          $ref: '#/components/schemas/ToolReturnContent'
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-return
+          title: Part Kind
+          default: builtin-tool-return
+      type: object
+      required:
+      - tool_name
+      - content
+      title: NativeToolReturnPart
+      description: 'A tool return message from a native tool.
+
+
+        For native tools with a stable cross-provider shape (currently `tool_search`), a
+
+        `NativeToolReturnPart` may be promoted to a typed subclass like
+
+        [`NativeToolSearchReturnPart`][pydantic_ai.messages.NativeToolSearchReturnPart]
+
+        with a narrowed `content` `TypedDict`. See `NativeToolCallPart` for the pattern.'
+    TenureRange:
+      properties:
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: The reasoning for the tenure range.
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+          description: The sources for the tenure range.
+      type: object
+      title: TenureRange
+      description: 'Job tenure range representing when someone started at their current position/company.
+
+
+        Used for employment duration (e.g., via PDL data).
+
+        Can represent exact year (min == max) or range of possible years.
+
+        Confidence is inferred: exact year = confirmed, range = approximate.'
+    PDLLocation:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        locality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locality
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        continent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Continent
+        metro:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metro
+        geo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geo
+        street_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Street Address
+        address_line_2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line 2
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+      type: object
+      title: PDLLocation
+      description: Location information from PDL.
+    StreamToolCallStart:
+      properties:
+        type:
+          type: string
+          const: tool_call_start
+          title: Type
+          default: tool_call_start
+        display:
+          type: string
+          const: tool_call_start
+          title: Display
+          default: tool_call_start
+        tool_name:
+          type: string
+          title: Tool Name
+          description: Name of the tool being called.
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+          description: Unique identifier for this tool call.
+        args:
+          additionalProperties: true
+          type: object
+          title: Args
+          description: Arguments passed to the tool.
+      type: object
+      required:
+      - tool_name
+      - tool_call_id
+      - args
+      title: StreamToolCallStart
+      description: Schema for when a tool call begins.
+    ColumnDataType:
+      type: string
+      enum:
+      - string
+      - number
+      - integer
+      - boolean
+      - date
+      - geometry
+      - array
+      - object
+      title: ColumnDataType
+      description: Optional frontend type hint for a layer column.
+    UnprocessableQueryReason:
+      type: string
+      enum:
+      - out_of_scope
+      - too_vague
+      - geographic_restrictions
+      - execution_blocked
+      title: UnprocessableQueryReason
+    OwnerResidentialMailingAddressModel:
+      properties:
+        street:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Street
+          description: Street line of the residential mailing address.
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+          description: City.
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+          description: Two-letter state code.
+        zip_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Zip Code
+          description: ZIP / postal code.
+        resolved_owner_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resolved Owner Name
+          description: The person this address belongs to. For an entity owner this is the decision-maker the entity was pierced to, not the entity itself.
+        owner_type:
+          type: string
+          enum:
+          - individual
+          - entity
+          - unknown
+          title: Owner Type
+          description: Whether the parcel owner is an individual or an entity.
+          default: unknown
+        is_available:
+          type: boolean
+          title: Is Available
+          description: True only when a reliable RESIDENTIAL mailing address was determined. False when only a business / registered-agent address was found — the caller must not persist a business address as a result.
+        confidence:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Confidence
+          description: Qualitative confidence (e.g. high / medium / low).
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+          description: Resolved owner's mobile phone, if known.
+        landline_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Landline Phone
+          description: Resolved owner's landline phone, if known.
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+          description: Resolved owner's email, if known.
+        company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company
+          description: Company inferred for the resolved owner (from work email domain), if any.
+      type: object
+      required:
+      - is_available
+      title: OwnerResidentialMailingAddressModel
+      description: A resolved residential mailing address for a parcel's decision-making owner.
+    ModelResponse:
+      properties:
+        parts:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextPart'
+            - $ref: '#/components/schemas/ToolSearchCallPart'
+            - $ref: '#/components/schemas/LoadCapabilityCallPart'
+            - $ref: '#/components/schemas/ToolCallPart'
+            - $ref: '#/components/schemas/NativeToolSearchCallPart'
+            - $ref: '#/components/schemas/NativeToolCallPart'
+            - $ref: '#/components/schemas/NativeToolSearchReturnPart'
+            - $ref: '#/components/schemas/NativeToolReturnPart'
+            - $ref: '#/components/schemas/ThinkingPart'
+            - $ref: '#/components/schemas/CompactionPart'
+            - $ref: '#/components/schemas/FilePart'
+          type: array
+          title: Parts
+        usage:
+          $ref: '#/components/schemas/RequestUsage'
+        model_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        kind:
+          type: string
+          const: response
+          title: Kind
+          default: response
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Url
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        provider_response_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Response Id
+        finish_reason:
+          anyOf:
+          - type: string
+            enum:
+            - stop
+            - length
+            - content_filter
+            - tool_call
+            - error
+          - type: 'null'
+          title: Finish Reason
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        state:
+          type: string
+          enum:
+          - complete
+          - incomplete
+          - interrupted
+          title: State
+          default: complete
+      type: object
+      required:
+      - parts
+      title: ModelResponse
+      description: A response from a model, e.g. a message from the model to the Pydantic AI app.
+    EnrichmentStatusChangedEvent:
+      properties:
+        type:
+          type: string
+          const: enrichment_status_changed
+          title: Type
+          default: enrichment_status_changed
+        workflow_id:
+          type: string
+          title: Workflow Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+        feature_id:
+          type: string
+          title: Feature Id
+        status:
+          type: string
+          enum:
+          - SUCCESS
+          - FAILURE
+          title: Status
+        value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - workflow_id
+      - project_id
+      - enrichment_id
+      - feature_id
+      - status
+      title: EnrichmentStatusChangedEvent
+      description: "Fired when one enrichment workflow reaches a terminal state.\n\nUnlike ``CreditStateChangedEvent`` this is payload-rich. It carries:\n\n- ``workflow_id`` — the client registry's key; routes the event to the\n  cell/column it belongs to.\n- ``project_id`` / ``enrichment_id`` / ``feature_id`` — the coordinates,\n  so an event for a workflow the client didn't dispatch in this session\n  (e.g. after a reload, before reconcile) can still build a registry\n  entry from the event alone.\n- ``value`` — on SUCCESS, the persisted ``EnrichRowResponse``-shaped dict\n  (``{value, reasoning, citations, state}``) built from the SAME\n  ``db_value`` written to the sandbox, so the live cell is byte-identical\n  to what a refresh re-reads. ``None`` on FAILURE (no value was written).\n\nThe terminal-status policy lives on the server (the workflow's own\nterminal state), not on the client — so the client can no longer drift a\ntransient signal into a false terminal (the bug class this replaces)."
+    ToolSearchReturnPart:
+      properties:
+        tool_name:
+          type: string
+          const: search_tools
+          title: Tool Name
+          default: search_tools
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        content:
+          $ref: '#/components/schemas/ToolSearchReturnContent'
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - content
+      title: ToolSearchReturnPart
+      description: 'Typed view of a [`ToolReturnPart`][pydantic_ai.messages.ToolReturnPart] for the local `search_tools` function return.
+
+
+        Used on the local-fallback path (and as the synthetic-injection target on
+
+        non-native providers receiving cross-provider history). The native server-side
+
+        path uses
+
+        [`NativeToolSearchReturnPart`][pydantic_ai.messages.NativeToolSearchReturnPart]
+
+        instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `content` with a narrower
+
+        [`ToolSearchReturnContent`][pydantic_ai.messages.ToolSearchReturnContent]
+
+        `TypedDict`.'
+    StreamWebSearchStatus:
+      properties:
+        type:
+          type: string
+          const: web_search_status
+          title: Type
+          default: web_search_status
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        status:
+          type: string
+          title: Status
+          description: Status of the web search operation.
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+          description: Unique identifier for this tool call.
+        content:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Content
+          description: Additional status data if available.
+      type: object
+      required:
+      - status
+      - tool_call_id
+      title: StreamWebSearchStatus
+      description: Schema for web search status updates from built-in tools.
+    ChatModelOption:
+      properties:
+        key:
+          type: string
+          title: Key
+        label:
+          type: string
+          title: Label
+        is_default:
+          type: boolean
+          title: Is Default
+      type: object
+      required:
+      - key
+      - label
+      - is_default
+      title: ChatModelOption
+      description: One curated model-picker option (see GET /chat/models).
+    UserPromptPart:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - items:
+              anyOf:
+              - type: string
+              - $ref: '#/components/schemas/TextContent'
+              - oneOf:
+                - $ref: '#/components/schemas/ImageUrl'
+                - $ref: '#/components/schemas/AudioUrl'
+                - $ref: '#/components/schemas/DocumentUrl'
+                - $ref: '#/components/schemas/VideoUrl'
+                - $ref: '#/components/schemas/BinaryContent'
+                - $ref: '#/components/schemas/UploadedFile'
+                discriminator:
+                  propertyName: kind
+                  mapping:
+                    audio-url: '#/components/schemas/AudioUrl'
+                    binary: '#/components/schemas/BinaryContent'
+                    document-url: '#/components/schemas/DocumentUrl'
+                    image-url: '#/components/schemas/ImageUrl'
+                    uploaded-file: '#/components/schemas/UploadedFile'
+                    video-url: '#/components/schemas/VideoUrl'
+              - $ref: '#/components/schemas/CachePoint'
+            type: array
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        part_kind:
+          type: string
+          const: user-prompt
+          title: Part Kind
+          default: user-prompt
+      type: object
+      required:
+      - content
+      title: UserPromptPart
+      description: 'A user prompt, generally written by the end user.
+
+
+        Content comes from the `user_prompt` parameter of [`Agent.run`][pydantic_ai.agent.AbstractAgent.run],
+
+        [`Agent.run_sync`][pydantic_ai.agent.AbstractAgent.run_sync], and [`Agent.run_stream`][pydantic_ai.agent.AbstractAgent.run_stream].'
+    ResourceType:
+      type: string
+      enum:
+      - enrichment
+      - layer
+      - view
+      title: ResourceType
+      description: Enum for different resource types that can be referenced in chat.
+    MortgageOpenLien:
+      properties:
+        loan_amount:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Loan Amount
+        lender_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lender Name
+        lender_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lender Type
+        recording_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recording Date
+        due_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Due Date
+        loan_term_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Loan Term Months
+        loan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Loan Type
+        financing_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Financing Type
+        ltv:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ltv
+        current_estimated_balance:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Current Estimated Balance
+        current_estimated_interest_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Estimated Interest Rate
+        estimated_payment_amount:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Payment Amount
+        heloc_flag:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Heloc Flag
+        private_lender:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Private Lender
+      type: object
+      title: MortgageOpenLien
+      description: One currently-open mortgage against the property.
+    ArchiveContentResponseSchema:
+      properties:
+        archived_messages:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: Archived Messages
+          description: The validated archived messages for one archive.
+      type: object
+      required:
+      - archived_messages
+      title: ArchiveContentResponseSchema
+      description: Schema for one archive's message bodies, fetched on demand.
+    PDLProfile:
+      properties:
+        network:
+          type: string
+          title: Network
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Username
+      type: object
+      required:
+      - network
+      title: PDLProfile
+      description: Social profile from PDL.
+    BinaryContent:
+      properties:
+        data:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/octet-stream
+          title: Data
+        media_type:
+          anyOf:
+          - type: string
+            enum:
+            - audio/wav
+            - audio/mpeg
+            - audio/ogg
+            - audio/flac
+            - audio/aiff
+            - audio/aac
+          - type: string
+            enum:
+            - image/jpeg
+            - image/png
+            - image/gif
+            - image/webp
+          - type: string
+            enum:
+            - application/pdf
+            - text/plain
+            - text/csv
+            - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+            - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+            - text/html
+            - text/markdown
+            - application/msword
+            - application/vnd.ms-excel
+          - type: string
+          title: Media Type
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: binary
+          title: Kind
+          default: binary
+        identifier:
+          type: string
+          title: Identifier
+          description: 'Identifier for the binary content, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `BinaryContent`.
+
+
+            This identifier is only automatically passed to the model when the `BinaryContent` is returned by a tool.
+
+            If you''re passing the `BinaryContent` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `BinaryContent`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - data
+      - media_type
+      - identifier
+      title: BinaryContent
+      description: Binary content, e.g. an audio or image file.
+    ActionType:
+      type: string
+      enum:
+      - new_enrichment
+      - new_layer
+      - analyze_row
+      - invoke_skill
+      title: ActionType
+      description: Enum for different action types in the system.
+    ErrorDetails:
+      properties:
+        type:
+          type: string
+          title: Type
+        loc:
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+          type: array
+          title: Loc
+        msg:
+          type: string
+          title: Msg
+        input:
+          title: Input
+        ctx:
+          additionalProperties: true
+          type: object
+          title: Ctx
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - type
+      - loc
+      - msg
+      - input
+      title: ErrorDetails
+    ProjectTitleSource:
+      type: string
+      enum:
+      - placeholder
+      - auto
+      - user
+      title: ProjectTitleSource
+      description: "Provenance + lifecycle for the project's name field.\n\nReplaces an em-dash string heuristic (`\" — \" not in project.name`)\nthat gated whether the sandbox auto-titler should rename a project\nfrom its skeleton name. Encoding the decision as a typed enum makes\nthe check a single comparison and prevents future titlers that\nhappen to produce em-dashes from silently disabling the branch.\n\n- PLACEHOLDER: title is initial scaffolding (sandbox skeleton's\n  \"Boulder County\", initial scaffold name); eligible to be\n  replaced by the next titler.\n- AUTO: title set by an LLM auto-titler (agent_service\n  first-message rename or project setup using the user's plan\n  name); final.\n- USER: title set by an explicit user rename via PUT\n  /projects/{id}; final."
+    ContactModel:
+      properties:
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+          description: Unique identifier for the contact. Required for PDL contacts, auto-generated for web search contacts.
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        middle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Name
+        middle_initial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Initial
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        last_initial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Initial
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_title_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title Role
+        job_title_sub_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title Sub Role
+        job_title_levels:
+          items:
+            type: string
+          type: array
+          title: Job Title Levels
+        job_title_class:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title Class
+        job_company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Name
+        job_company_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Id
+        job_company_website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Website
+        job_company_size:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Size
+        job_company_industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Industry
+        job_company_location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Name
+        job_company_location_locality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Locality
+        job_company_location_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Region
+        job_company_location_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Location Country
+        job_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Start Date
+        job_last_changed:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Last Changed
+        job_last_verified:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Last Verified
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        linkedin_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Username
+        linkedin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Id
+        has_email:
+          type: boolean
+          title: Has Email
+          default: false
+        has_phone:
+          type: boolean
+          title: Has Phone
+          default: false
+        has_personal_email:
+          type: boolean
+          title: Has Personal Email
+          default: false
+        has_work_email:
+          type: boolean
+          title: Has Work Email
+          default: false
+        has_mobile_phone:
+          type: boolean
+          title: Has Mobile Phone
+          default: false
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        location_locality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Locality
+        location_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Region
+        location_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Country
+        location_continent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Continent
+        twitter_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twitter Url
+        twitter_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twitter Username
+        facebook_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facebook Url
+        facebook_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facebook Username
+        github_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Github Url
+        github_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Github Username
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+        sex:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sex
+        age_range:
+          anyOf:
+          - $ref: '#/components/schemas/AgeRange'
+          - type: 'null'
+        skills:
+          items:
+            type: string
+          type: array
+          title: Skills
+        interests:
+          items:
+            type: string
+          type: array
+          title: Interests
+        tenure:
+          anyOf:
+          - $ref: '#/components/schemas/TenureRange'
+          - type: 'null'
+        ownership_duration:
+          anyOf:
+          - $ref: '#/components/schemas/OwnershipDuration'
+          - type: 'null'
+        experience:
+          items:
+            $ref: '#/components/schemas/PDLExperience'
+          type: array
+          title: Experience
+        education:
+          items:
+            $ref: '#/components/schemas/PDLEducation'
+          type: array
+          title: Education
+        profiles:
+          items:
+            $ref: '#/components/schemas/PDLProfile'
+          type: array
+          title: Profiles
+        dataset_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dataset Version
+      type: object
+      title: ContactModel
+      description: 'Person contact model parsed from PDL Person Search API.
+
+
+        This model represents a person with their contact information,
+
+        current job, work history, and education.'
+    ToolReturnContent:
+      anyOf:
+      - oneOf:
+        - $ref: '#/components/schemas/ImageUrl'
+        - $ref: '#/components/schemas/AudioUrl'
+        - $ref: '#/components/schemas/DocumentUrl'
+        - $ref: '#/components/schemas/VideoUrl'
+        - $ref: '#/components/schemas/BinaryContent'
+        - $ref: '#/components/schemas/UploadedFile'
+        discriminator:
+          propertyName: kind
+          mapping:
+            audio-url: '#/components/schemas/AudioUrl'
+            binary: '#/components/schemas/BinaryContent'
+            document-url: '#/components/schemas/DocumentUrl'
+            image-url: '#/components/schemas/ImageUrl'
+            uploaded-file: '#/components/schemas/UploadedFile'
+            video-url: '#/components/schemas/VideoUrl'
+      - items:
+          $ref: '#/components/schemas/ToolReturnContent'
+        type: array
+      - additionalProperties:
+          $ref: '#/components/schemas/ToolReturnContent'
+        type: object
+      - {}
+    ToolSearchMatch:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - description
+      title: ToolSearchMatch
+      description: A single match in a tool-search result.
+    ResourceOperation:
+      type: string
+      enum:
+      - create
+      - update
+      - delete
+      title: ResourceOperation
+      description: Enum for operations that can be performed on resources.
+    ViewOfferPreview:
+      properties:
+        proposedName:
+          type: string
+          title: Proposedname
+          description: The name the View will be saved under if the user accepts.
+        summary:
+          type: string
+          title: Summary
+          description: One line stating what will be saved — the filters/slice that define the current set (e.g. 'Region = West, Status = Active'). Shown to the user in the offer card so they know what they're saving.
+      type: object
+      required:
+      - proposedName
+      - summary
+      title: ViewOfferPreview
+    LayerColumn:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Stable column identifier within a layer. Hashed from the layer id plus the column's kind-specific stable identity. Source and merged columns omit `key` so alias renames keep the same id; agent-derived columns include `key` to distinguish multiple computations anchored on the same source.
+        key:
+          type: string
+          title: Key
+        provenance:
+          $ref: '#/components/schemas/ColumnProvenance'
+        display_name:
+          type: string
+          title: Display Name
+          description: Resolved user-facing column label. Unit-agnostic — does NOT include unit tokens like `(ft)`, `(m)`, `(m²)`, or `(acres)`. The FE composes the column header as `display_name + (unit)` where `unit` is the single source of truth for the unit suffix. See MAIA-1872.
+        data_type:
+          anyOf:
+          - $ref: '#/components/schemas/ColumnDataType'
+          - type: 'null'
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+          description: Display-unit suffix declared by the agent at register-layer time. Single source of truth for the user-visible unit on this column — the FE composes the header as `display_name + (unit)` and renders cells as `value + unit`. Round-trips through the resolver verbatim. Numeric formatting (decimal places) is picked from a unit→format lookup; unknown units fall back to integer formatting + raw suffix so the agent can declare arbitrary unit strings without code changes. Null for non-unit columns (names, IDs, categorical text). Currency uses the `currency` data_type / semantic type, NOT this field.
+        semantic_type:
+          anyOf:
+          - $ref: '#/components/schemas/SemanticType'
+          - type: 'null'
+          description: What the column means (currency, area, percent, address_part, …) — drives FE rendering/formatting. Hydrated server-side by `compose_layer_columns` from the column's `LayerKind`. Single on-wire source of per-column semantics, replacing the old `base_attributes.column_metadata` bag. None for columns with no canonical lineage (permissive kinds, ad-hoc derived).
+        role:
+          $ref: '#/components/schemas/ColumnRole'
+          description: Detail-panel placement signal ({stat, other}), orthogonal to `semantic_type`. `stat` columns render as headline numbers. Hydrated from the `LayerKind`; defaults to `other`.
+          default: other
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Human-readable column description surfaced in the table column metadata. Hydrated server-side (canonical column metadata or the agent's declaration), not persisted as a separate wire bag.
+      type: object
+      required:
+      - id
+      - key
+      - provenance
+      - display_name
+      title: LayerColumn
+      description: 'The resolved, persisted shape — what gets stored on `layers.columns`
+
+        and surfaced to the frontend.
+
+
+        Visibility and ordering live on the *view* (`view.layerColumnVisibility`
+
+        + `view.layerColumnOrder`), seeded at register-layer time from the
+
+        agent''s declared columns (declared = visible except `kind=system`).
+
+        `LayerColumn` carries only the schema/lineage half — what the column
+
+        IS, not how it''s displayed in any one view.'
+    ConfirmQuestionPayload:
+      properties:
+        type:
+          type: string
+          const: confirm
+          title: Type
+          default: confirm
+        id:
+          type: string
+          title: Id
+        prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt
+        yesLabel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Yeslabel
+        noLabel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nolabel
+        destructive:
+          type: boolean
+          title: Destructive
+          default: false
+        skillId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Skillid
+          description: 'REQUIRED when this confirm question proposes running a skill: set to the matched catalog entry''s id so the proposal links to the skill. Leave unset for ordinary yes/no questions.'
+        viewOffer:
+          anyOf:
+          - $ref: '#/components/schemas/ViewOfferPreview'
+          - type: 'null'
+          description: 'REQUIRED when this confirm question proactively offers to save the current set as a View: carry the proposed name and a summary of what will be saved. Leave unset for ordinary yes/no questions and for skill proposals.'
+      type: object
+      required:
+      - id
+      title: ConfirmQuestionPayload
+    QueryParseResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/QueryParseItem'
+          type: array
+          title: Items
+          description: Layers and enrichments identified from the query
+        requirements_met:
+          $ref: '#/components/schemas/RequirementsCheck'
+          description: Which key requirements from the query are satisfiable
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+          description: Warnings for the user about the parsed geography.
+        multi_geography_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Multi Geography Error
+          description: Error when the query targets multiple separate geographies (only one is supported per project)
+      type: object
+      required:
+      - requirements_met
+      title: QueryParseResponse
+      description: Lightweight real-time parse of a user query, used for live preview chips.
+    QueryParseItem:
+      properties:
+        kind:
+          $ref: '#/components/schemas/QueryParseItemKind'
+          description: '''layer'' for data from core dataset, ''enrichment'' for external/derived data'
+        type:
+          type: string
+          title: Type
+          description: 'For layers: Overture Maps table name (e.g., ''division_area'', ''building'', ''place'', ''segment'', ''parcel''). For enrichments: enrichment tool name (e.g., ''General'', ''Contacts'', ''OwnerOccupied'', ''TenantInfo'').'
+        name:
+          type: string
+          title: Name
+          description: Human-readable name (e.g., 'Adams County Boundary', 'Commercial Buildings', 'Solar Potential')
+        source_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Text
+          description: The exact substring from the user's query that this item was identified from
+      type: object
+      required:
+      - kind
+      - type
+      - name
+      title: QueryParseItem
+      description: A single item identified from a user query — either a layer or an enrichment.
+    LoadCapabilityArgs:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The id of the capability to load.
+      type: object
+      required:
+      - id
+      title: LoadCapabilityArgs
+      description: Typed arguments for a `load_capability` tool call.
+    LeaseEscalationType:
+      type: string
+      enum:
+      - fixed_percent
+      - cpi
+      - hybrid
+      - none
+      - other
+      title: LeaseEscalationType
+    ChatFeedbackResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          default: received
+        message:
+          type: string
+          title: Message
+          default: Feedback received successfully.
+      type: object
+      title: ChatFeedbackResponse
+      description: Schema for chat feedback responses.
+    PDLTitle:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        sub_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sub Role
+        levels:
+          items:
+            type: string
+          type: array
+          title: Levels
+        class:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Class
+      type: object
+      title: PDLTitle
+      description: Job title information from PDL.
+    NativeToolSearchCallPart:
+      properties:
+        tool_name:
+          type: string
+          const: tool_search
+          title: Tool Name
+          default: tool_search
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ToolSearchArgs'
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-call
+          title: Part Kind
+          default: builtin-tool-call
+      type: object
+      title: NativeToolSearchCallPart
+      description: 'Typed view of a [`NativeToolCallPart`][pydantic_ai.messages.NativeToolCallPart] for tool search.
+
+
+        Used on the native server-side tool-search path (Anthropic BM25/regex, OpenAI
+
+        Responses) where the provider executes the search and emits a native result.
+
+        The local-fallback path uses
+
+        [`ToolSearchCallPart`][pydantic_ai.messages.ToolSearchCallPart] instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `args` with a narrower type. The `str` variant covers the
+
+        streaming / partial-args case before parsing completes; once parsed,
+
+        `args` is a [`ToolSearchArgs`][pydantic_ai.messages.ToolSearchArgs]
+
+        `TypedDict`.'
+    SkillPlanPhaseStatus:
+      type: string
+      enum:
+      - pending
+      - in_progress
+      - completed
+      - skipped
+      title: SkillPlanPhaseStatus
+    ResourceReference:
+      properties:
+        resource_type:
+          $ref: '#/components/schemas/ResourceType'
+          description: The type of resource
+        operation:
+          $ref: '#/components/schemas/ResourceOperation'
+          description: The operation that was performed on the resource
+        resource_id:
+          type: string
+          title: Resource Id
+          description: The ID of the resource
+        display_name:
+          type: string
+          title: Display Name
+          description: Display name for the resource
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+          description: ISO timestamp when resource was created in this chat
+        feature_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Feature Count
+          description: Number of features in the created resource
+        task_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Id
+          description: Celery task ID for async operations like deep research
+      type: object
+      required:
+      - resource_type
+      - operation
+      - resource_id
+      - display_name
+      title: ResourceReference
+      description: Reference to a resource created or modified during chat.
+    StreamChatRetry:
+      properties:
+        type:
+          type: string
+          const: retry
+          title: Type
+          default: retry
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        attempt:
+          type: integer
+          title: Attempt
+          description: 1-based model-call attempt now streaming (2 = first retry).
+      type: object
+      required:
+      - attempt
+      title: StreamChatRetry
+      description: 'A dead model stream is being transparently retried (MAIA-2254).
+
+
+        Emitted mid-stream when a transient transport failure (or stall) killed
+
+        the in-flight model response and a fresh attempt is starting. The client
+
+        must discard the in-flight assistant segment accumulated since the last
+
+        completed tool boundary — the retry re-generates it — and may show a
+
+        transient "retrying" state. Non-terminal: the turn continues with the
+
+        fresh attempt''s deltas, or ends with the usual error frame if the retry
+
+        also dies.'
+    ExpenseStructure:
+      type: string
+      enum:
+      - nnn
+      - modified_gross
+      - full_service_gross
+      - industrial_gross
+      - other
+      title: ExpenseStructure
+    StreamChatCaughtUp:
+      properties:
+        type:
+          type: string
+          const: caught_up
+          title: Type
+          default: caught_up
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+      type: object
+      title: StreamChatCaughtUp
+      description: 'A resumed reader has drained the persisted backlog; frames after this
+
+        are live output.
+
+
+        Synthesized per-connection by the resume path at the replay/live boundary —
+
+        never written to the durable stream, so it cannot itself be replayed. Before
+
+        this frame, replayed text may belong to an already-invalidated model attempt
+
+        (a ``retry`` frame later in the backlog voids it), so the client must hold
+
+        it; after this frame, deltas are ordinary live output and paint like the
+
+        send path. Non-terminal, no payload; clients that don''t recognize the type
+
+        ignore it and keep holding until a terminal.'
+    ChatArchiveMetadataResponseSchema:
+      properties:
+        archives:
+          items:
+            $ref: '#/components/schemas/ArchiveMetadataSchema'
+          type: array
+          title: Archives
+          description: Metadata for each archive of the chat session, no bodies.
+      type: object
+      required:
+      - archives
+      title: ChatArchiveMetadataResponseSchema
+      description: Schema for the bounded chat archive metadata response.
+    ProjectRenamedEvent:
+      properties:
+        type:
+          type: string
+          const: project_renamed
+          title: Type
+          default: project_renamed
+        projectId:
+          type: string
+          format: uuid
+          title: Projectid
+        name:
+          type: string
+          title: Name
+        titleSource:
+          $ref: '#/components/schemas/ProjectTitleSource'
+      type: object
+      required:
+      - projectId
+      - name
+      - titleSource
+      title: ProjectRenamedEvent
+      description: 'Fired when a project''s name changes server-side, over the per-user channel.
+
+
+        The trigger today is auto-title generation: a fire-and-forget task that
+
+        generates a name several seconds into the turn, and can retry on a *later*
+
+        message. By then the project is already ``ready`` and the FE''s creating-project
+
+        poller has stopped watching it, so without this event the new name only surfaces
+
+        on the next projects refetch — a manual refresh in practice.
+
+
+        Carries the coordinates the FE needs to patch the projects-list cache in place:
+
+        ``projectId`` to locate the row, ``name`` for the display, and ``titleSource``
+
+        so the cached row matches what a refetch would read. camelCase wire shape,
+
+        matching ``ViewStateChangedEvent`` / ``LayerStateChangedEvent``.
+
+
+        Advisory only — a dropped publish degrades to the FE''s reconnect-resync.'
+    RequirementsCheck:
+      properties:
+        location:
+          type: boolean
+          title: Location
+          description: Whether the query specifies a geographic location
+        size_range:
+          type: boolean
+          title: Size Range
+          description: Whether any size/area criteria can be satisfied (building roof area, parcel lot size, etc.)
+        use_type:
+          type: boolean
+          title: Use Type
+          description: Whether property type, use type, or zoning criteria can be satisfied (from buildings, parcels, or places)
+        contextual_data:
+          type: boolean
+          title: Contextual Data
+          description: Whether contextual data needs (enrichments, POIs) can be satisfied
+      type: object
+      required:
+      - location
+      - size_range
+      - use_type
+      - contextual_data
+      title: RequirementsCheck
+      description: Tracks which key requirements from the query are satisfiable.
+    CachePoint:
+      properties:
+        kind:
+          type: string
+          const: cache-point
+          title: Kind
+          default: cache-point
+        ttl:
+          type: string
+          enum:
+          - 5m
+          - 1h
+          title: Ttl
+          default: 5m
+      type: object
+      title: CachePoint
+      description: 'A cache point marker for prompt caching.
+
+
+        Can be inserted into UserPromptPart.content to mark cache boundaries.
+
+        Models that don''t support caching will filter these out.
+
+
+        Supported by:
+
+
+        - Anthropic
+
+        - Amazon Bedrock (Converse API)
+
+        - OpenRouter (Anthropic and Gemini models)'
+    ChatInterruptRequest:
+      properties:
+        project_id:
+          type: string
+          title: Project Id
+          description: The project ID to interrupt.
+        reason:
+          type: string
+          title: Reason
+          description: Reason for interruption (e.g., 'user_requested', 'timeout', 'error').
+          default: user_requested
+      type: object
+      required:
+      - project_id
+      title: ChatInterruptRequest
+      description: Schema for chat interrupt requests.
+    SchemaExposure:
+      properties:
+        enrichment_agent_response:
+          anyOf:
+          - $ref: '#/components/schemas/ToolResourceResponse'
+          - type: 'null'
+          description: Schema type for enrichment agent responses
+        not_enough_context:
+          anyOf:
+          - $ref: '#/components/schemas/NotEnoughContext'
+          - type: 'null'
+          description: Schema type for not enough context responses
+        create_layer_parameters_response:
+          anyOf:
+          - $ref: '#/components/schemas/CreateLayerSuccess'
+          - type: 'null'
+          description: Schema type for create layer parameters responses
+        enrichment_value_base_model:
+          anyOf:
+          - $ref: '#/components/schemas/EnrichmentValueBaseModel'
+          - type: 'null'
+          description: Schema type for base enrichment value model
+        enrichment_status_changed_event:
+          anyOf:
+          - $ref: '#/components/schemas/EnrichmentStatusChangedEvent'
+          - type: 'null'
+          description: SSE event pushed to the user's channel when an enrichment workflow reaches a terminal state (replaces FE status polling)
+        view_state_changed_event:
+          anyOf:
+          - $ref: '#/components/schemas/ViewStateChangedEvent'
+          - type: 'null'
+          description: SSE event pushed to the user's channel when a project view mutation commits; carries the affected view(s) + deletedViewIds so the FE applies the authoritative state without a refetch
+        layer_state_changed_event:
+          anyOf:
+          - $ref: '#/components/schemas/LayerStateChangedEvent'
+          - type: 'null'
+          description: SSE event pushed to the user's channel when a layer metadata mutation commits; carries the affected layer(s) + deletedLayerIds so the FE applies the authoritative state without a refetch
+        chat_summarization_completed_event:
+          anyOf:
+          - $ref: '#/components/schemas/ChatSummarizationCompletedEvent'
+          - type: 'null'
+          description: SSE event pushed to the user's channel when a chat's background summarize_workflow finishes persisting; the FE renders the 'summarized' divider on receipt instead of at enqueue time
+        project_renamed_event:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectRenamedEvent'
+          - type: 'null'
+          description: SSE event pushed to the user's channel when a project's name changes server-side (auto-title generation); carries projectId + name + titleSource so the FE patches the projects-list cache without a refetch
+        map_fly_to_event:
+          anyOf:
+          - $ref: '#/components/schemas/MapFlyToEvent'
+          - type: 'null'
+          description: SSE event pushed to the user's channel when the agent moves the map camera to a resolved feature; carries projectId + bbox so the FE fitBounds to it
+        stream_chat_delta:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatDelta'
+          - type: 'null'
+          description: Schema type for streaming chat deltas
+        stream_thinking_delta:
+          anyOf:
+          - $ref: '#/components/schemas/StreamThinkingDelta'
+          - type: 'null'
+          description: Schema type for streaming thinking/reasoning deltas
+        stream_tool_call_start:
+          anyOf:
+          - $ref: '#/components/schemas/StreamToolCallStart'
+          - type: 'null'
+          description: Schema type for streaming tool call start events
+        stream_tool_call_complete:
+          anyOf:
+          - $ref: '#/components/schemas/StreamToolCallComplete'
+          - type: 'null'
+          description: Schema type for streaming tool call completion events
+        stream_chat_complete:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatComplete'
+          - type: 'null'
+          description: Schema type for streaming chat completion with optional summarization info
+        stream_chat_error:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatError'
+          - type: 'null'
+          description: Schema type for streaming chat errors
+        stream_chat_interrupted:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatInterrupted'
+          - type: 'null'
+          description: Schema type for streaming chat interruption events
+        stream_web_search_status:
+          anyOf:
+          - $ref: '#/components/schemas/StreamWebSearchStatus'
+          - type: 'null'
+          description: Schema type for web search status updates from built-in tools
+        stream_chat_user_message:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatUserMessage'
+          - type: 'null'
+          description: First durable stream event echoing the user's prompt. A client re-attaching to an in-flight run renders the question from this event since pre-completion history doesn't carry the turn.
+        stream_chat_event:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatDelta'
+          - $ref: '#/components/schemas/StreamThinkingDelta'
+          - $ref: '#/components/schemas/StreamToolCallStart'
+          - $ref: '#/components/schemas/StreamToolCallComplete'
+          - $ref: '#/components/schemas/StreamChatComplete'
+          - $ref: '#/components/schemas/StreamChatApprovalRequired'
+          - $ref: '#/components/schemas/StreamLLMProviderError'
+          - $ref: '#/components/schemas/StreamChatError'
+          - $ref: '#/components/schemas/StreamChatInterrupted'
+          - $ref: '#/components/schemas/StreamChatRetry'
+          - $ref: '#/components/schemas/StreamWebSearchStatus'
+          - $ref: '#/components/schemas/StreamSummarizationStatus'
+          - $ref: '#/components/schemas/StreamProjectCreated'
+          - $ref: '#/components/schemas/StreamChatUserMessage'
+          - $ref: '#/components/schemas/StreamChatCaughtUp'
+          - type: 'null'
+          title: Stream Chat Event
+          description: Schema type for streaming chat events union
+        contact_model:
+          anyOf:
+          - $ref: '#/components/schemas/ContactModel'
+          - type: 'null'
+          description: Schema type for contact model
+        tenant_lease_concise:
+          anyOf:
+          - $ref: '#/components/schemas/TenantLeaseConcise'
+          - type: 'null'
+          description: Schema type for tenant lease model
+        owner_residential_mailing_address:
+          anyOf:
+          - $ref: '#/components/schemas/OwnerResidentialMailingAddressModel'
+          - type: 'null'
+          description: Schema type for the owner residential mailing address model
+        mortgage_profile:
+          anyOf:
+          - $ref: '#/components/schemas/MortgageProfileModel'
+          - type: 'null'
+          description: Schema type for the mortgage & liens profile model
+        invalid_query_result:
+          anyOf:
+          - $ref: '#/components/schemas/UnprocessableQueryResult'
+          - type: 'null'
+          description: Schema type for invalid query results
+        invalid_query_reason:
+          anyOf:
+          - $ref: '#/components/schemas/UnprocessableQueryReason'
+          - type: 'null'
+          description: Schema type for invalid query reasons enum
+        query_parse_response:
+          anyOf:
+          - $ref: '#/components/schemas/QueryParseResponse'
+          - type: 'null'
+          description: Schema type for real-time query parse response
+        create_layer_failure:
+          anyOf:
+          - $ref: '#/components/schemas/CreateLayerFailure'
+          - type: 'null'
+          description: Schema type for create layer failure responses
+        select_question_payload:
+          anyOf:
+          - $ref: '#/components/schemas/SelectQuestionPayload'
+          - type: 'null'
+          description: Schema type for an agent-emitted select question payload attached to ModelResponse.metadata.interactive_question.
+        confirm_question_payload:
+          anyOf:
+          - $ref: '#/components/schemas/ConfirmQuestionPayload'
+          - type: 'null'
+          description: Schema type for an agent-emitted confirm (yes/no) question payload attached to ModelResponse.metadata.interactive_question.
+        interactive_question_answer:
+          anyOf:
+          - $ref: '#/components/schemas/InteractiveQuestionAnswer'
+          - type: 'null'
+          description: Schema type for the resolved answer to an interactive question, attached to ModelResponse.metadata.interactive_question_answer.
+        skill_plan_payload:
+          anyOf:
+          - $ref: '#/components/schemas/SkillPlanPayload'
+          - type: 'null'
+          description: Schema type for the skill_plan tool's phase-checklist payload, carried as the tool call's args in stream events and history.
+        report_actions_payload:
+          anyOf:
+          - $ref: '#/components/schemas/ReportActionsPayload'
+          - type: 'null'
+          description: Schema type for the report_actions tool's work-announcement payload, echoed as the tool result and folded into a summary line.
+        stream_chat_approval_required:
+          anyOf:
+          - $ref: '#/components/schemas/StreamChatApprovalRequired'
+          - type: 'null'
+          description: Terminal stream event for a run that ended awaiting tool approval (pending save_skill / update_skill).
+        tool_approval_request:
+          anyOf:
+          - $ref: '#/components/schemas/ToolApprovalRequest'
+          - type: 'null'
+          description: Schema type for a pending approval-gated tool call, attached to ModelResponse.metadata.tool_approval_request.
+        tool_approval_answer:
+          anyOf:
+          - $ref: '#/components/schemas/ToolApprovalAnswer'
+          - type: 'null'
+          description: Schema type for the user's approve/decline of a pending tool call, attached to ModelResponse.metadata.tool_approval_answer.
+        attribution_payload:
+          anyOf:
+          - $ref: '#/components/schemas/AttributionPayload'
+          - type: 'null'
+          description: Schema type for the per-reply attribution receipt (ran skill / referenced knowledge), attached to ModelResponse.metadata.attribution.
+        invoked_skill_payload:
+          anyOf:
+          - $ref: '#/components/schemas/InvokedSkillPayload'
+          - type: 'null'
+          description: Schema type for the invoked-skill receipt on a user turn, attached to the user ModelRequest.metadata.invoked_skill.
+      type: object
+      title: SchemaExposure
+      description: 'Schema exposure model for all chat-related types.
+
+        This endpoint exists solely to expose schemas to OpenAPI/TypeScript generation.
+
+        These fields are never actually populated in responses.'
+    StreamChatError:
+      properties:
+        last_edit_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edit Description
+          description: Human-readable description of what was changed, derived from tools called.
+        last_edited_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Edited At
+          description: Timestamp of when the project edit was recorded.
+        last_edited_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edited By Name
+          description: Display name of the user who made the edit.
+        type:
+          type: string
+          const: error
+          title: Type
+          default: error
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        error:
+          type: string
+          title: Error
+          description: Error message.
+        code:
+          $ref: '#/components/schemas/StreamErrorCode'
+          description: Stable error taxonomy for client retry/branching logic.
+          default: internal
+        partial_result:
+          type: boolean
+          title: Partial Result
+          description: True when the workflow persisted a finalized partial turn before emitting this terminal (cooperative monitor stop). A resumed reader can't render replayed tool events, so it reloads history instead of treating this frame as fully rendered. False for generic errors and reader-synthesized hard-cancel terminals, where nothing new was persisted.
+          default: false
+        continuable:
+          type: boolean
+          title: Continuable
+          description: 'True only when the failed turn left a partial the agent can resume from (the same condition that sets chats.last_turn_continuable). Distinct from partial_result: a monitor stop (timeout/lock-lost) persists a partial but is NOT continuable. The FE gates the Continue affordance on this, never on partial_result.'
+          default: false
+        new_messages:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: New Messages
+          description: The persisted partial turn, surfaced and instruction-filtered. Populated with partial_result=True (a cooperative monitor stop or a terminal model failure that had already completed work), so the live client renders the stopped turn without leaving leaked <thinking> prose; empty otherwise.
+      type: object
+      required:
+      - error
+      title: StreamChatError
+      description: Schema for general streaming chat error event.
+    MortgageInvoluntaryLien:
+      properties:
+        lien_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lien Type
+        document_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Type
+        recording_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recording Date
+      type: object
+      title: MortgageInvoluntaryLien
+      description: 'One involuntary lien (tax lien, judgment, mechanic''s lien): existence + type.'
+    ChatSummarizationCompletedEvent:
+      properties:
+        type:
+          type: string
+          const: chat_summarization_completed
+          title: Type
+          default: chat_summarization_completed
+        projectId:
+          type: string
+          format: uuid
+          title: Projectid
+      type: object
+      required:
+      - projectId
+      title: ChatSummarizationCompletedEvent
+      description: 'Fired when a chat''s background ``summarize_workflow`` finishes persisting.
+
+
+        Summarization runs as a fire-and-forget DBOS workflow after a turn crosses
+
+        the context threshold; the turn''s ``complete`` SSE frame (carrying
+
+        ``summarization_task_id``) is the *enqueue* moment, ~50s before the summary
+
+        actually generates + persists. The original turn''s direct stream has closed
+
+        by then, so this advisory event over the per-user fanout is how the client
+
+        learns the summary is genuinely done and renders the "summarized" divider.
+
+
+        Advisory only — the durable summary is the source of truth: on reload the FE
+
+        reconstructs the divider from persisted history (``detectSummarization``), so
+
+        a dropped publish degrades to "divider appears on next reload," never a stuck
+
+        state.
+
+
+        Carries only ``projectId`` (camelCase wire shape, matching
+
+        ``ViewStateChangedEvent`` / ``LayerStateChangedEvent``): ``chats.project_id``
+
+        is UNIQUE (one chat per project), so the project anchors the chat and the FE
+
+        needs no ``chat_id`` to route.'
+    EnrichmentCitation:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+          description: Optional URL of the source that supports the enrichment value.
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+          description: Optional human-readable title for the source.
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+          description: Optional snippet or excerpt from the cited material.
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+          description: Provider or domain the citation originated from.
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Type
+          description: Provider-specific type identifier for the cited source.
+      type: object
+      title: EnrichmentCitation
+      description: Metadata describing a cited source returned by an enrichment.
+    ChatFeedbackRequest:
+      properties:
+        message_id:
+          type: string
+          title: Message Id
+          description: The ID of the message being rated.
+        feedback_type:
+          type: string
+          enum:
+          - positive
+          - negative
+          title: Feedback Type
+          description: Type of feedback ('positive' or 'negative').
+        feedback_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Feedback Text
+          description: Optional free text feedback.
+        project_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Id
+          description: Optional project ID.
+      type: object
+      required:
+      - message_id
+      - feedback_type
+      title: ChatFeedbackRequest
+      description: Schema for chat feedback requests.
+    CreateLayerFailure:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: A detailed message explaining why layer creation failed or what information is needed to try again. Include information about the strategy taken and why it failed. Suggest alternative strategies that could be tried. Limit to 100 words.
+      type: object
+      required:
+      - message
+      title: CreateLayerFailure
+      description: Model for a layer creation failure.
+    CompactionPart:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: compaction
+          title: Part Kind
+          default: compaction
+      type: object
+      title: CompactionPart
+      description: 'A compaction part that summarizes previous conversation history.
+
+
+        Compaction parts contain an opaque or readable summary of prior messages,
+
+        produced by provider-specific compaction mechanisms. They must be round-tripped
+
+        back to the same provider in subsequent requests.
+
+
+        For Anthropic, `content` contains a readable text summary.
+
+        For OpenAI, `content` is `None` and the encrypted data is stored in `provider_details`.'
+    StreamChatComplete:
+      properties:
+        last_edit_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edit Description
+          description: Human-readable description of what was changed, derived from tools called.
+        last_edited_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Edited At
+          description: Timestamp of when the project edit was recorded.
+        last_edited_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edited By Name
+          description: Display name of the user who made the edit.
+        type:
+          type: string
+          const: complete
+          title: Type
+          default: complete
+        display:
+          type: string
+          const: completion
+          title: Display
+          default: completion
+        new_messages:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: New Messages
+          description: Final complete messages from the agent run.
+        summarization_task_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summarization Task Id
+          description: Celery task ID if chat summarization was triggered due to token limit.
+        total_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Tokens
+          description: Total tokens that triggered summarization, if applicable.
+        project_id:
+          type: string
+          title: Project Id
+          description: Project ID the chat is associated with.
+        structured_output:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Structured Output
+          description: Structured output from the agent, if output_type was specified.
+        pending_enrichments:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/PendingEnrichmentRef'
+            type: array
+          - type: 'null'
+          title: Pending Enrichments
+          description: Skeleton enrichments created during initial project setup that are still being configured by the background task. Carried on the complete event so the live client can render pending enrichment cards immediately.
+      type: object
+      required:
+      - new_messages
+      - project_id
+      title: StreamChatComplete
+      description: Schema for streaming chat completion event.
+    ReportActionsPayload:
+      properties:
+        intent_id:
+          type: string
+          minLength: 1
+          title: Intent Id
+          description: Short stable id you pick for this unit of work (e.g. 'score-parcels'); reuse it to re-report the same unit on failure.
+        summary:
+          type: string
+          minLength: 1
+          title: Summary
+          description: Plain-language description of the work, shown to the user in place of the raw tool steps — describe the outcome, never the SQL or table names.
+        ok:
+          type: boolean
+          title: Ok
+          description: True for the optimistic announcement as you start; resend with the same intent_id and False if the work fails.
+          default: true
+      type: object
+      required:
+      - intent_id
+      - summary
+      title: ReportActionsPayload
+    EnrichmentModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Layer Id
+        name:
+          type: string
+          title: Name
+          default: Unconfigured enrichment
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          default: This enrichment is not configured with a tool.
+        tool:
+          type: string
+          title: Tool
+          default: unconfigured
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        dtype:
+          type: string
+          title: Dtype
+          description: Must be one of string, boolean, list[str], jsonb, int, float, categorical, url
+          default: string
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        credits_per_row:
+          type: integer
+          title: Credits Per Row
+          description: Return the number of credits per row for this tool.
+          readOnly: true
+        is_configured:
+          type: boolean
+          title: Is Configured
+          description: "Check if the enrichment is configured with a valid tool.\n\nReturns:\n    bool: True if tool is configured, False otherwise"
+          readOnly: true
+        is_configuration_failed:
+          type: boolean
+          title: Is Configuration Failed
+          description: "Check if the enrichment's configuration failed.\n\nReturns:\n    bool: True if configuration was attempted but failed"
+          readOnly: true
+        is_data_source:
+          type: boolean
+          title: Is Data Source
+          description: "Check if the enrichment is a data source.\n\nReturns:\n    bool: True if the enrichment is a data source, False otherwise"
+          readOnly: true
+      type: object
+      required:
+      - credits_per_row
+      - is_configured
+      - is_configuration_failed
+      - is_data_source
+      title: EnrichmentModel
+      description: 'Enrichment model that combines both properties and chat history.
+
+
+        This unified model simplifies the domain representation and aligns more closely
+
+        with how data is stored in the database, reducing unnecessary abstractions.'
+    MapFlyToEvent:
+      properties:
+        type:
+          type: string
+          const: map_fly_to
+          title: Type
+          default: map_fly_to
+        projectId:
+          type: string
+          format: uuid
+          title: Projectid
+        bbox:
+          prefixItems:
+          - type: number
+          - type: number
+          - type: number
+          - type: number
+          type: array
+          maxItems: 4
+          minItems: 4
+          title: Bbox
+      type: object
+      required:
+      - projectId
+      - bbox
+      title: MapFlyToEvent
+      description: 'Fired when the agent moves the map camera to a resolved feature, over the
+
+        per-user channel — the reply to a "zoom to <address/place/parcel>" request.
+
+
+        Carries the envelope ``bbox`` (``[minLng, minLat, maxLng, maxLat]``) of a feature
+
+        already in the project''s data; the FE ``fitBounds`` to it. ``projectId`` gates the
+
+        move to the active project (the per-user stream is not project-scoped). camelCase
+
+        wire shape, matching the sibling events.
+
+
+        Fire-and-forget / advisory: a dropped publish just means the camera doesn''t move —
+
+        the agent''s text reply still names where it went.'
+    StreamChatDelta:
+      properties:
+        type:
+          type: string
+          const: delta
+          title: Type
+          default: delta
+        display:
+          type: string
+          const: prose
+          title: Display
+          default: prose
+        content:
+          type: string
+          title: Content
+          description: Incremental content from the agent.
+      type: object
+      required:
+      - content
+      title: StreamChatDelta
+      description: Schema for streaming chat content deltas.
+    EnrichmentState:
+      type: string
+      enum:
+      - unenriched
+      - enriched
+      - attempted
+      - user_edited
+      - pending
+      title: EnrichmentState
+      description: Enum representing the state of an enrichment value.
+    SelectQuestionPayload:
+      properties:
+        type:
+          type: string
+          const: select
+          title: Type
+          default: select
+        id:
+          type: string
+          title: Id
+        prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt
+        options:
+          items:
+            $ref: '#/components/schemas/SelectOption'
+          type: array
+          maxItems: 6
+          minItems: 2
+          title: Options
+      type: object
+      required:
+      - id
+      - options
+      title: SelectQuestionPayload
+    DocumentUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: document-url
+          title: Kind
+          default: document-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: DocumentUrl
+      description: The URL of the document.
+    RequestUsage:
+      properties:
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          default: 0
+        cache_write_tokens:
+          type: integer
+          title: Cache Write Tokens
+          default: 0
+        cache_read_tokens:
+          type: integer
+          title: Cache Read Tokens
+          default: 0
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          default: 0
+        input_audio_tokens:
+          type: integer
+          title: Input Audio Tokens
+          default: 0
+        cache_audio_read_tokens:
+          type: integer
+          title: Cache Audio Read Tokens
+          default: 0
+        output_audio_tokens:
+          type: integer
+          title: Output Audio Tokens
+          default: 0
+        details:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Details
+      type: object
+      title: RequestUsage
+      description: 'LLM usage associated with a single request.
+
+
+        This is an implementation of `genai_prices.types.AbstractUsage` so it can be used to calculate the price of the
+
+        request using [genai-prices](https://github.com/pydantic/genai-prices).'
+    QueryParseItemKind:
+      type: string
+      enum:
+      - layer
+      - enrichment
+      title: QueryParseItemKind
+      description: Whether a parsed item is a layer (from core dataset) or an enrichment.
+    ChatRequest:
+      properties:
+        message:
+          type: string
+          title: Message
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+          examples:
+          - 00000000-0000-0000-0000-000000000001
+        current_focused_layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Current Focused Layer Id
+          examples:
+          - 00000000-0000-0000-0000-000000000000
+        action_type:
+          anyOf:
+          - $ref: '#/components/schemas/ActionType'
+          - type: 'null'
+        action_subtype:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action Subtype
+          description: Optional preset identifier that disambiguates actions sharing an action_type. For detail-panel presets, matches the client-side noteSource (e.g. 'environment', 'zoning', 'summary').
+        hidden_context:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Hidden Context
+        current_view_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current View Id
+        iterate_over_rows:
+          type: boolean
+          title: Iterate Over Rows
+          default: false
+        selected_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selected Model
+          description: Model-picker selection for this chat (a curated picker key, see GET /chat/models). Persisted on the chat; honored only when the workspace's model-picker feature toggle is on.
+        feature_context:
+          anyOf:
+          - $ref: '#/components/schemas/FeatureContext'
+          - type: 'null'
+        mentioned_feature_contexts:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/FeatureContext'
+            type: array
+          - type: 'null'
+          title: Mentioned Feature Contexts
+        prior_answer:
+          anyOf:
+          - $ref: '#/components/schemas/InteractiveQuestionAnswer'
+          - type: 'null'
+          description: When the user answers a structured question by clicking a button (deterministic-alias path), the FE sends the chosen option here alongside the label as `message`. The endpoint writes this onto the prior question's `metadata.interactive_question_answer` so the agent's Authority rule treats it as ground truth and the reload path reads it off the typed field instead of reconstructing from the user-reply text.
+        tool_approval:
+          anyOf:
+          - $ref: '#/components/schemas/ToolApprovalAnswer'
+          - type: 'null'
+          description: 'Approve/decline for a pending requires_approval tool call (save_skill / update_skill). Rides the same round-trip as prior_answer: the endpoint marks the prior pending message answered in metadata (flipping the card inert on reload) and the workflow resumes the deferred run with the result. `message` may be empty on an approval turn.'
+        continue_turn:
+          type: boolean
+          title: Continue Turn
+          description: Continue a terminally-failed turn from its persisted partial without a new prompt. The FE sends an empty `message` and the endpoint runs a promptless turn on the persisted history (the same no-user-bubble shape as a tool approval, minus the approval payload) so the agent resumes where it left off.
+          default: false
+      type: object
+      required:
+      - message
+      - project_id
+      title: ChatRequest
+    ToolApprovalAnswer:
+      properties:
+        toolCallId:
+          type: string
+          title: Toolcallid
+        approved:
+          type: boolean
+          title: Approved
+        message:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Message
+      type: object
+      required:
+      - toolCallId
+      - approved
+      title: ToolApprovalAnswer
+      description: 'The user''s approve/decline for a pending tool call.
+
+
+        ``message`` is wire-forward-compat: no UI affordance sends it yet (the
+
+        card is approve/decline only), but the denial seam already threads it
+
+        into the synthesized ToolDenied as context for a future decline-reason
+
+        input. Capped because it persists into chat history and rides every
+
+        subsequent model call.'
+    ToolSearchArgs:
+      properties:
+        queries:
+          items:
+            type: string
+          type: array
+          title: Queries
+      type: object
+      required:
+      - queries
+      title: ToolSearchArgs
+      description: 'Typed arguments for a tool-search call.
+
+
+        Carried on
+
+        [`NativeToolSearchCallPart.args`][pydantic_ai.messages.NativeToolSearchCallPart.args]
+
+        (native server-side path) and
+
+        [`ToolSearchCallPart.args`][pydantic_ai.messages.ToolSearchCallPart.args]
+
+        (local-fallback path) as the canonical cross-provider shape. Each adapter
+
+        normalizes its provider''s wire format into this shape on parse, and rebuilds the
+
+        wire format from this shape on emit.'
+    FilePart:
+      properties:
+        content:
+          $ref: '#/components/schemas/BinaryContent'
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: file
+          title: Part Kind
+          default: file
+      type: object
+      required:
+      - content
+      title: FilePart
+      description: A file response from a model.
+    RetryPromptPart:
+      properties:
+        content:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ErrorDetails'
+            type: array
+          - type: string
+          title: Content
+        tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Name
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        part_kind:
+          type: string
+          const: retry-prompt
+          title: Part Kind
+          default: retry-prompt
+      type: object
+      required:
+      - content
+      title: RetryPromptPart
+      description: "A message back to a model asking it to try again.\n\nThis can be sent for a number of reasons:\n\n* Pydantic validation of tool arguments failed, here content is derived from a Pydantic\n  [`ValidationError`][pydantic_core.ValidationError]\n* a tool raised a [`ModelRetry`][pydantic_ai.exceptions.ModelRetry] exception\n* no tool was found for the tool name\n* the model returned plain text when a structured response was expected\n* Pydantic validation of a structured response failed, here content is derived from a Pydantic\n  [`ValidationError`][pydantic_core.ValidationError]\n* an output validator raised a [`ModelRetry`][pydantic_ai.exceptions.ModelRetry] exception"
+    MortgageValuationSummary:
+      properties:
+        estimated_value:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Value
+        equity_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Equity Percent
+        ltv:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ltv
+        equity_current_estimated_balance:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Equity Current Estimated Balance
+        confidence_score:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Confidence Score
+        as_of_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: As Of Date
+      type: object
+      title: MortgageValuationSummary
+      description: AVM-derived value and equity — modeled estimates, not recorded facts.
+    ToolSearchCallPart:
+      properties:
+        tool_name:
+          type: string
+          const: search_tools
+          title: Tool Name
+          default: search_tools
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ToolSearchArgs'
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      title: ToolSearchCallPart
+      description: 'Typed view of a [`ToolCallPart`][pydantic_ai.messages.ToolCallPart] for the local `search_tools` function call.
+
+
+        Used on the local-fallback path (and as the synthetic-injection target on
+
+        non-native providers receiving cross-provider history). The native server-side
+
+        path uses
+
+        [`NativeToolSearchCallPart`][pydantic_ai.messages.NativeToolSearchCallPart]
+
+        instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `args` with the canonical typed shape. The `str` variant covers the
+
+        streaming / partial-args case before parsing completes; once parsed,
+
+        `args` is a [`ToolSearchArgs`][pydantic_ai.messages.ToolSearchArgs]
+
+        `TypedDict`.'
+    OccupancyStatus:
+      type: string
+      enum:
+      - leased
+      - vacant
+      - owner_occupied
+      - partially_leased
+      - unknown
+      title: OccupancyStatus
+    PDLCompany:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        size:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Size
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        founded:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Founded
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/PDLLocation'
+          - type: 'null'
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        linkedin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Id
+        facebook_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facebook Url
+        twitter_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twitter Url
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+      type: object
+      title: PDLCompany
+      description: Company information from PDL.
+    PDLEducation:
+      properties:
+        school:
+          anyOf:
+          - $ref: '#/components/schemas/PDLSchool'
+          - type: 'null'
+        degrees:
+          items:
+            type: string
+          type: array
+          title: Degrees
+        majors:
+          items:
+            type: string
+          type: array
+          title: Majors
+        minors:
+          items:
+            type: string
+          type: array
+          title: Minors
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        gpa:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Gpa
+      type: object
+      title: PDLEducation
+      description: Education information from PDL.
+    ModelRequest:
+      properties:
+        parts:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SystemPromptPart'
+            - $ref: '#/components/schemas/UserPromptPart'
+            - $ref: '#/components/schemas/ToolSearchReturnPart'
+            - $ref: '#/components/schemas/LoadCapabilityReturnPart'
+            - $ref: '#/components/schemas/ToolReturnPart'
+            - $ref: '#/components/schemas/RetryPromptPart'
+          type: array
+          title: Parts
+        timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Timestamp
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        kind:
+          type: string
+          const: request
+          title: Kind
+          default: request
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - parts
+      title: ModelRequest
+      description: A request generated by Pydantic AI and sent to a model, e.g. a message from the Pydantic AI app to the model.
+    TenantLeaseConcise:
+      properties:
+        tenant_legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Legal Name
+          description: Tenant legal name or primary occupant name.
+        lease_start_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Lease Start Date
+          description: Lease commencement / tenant move-in date (if known).
+        lease_end_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Lease End Date
+          description: Lease expiration date for the current in-place term.
+        in_place_rent_psf_yr:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: In Place Rent Psf Yr
+          description: $ / SF / Year current in-place base rent (net of abatements if possible).
+        expense_structure:
+          anyOf:
+          - $ref: '#/components/schemas/ExpenseStructure'
+          - type: 'null'
+          description: Expense pass-through structure (NNN, modified gross, etc.).
+        escalation_type:
+          anyOf:
+          - $ref: '#/components/schemas/LeaseEscalationType'
+          - type: 'null'
+          description: How base rent escalates (fixed %, CPI, hybrid, none).
+        occupancy_status:
+          anyOf:
+          - $ref: '#/components/schemas/OccupancyStatus'
+          - type: 'null'
+          description: Leased / Vacant / Owner-occupied / Partial / Unknown — good single filter.
+        num_tenants:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Num Tenants
+          description: Number of distinct tenants in the building (1 = single-tenant).
+        delinquency_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delinquency Status
+          description: Description of the tenant's delinquency status.
+        as_of:
+          type: string
+          format: date-time
+          title: As Of
+          description: UTC timestamp when this record was compiled/last updated.
+      type: object
+      title: TenantLeaseConcise
+      description: 'Concise tenant / lease model optimized for REIT screens.
+
+        Includes a small set of critical fields and computed helpers
+
+        (lease duration, months remaining, rent delta). Use `to_dict()`
+
+        to include derived values in output.'
+    PDLSchool:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/PDLLocation'
+          - type: 'null'
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        linkedin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Id
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+      type: object
+      title: PDLSchool
+      description: School information from PDL.
+    ColumnProvenance:
+      properties:
+        kind:
+          $ref: '#/components/schemas/ColumnKind'
+        source_table:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Table
+          description: Canonical Overture table this column derives from. None for fully derived (composite) columns with no canonical lineage.
+        source_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Column
+          description: Canonical column path on `source_table` (e.g. `names.primary`). Used by the resolver for display-name lookup and stable column ids — NOT the agent's SQL alias.
+      type: object
+      required:
+      - kind
+      title: ColumnProvenance
+      description: 'Where a column came from and how to look up its canonical metadata.
+
+
+        `source_column` is the canonical Overture column path (e.g.
+
+        `names.primary`, not the agent''s SQL alias `name`). The resolver uses it
+
+        to look up the display label and to derive a rename-stable column id —
+
+        making alias mismatches impossible by construction.'
+    CopyLayerParameters:
+      properties:
+        source_table_name:
+          type: string
+          title: Source Table Name
+          description: Name of the source Overture table (e.g., 'building', 'place')
+        columns_to_copy:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Columns To Copy
+          description: List of column names to copy (if None, copies all non-geometry columns)
+        column_filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Column Filters
+          description: 'Dictionary of column_name: value filters for data filtering'
+      type: object
+      required:
+      - source_table_name
+      title: CopyLayerParameters
+      description: 'Parameters for creating a layer from an Overture/core data table.
+
+
+        Defines the source table, column selection, and filters used by the layer
+
+        creation pipeline. target_layer_id and reference_layer_id are provided separately.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    VideoUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: video-url
+          title: Kind
+          default: video-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: VideoUrl
+      description: A URL to a video.
+    StreamChatApprovalRequired:
+      properties:
+        last_edit_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edit Description
+          description: Human-readable description of what was changed, derived from tools called.
+        last_edited_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Edited At
+          description: Timestamp of when the project edit was recorded.
+        last_edited_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edited By Name
+          description: Display name of the user who made the edit.
+        type:
+          type: string
+          const: approval_required
+          title: Type
+          default: approval_required
+        display:
+          type: string
+          const: completion
+          title: Display
+          default: completion
+        new_messages:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: New Messages
+          description: Persisted turn messages, including the pending tool call.
+        project_id:
+          type: string
+          title: Project Id
+          description: Project ID the chat is associated with.
+        approval:
+          $ref: '#/components/schemas/ToolApprovalRequest'
+          description: The pending tool call awaiting the user's approve/decline.
+      type: object
+      required:
+      - new_messages
+      - project_id
+      - approval
+      title: StreamChatApprovalRequired
+      description: 'Terminal event for a run that ended awaiting tool approval (MAIA-2220).
+
+
+        The agent issued a ``requires_approval`` tool call (``save_skill`` /
+
+        ``update_skill``) and the run ended as a pending ``DeferredToolRequests``.
+
+        The turn is persisted (including the pending call + its
+
+        ``tool_approval_request`` metadata) before this frame is emitted, so the
+
+        live client renders the approval card from ``new_messages`` exactly as a
+
+        reload would. ``display: completion`` is the fail-safe: a consumer that
+
+        doesn''t know this discriminant still finalizes the turn''s messages
+
+        (per stream-terminal-events-carry-consumer-decision-state).'
+    StreamToolCallComplete:
+      properties:
+        type:
+          type: string
+          const: tool_call_complete
+          title: Type
+          default: tool_call_complete
+        display:
+          type: string
+          const: tool_call_result
+          title: Display
+          default: tool_call_result
+        tool_name:
+          type: string
+          title: Tool Name
+          description: Name of the tool that was called.
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+          description: Unique identifier for this tool call.
+        result:
+          title: Result
+          description: Result returned by the tool.
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          description: Mirrors pydantic-ai's ToolReturnPart.outcome so the client can suppress success affordances for denied approval-gated calls.
+          default: success
+      type: object
+      required:
+      - tool_name
+      - tool_call_id
+      - result
+      title: StreamToolCallComplete
+      description: Schema for when a tool call completes.
+    ViewStateChangedEvent:
+      properties:
+        type:
+          type: string
+          const: view_state_changed
+          title: Type
+          default: view_state_changed
+        projectId:
+          type: string
+          format: uuid
+          title: Projectid
+        views:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Views
+        deletedViewIds:
+          items:
+            type: string
+          type: array
+          title: Deletedviewids
+          default: []
+      type: object
+      required:
+      - projectId
+      - views
+      title: ViewStateChangedEvent
+      description: 'Fired after a project view mutation commits (create / update / filter /
+
+        delete / column change), over the same per-user channel.
+
+
+        Payload-rich + version-stamped, mirroring ``EnrichmentStatusChangedEvent``:
+
+        the FE applies the carried view(s) straight to its React Query cache without
+
+        a refetch round-trip, and uses each view''s ``version`` to discard stale or
+
+        out-of-order events. Carries only the *affected* view(s) plus ``deletedViewIds``
+
+        (not the full list) so the FE merges rather than overwrites siblings.
+
+
+        Fields are camelCase so the SSE endpoint can forward ``model_dump_json``
+
+        verbatim and the FE reads the same keys it reads off ``/views``.'
+    AttributionPayload:
+      properties:
+        kind:
+          type: string
+          enum:
+          - skill
+          - knowledge
+          title: Kind
+        entryId:
+          type: string
+          title: Entryid
+        displayName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Displayname
+      type: object
+      required:
+      - kind
+      - entryId
+      title: AttributionPayload
+      description: 'One trust-receipt entry.
+
+
+        Carried under two metadata keys with the same shape: `attribution` (the
+
+        reply ran a skill / applied a saved preference) and `knowledge_saved` (the
+
+        reply saved a new knowledge entry). The key distinguishes the semantic; for
+
+        `knowledge_saved` `kind` is always `"knowledge"`.'
+    EnrichmentValueBaseModel:
+      properties:
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: 1-2 sentence explanation of the enrichment value.
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: The enrichment value.
+        citations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnrichmentCitation'
+            type: array
+          - type: 'null'
+          title: Citations
+          description: List of citations from web search sources that support the enrichment value if any were used.
+        state:
+          $ref: '#/components/schemas/EnrichmentState'
+          description: The status of the enrichment value.
+          default: unenriched
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      title: EnrichmentValueBaseModel
+      description: Enrichment value domain model.
+    LoadCapabilityReturnPart:
+      properties:
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_name:
+          type: string
+          const: load_capability
+          title: Tool Name
+          default: load_capability
+        content:
+          $ref: '#/components/schemas/LoadCapabilityReturn'
+        tool_kind:
+          type: string
+          const: capability-load
+          title: Tool Kind
+          default: capability-load
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - content
+      title: LoadCapabilityReturnPart
+      description: Typed `ToolReturnPart` for the `load_capability` tool.
+    UploadedFile:
+      properties:
+        file_id:
+          type: string
+          title: File Id
+        provider_name:
+          type: string
+          enum:
+          - anthropic
+          - openai
+          - google
+          - google-cloud
+          - google-gla
+          - google-vertex
+          - bedrock
+          - xai
+          title: Provider Name
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: uploaded-file
+          title: Kind
+          default: uploaded-file
+        media_type:
+          type: string
+          title: Media Type
+          description: 'Return the media type of the file, inferred from `file_id` if not explicitly provided.
+
+
+            Note: Inference relies on the file extension in `file_id`.
+
+            For opaque file IDs (e.g., `''file-abc123''`), the media type will default to `''application/octet-stream''`.
+
+            Inference relies on Python''s `mimetypes` module, whose results may vary across platforms.
+
+
+            Required by some providers (e.g., Bedrock) for certain file types.'
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `UploadedFile`.
+
+
+            This identifier is only automatically passed to the model when the `UploadedFile` is returned by a tool.
+
+            If you''re passing the `UploadedFile` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `UploadedFile`.'
+          readOnly: true
+      type: object
+      required:
+      - file_id
+      - provider_name
+      - media_type
+      - identifier
+      title: UploadedFile
+      description: 'A reference to a file uploaded to a provider''s file storage by ID.
+
+
+        This allows referencing files that have been uploaded via provider-specific file APIs
+
+        rather than providing the file content directly.
+
+
+        Supported by:
+
+
+        - [`AnthropicModel`][pydantic_ai.models.anthropic.AnthropicModel]
+
+        - [`OpenAIChatModel`][pydantic_ai.models.openai.OpenAIChatModel]
+
+        - [`OpenAIResponsesModel`][pydantic_ai.models.openai.OpenAIResponsesModel]
+
+        - [`BedrockConverseModel`][pydantic_ai.models.bedrock.BedrockConverseModel]
+
+        - [`GoogleModel`][pydantic_ai.models.google.GoogleModel] (Gemini API: [Files API](https://ai.google.dev/gemini-api/docs/files) URIs, Google Cloud: GCS `gs://` URIs)
+
+        - [`XaiModel`][pydantic_ai.models.xai.XaiModel]'
+    StreamSummarizationStatus:
+      properties:
+        type:
+          type: string
+          const: summarization_status
+          title: Type
+          default: summarization_status
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        message:
+          type: string
+          title: Message
+          description: User-facing description of the wait.
+      type: object
+      required:
+      - message
+      title: StreamSummarizationStatus
+      description: 'A follow-up send is waiting out the prior turn''s summary finalization.
+
+
+        Emitted once, before the send path starts polling for the summary child''s
+
+        slot release, so the client can show an accurate working state instead of
+
+        silence. Non-terminal: the turn either proceeds into the normal stream or
+
+        ends with a typed ``StreamChatError`` if the window outlives the wait.'
+    ThumbnailBounds:
+      properties:
+        min_lon:
+          type: number
+          title: Min Lon
+        min_lat:
+          type: number
+          title: Min Lat
+        max_lon:
+          type: number
+          title: Max Lon
+        max_lat:
+          type: number
+          title: Max Lat
+      type: object
+      required:
+      - min_lon
+      - min_lat
+      - max_lon
+      - max_lat
+      title: ThumbnailBounds
+      description: 'Bounding box for project thumbnail map rendering.
+
+
+        Represents the geographic extent of project features for generating
+
+        static map thumbnails via Mapbox.'
+    ColumnRole:
+      type: string
+      enum:
+      - stat
+      - other
+      title: ColumnRole
+      description: 'Narrow detail-panel placement signal, orthogonal to ``semantic_type``.
+
+
+        The one signal that cannot be derived from ``semantic_type``: parcel
+
+        ``parval`` and ``improvval`` are both ``CURRENCY``, but only ``parval`` is
+
+        a headline stat. ``role`` carries that; ``semantic_type`` carries
+
+        content/format. Ordering and visibility live on the *view*, not here.'
+    SystemPromptPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        dynamic_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dynamic Ref
+        part_kind:
+          type: string
+          const: system-prompt
+          title: Part Kind
+          default: system-prompt
+      type: object
+      required:
+      - content
+      title: SystemPromptPart
+      description: 'A system prompt, generally written by the application developer.
+
+
+        This gives the model context and guidance on how to respond.'
+    ArchiveMetadataSchema:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: The archive's id, used to fetch its content.
+        summary_content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary Content
+          description: The summary content that replaced these messages.
+        safe_split_index:
+          type: integer
+          title: Safe Split Index
+          description: The split index used for summarization.
+        message_count:
+          type: integer
+          title: Message Count
+          description: Number of archived messages.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: When the messages were archived (UTC timestamp).
+      type: object
+      required:
+      - id
+      - safe_split_index
+      - message_count
+      - created_at
+      title: ArchiveMetadataSchema
+      description: Light metadata for a single archive, without message bodies.
+    NativeToolCallPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        args:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-call
+          title: Part Kind
+          default: builtin-tool-call
+      type: object
+      required:
+      - tool_name
+      title: NativeToolCallPart
+      description: "A tool call to a native tool.\n\nFor native tools with a stable cross-provider shape (currently `tool_search`), this base\nclass can be promoted to a typed subclass with a narrowed `args` `TypedDict`. See\n[`NativeToolSearchCallPart`][pydantic_ai.messages.NativeToolSearchCallPart] for the\ncanonical example.\n\nAdding a typed subclass for a future native tool (see `pydantic_ai._tool_search` for\na worked example):\n\n1. Add a sibling `pydantic_ai/_<name>.py` module that defines the cross-provider\n   `TypedDict`s, the `NativeToolCallPart` / `NativeToolReturnPart` subclasses,\n   and registers their narrowers into `_NATIVE_CALL_NARROWERS` /\n   `_NATIVE_RETURN_NARROWERS` keyed by `tool_kind`. Subclass overrides\n   `tool_kind: Literal['<emitter>']` to match the emitting\n   [`AbstractNativeTool.kind`][pydantic_ai.native_tools.AbstractNativeTool.kind],\n   and shadows `args` / `content` with a narrower type.\n2. Late-import the new module from this file (alongside the existing tool-search\n   import) so registration runs whenever `pydantic_ai.messages` is imported.\n3. Add the subclass to `ModelResponsePart`'s discriminated union and to\n   `_model_response_part_discriminator` so Pydantic deserialization auto-promotes\n   on `model_validate` / `model_validate_json`.\n\nDispatch is by `tool_kind`, not `tool_name`. This protects users whose tools happen to\nshare a name with one of ours from accidentally getting their parts promoted (and\nfailing shape validation against the typed `args`/`content`).\n\nThe `provider_details` field carries genuinely non-portable provider extras\n(e.g. Anthropic's `strategy: 'bm25' | 'regex'` for tool search). Promote a field\nto a typed slot in `args` / `content` only when at least two of OpenAI, Anthropic,\nand Google support it (cf. [issue #3885](https://github.com/pydantic/pydantic-ai/issues/3885)).\n\nMCP server tools land here with `tool_kind='mcp_server'` (label stays in\n`tool_name='mcp_server:<label>'`); typed-subclass work for MCP is tracked by\n[issue #3561](https://github.com/pydantic/pydantic-ai/issues/3561)."
+    ImageUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: image-url
+          title: Kind
+          default: image-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: ImageUrl
+      description: A URL to an image.
+    ChatResumeRequest:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+          description: The project whose live chat run to re-attach to.
+        expected_run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expected Run Id
+          description: The run id the chat GET reported as active. The reattach tails this run only; if the pointer has since moved to a newer run, the server yields nothing so the client reloads persisted history. Omit to tail whatever run is currently active.
+      type: object
+      required:
+      - project_id
+      title: ChatResumeRequest
+      description: Schema for re-attaching to a project's in-flight chat run (refresh-resume).
+    SkillPlanPayload:
+      properties:
+        skill_name:
+          type: string
+          maxLength: 200
+          title: Skill Name
+          description: Name of the skill being executed, as shown to the user.
+        phases:
+          items:
+            $ref: '#/components/schemas/SkillPlanPhase'
+          type: array
+          maxItems: 50
+          title: Phases
+          description: The complete, ordered phase list for this skill run — resend the FULL list with updated statuses on every call, not a diff.
+      type: object
+      required:
+      - skill_name
+      - phases
+      title: SkillPlanPayload
+    LoadCapabilityCallPart:
+      properties:
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_name:
+          type: string
+          const: load_capability
+          title: Tool Name
+          default: load_capability
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/LoadCapabilityArgs'
+          - type: 'null'
+          title: Args
+        tool_kind:
+          type: string
+          const: capability-load
+          title: Tool Kind
+          default: capability-load
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      title: LoadCapabilityCallPart
+      description: Typed `ToolCallPart` for the `load_capability` tool.
+    ChatModelsResponse:
+      properties:
+        models:
+          items:
+            $ref: '#/components/schemas/ChatModelOption'
+          type: array
+          title: Models
+      type: object
+      required:
+      - models
+      title: ChatModelsResponse
+      description: Curated model-picker options for the chat composer dropdown.
+    NotEnoughContext:
+      properties:
+        reason:
+          type: string
+          title: Reason
+          description: The reason why the action is not possible
+      type: object
+      required:
+      - reason
+      title: NotEnoughContext
+    NativeToolSearchReturnPart:
+      properties:
+        tool_name:
+          type: string
+          const: tool_search
+          title: Tool Name
+          default: tool_search
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        content:
+          $ref: '#/components/schemas/ToolSearchReturnContent'
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-return
+          title: Part Kind
+          default: builtin-tool-return
+      type: object
+      required:
+      - content
+      title: NativeToolSearchReturnPart
+      description: 'Typed view of a [`NativeToolReturnPart`][pydantic_ai.messages.NativeToolReturnPart] for tool search.
+
+
+        Used on the native server-side tool-search path (Anthropic BM25/regex, OpenAI
+
+        Responses) where the provider executes the search and emits a native result.
+
+        The local-fallback path uses
+
+        [`ToolSearchReturnPart`][pydantic_ai.messages.ToolSearchReturnPart] instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `content` with a narrower
+
+        [`ToolSearchReturnContent`][pydantic_ai.messages.ToolSearchReturnContent]
+
+        `TypedDict`.'
+    SemanticType:
+      type: string
+      enum:
+      - identifier
+      - name
+      - address_part
+      - address_full
+      - currency
+      - area
+      - height
+      - count
+      - category
+      - zoning
+      - date
+      - phone
+      - website
+      - percent
+      - generic
+      title: SemanticType
+      description: 'What a column *means* — drives FE rendering and formatting.
+
+
+        Independent from ``ColumnDataType`` (the storage type hint): a column can
+
+        be ``data_type=number, semantic_type=currency`` (parcel ``landval``) or
+
+        ``data_type=number, semantic_type=area`` (``area_acres``). The FE renderer
+
+        keys off ``semantic_type``, not ``data_type``.
+
+
+        Lives here (with the wire model) rather than on ``LayerKind`` because under
+
+        the self-describing contract this rides on ``LayerColumn`` across the wire
+
+        — ``LayerKind`` is the backend-only producer that hydrates it.'
+    ToolSearchReturnContent:
+      properties:
+        discovered_tools:
+          items:
+            $ref: '#/components/schemas/ToolSearchMatch'
+          type: array
+          title: Discovered Tools
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - discovered_tools
+      title: ToolSearchReturnContent
+      description: 'Typed return value of the framework-managed tool-search builtin.
+
+
+        Carried on
+
+        [`NativeToolSearchReturnPart.content`][pydantic_ai.messages.NativeToolSearchReturnPart.content]
+
+        (native server-side path) and
+
+        [`ToolSearchReturnPart.content`][pydantic_ai.messages.ToolSearchReturnPart.content]
+
+        (local-fallback path) as the canonical cross-provider shape.'
+    LayerModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        reference_layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Reference Layer Id
+        reference_layer_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Reference Layer Ids
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        style_config:
+          additionalProperties: true
+          type: object
+          title: Style Config
+        feature_count:
+          type: integer
+          title: Feature Count
+        total_size_bytes:
+          type: integer
+          title: Total Size Bytes
+        data_version:
+          type: integer
+          title: Data Version
+          default: 0
+        schema_version:
+          type: integer
+          title: Schema Version
+          default: 0
+        metadata_version:
+          type: integer
+          title: Metadata Version
+          default: 0
+        base_attributes:
+          additionalProperties: true
+          type: object
+          title: Base Attributes
+        feature_enrichments:
+          items:
+            $ref: '#/components/schemas/EnrichmentModel'
+          type: array
+          title: Feature Enrichments
+        sandbox_relation_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sandbox Relation Name
+        render_mode:
+          type: string
+          enum:
+          - detail_always
+          - agg_at_low_zoom
+          title: Render Mode
+          default: agg_at_low_zoom
+        display_kind:
+          type: string
+          enum:
+          - data
+          - boundary
+          title: Display Kind
+          description: Whether the layer is a queryable dataset (``data``) or a styling-only overlay (``boundary``). Boundary layers paint on the map but suppress the per-layer table, column manager, and feature-detail panel — there is no per-row data worth surfacing.
+          default: data
+        extent_bounds:
+          anyOf:
+          - $ref: '#/components/schemas/ThumbnailBounds'
+          - type: 'null'
+          description: Stored unfiltered extent of the layer's geometry, computed at ingest and recomputed on geometry-changing writes. None until computed (pre-backfill rows) or when the layer has no geometry. The FE uses it for initial map framing instead of a live ST_Extent call; filtered zoom-to-features stays live.
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        columns:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LayerColumn'
+            type: array
+          - type: 'null'
+          title: Columns
+          description: Producer-declared, resolved per-column metadata (id, key, provenance, display name, data type) — schema/lineage only. Visibility and ordering live on the view, seeded at register-layer time. None for legacy pre-cutover layers; the composer derives sensible defaults from physical introspection.
+        data_restricted:
+          type: boolean
+          title: Data Restricted
+          description: Share-response-only signal that the layer's geometry is shown while every per-row attribute is withheld (parcel layers on anonymous share links). Always False on authenticated reads; set True solely by the shared-project layer builder. The FE renders a 'data unavailable in the public version' state in place of an empty grid.
+          default: false
+        title_template:
+          items:
+            type: string
+          type: array
+          title: Title Template
+          description: Ordered column keys the FE concatenates to compose a feature's title (e.g. `[parcelnumb]`, `[primary_address_full]`). Sourced from the layer's `LayerKind`, empty for permissive kinds — the FE keeps its generic title fallback for the long tail.
+        address_template:
+          items:
+            type: string
+          type: array
+          title: Address Template
+          description: Ordered column keys the FE concatenates to compose a feature's address line. Sourced from the layer's `LayerKind`; may reference keys that aren't typed canonical columns (city, state_abbr, …). Empty for permissive kinds.
+      type: object
+      required:
+      - id
+      - project_id
+      - name
+      - style_config
+      - feature_count
+      - total_size_bytes
+      - base_attributes
+      - created_at
+      - updated_at
+      title: LayerModel
+      description: Model for a layer.
+    MortgageProfileModel:
+      properties:
+        free_and_clear:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Free And Clear
+        open_lien_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Open Lien Count
+        total_open_lien_balance:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Open Lien Balance
+        equity_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Equity Percent
+        estimated_value:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Value
+        foreclosure_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Foreclosure Status
+        has_recorder_evidence:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Recorder Evidence
+        as_of:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: As Of
+        open_liens:
+          items:
+            $ref: '#/components/schemas/MortgageOpenLien'
+          type: array
+          title: Open Liens
+        valuation:
+          anyOf:
+          - $ref: '#/components/schemas/MortgageValuationSummary'
+          - type: 'null'
+        foreclosure:
+          anyOf:
+          - $ref: '#/components/schemas/MortgageForeclosureNotice'
+          - type: 'null'
+        involuntary_liens:
+          items:
+            $ref: '#/components/schemas/MortgageInvoluntaryLien'
+          type: array
+          title: Involuntary Liens
+        recorder_evidence:
+          anyOf:
+          - $ref: '#/components/schemas/MortgageRecorderEvidence'
+          - type: 'null'
+      type: object
+      title: MortgageProfileModel
+      description: The full mortgage & liens profile for one matched property.
+    PendingEnrichmentRef:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: UUID of the skeleton enrichment row.
+        name:
+          type: string
+          title: Name
+          description: Internal name of the enrichment.
+        display_name:
+          type: string
+          title: Display Name
+          description: User-visible name for the enrichment.
+      type: object
+      required:
+      - id
+      - name
+      - display_name
+      title: PendingEnrichmentRef
+      description: Reference to a skeleton enrichment that is still being configured.
+    LoadCapabilityReturn:
+      properties:
+        instructions:
+          type: string
+          title: Instructions
+      type: object
+      title: LoadCapabilityReturn
+      description: Typed return value for the `load_capability` tool.
+    CreateLayerSuccess:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Success message explaining the recommended layer configuration
+        copy_parameters:
+          $ref: '#/components/schemas/CopyLayerParameters'
+          description: Parameters to use with copy_from_overture_table_by_layer_geometry function
+        layer_description:
+          type: string
+          title: Layer Description
+          description: One-sentence description of what this layer contains and its purpose
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+          description: Any caveats or limitations that should be considered when using this layer. Include information about the strategy taken to create the layer and any issues that had occured. Limit to 100 words. Omit if there are no issues.
+      type: object
+      required:
+      - message
+      - copy_parameters
+      - layer_description
+      title: CreateLayerSuccess
+      description: Successful layer creation result with copy parameters.
+    FeatureContext:
+      properties:
+        feature_id:
+          type: string
+          minLength: 1
+          title: Feature Id
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+      type: object
+      required:
+      - feature_id
+      - layer_id
+      title: FeatureContext
+      description: 'Reference to a specific feature the user is viewing.
+
+
+        Sent when the detail view is open so the agent knows which feature
+
+        the user is talking about. Reused by @ mentions.
+
+
+        `feature_id` is a string because sandbox-backed layers (place-type) use
+
+        UUID feature ids, while CloudSQL `features.id` is bigint serialized as a
+
+        numeric string. Validation only enforces non-empty.'
+    StreamLLMProviderError:
+      properties:
+        last_edit_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edit Description
+          description: Human-readable description of what was changed, derived from tools called.
+        last_edited_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Edited At
+          description: Timestamp of when the project edit was recorded.
+        last_edited_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edited By Name
+          description: Display name of the user who made the edit.
+        type:
+          type: string
+          const: llm_provider_error
+          title: Type
+          default: llm_provider_error
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        error_type:
+          type: string
+          enum:
+          - overload
+          - rate_limit
+          - api_error
+          title: Error Type
+          description: Specific type of LLM provider error
+        error:
+          type: string
+          title: Error
+          description: User-friendly error message.
+        provider:
+          type: string
+          title: Provider
+          description: LLM provider that caused the error (e.g., 'anthropic', 'openai')
+        status_code:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Code
+          description: HTTP status code if available
+        retry_suggested:
+          type: boolean
+          title: Retry Suggested
+          description: Whether the user should retry
+          default: true
+        partial_result:
+          type: boolean
+          title: Partial Result
+          description: True when the workflow persisted a finalized partial turn before emitting this terminal (a terminal model failure that had already completed tool work). A refresh-resumed reader reloads persisted history instead of treating this frame as fully rendered.
+          default: false
+        continuable:
+          type: boolean
+          title: Continuable
+          description: 'True only when the failed turn left a partial the agent can resume from (the same condition that sets chats.last_turn_continuable). Distinct from partial_result: a turn can persist a partial yet not be continuable (e.g. a cooperative/monitor stop). The FE gates the Continue affordance on this, never on partial_result.'
+          default: false
+        new_messages:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: New Messages
+          description: The persisted partial turn, surfaced and instruction-filtered. Populated with partial_result=True (a terminal model failure that had already completed work), so the live client renders the failed turn without leaving leaked <thinking> prose; empty otherwise.
+      type: object
+      required:
+      - error_type
+      - error
+      - provider
+      title: StreamLLMProviderError
+      description: 'Schema for LLM provider-specific errors.
+
+
+        A terminal model failure that already committed work finalizes on this frame
+
+        rather than downgrading to a generic error — keeping the honest "providers
+
+        responding slowly" provider taxonomy. The stamp + ``partial_result`` fields
+
+        are additive (``partial_result`` defaults False, stamp fields default None),
+
+        so the generic provider-error construction
+
+        (``categorize_chat_stream_exception_to_frame``) is unchanged.'
+    ToolResourceResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Response to prompt and description of the changes made.
+        resources:
+          items:
+            $ref: '#/components/schemas/ResourceReference'
+          type: array
+          title: Resources
+          description: List of resources created or modified by the tool.
+      type: object
+      required:
+      - message
+      title: ToolResourceResponse
+      description: 'Generic response model for tool/agent outputs.
+
+
+        Structured response that includes a message and any resource references
+
+        created or modified by the tool.'
+    MortgageForeclosureNotice:
+      properties:
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        recording_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recording Date
+        auction_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Auction Date
+        unpaid_balance:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Unpaid Balance
+        past_due_amount:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Past Due Amount
+        current_lender_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Lender Name
+      type: object
+      title: MortgageForeclosureNotice
+      description: Pre-foreclosure filing detail; only present when a filing exists.
+    SelectOption:
+      properties:
+        id:
+          type: string
+          title: Id
+        label:
+          type: string
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - id
+      - label
+      title: SelectOption
+    InteractiveQuestionAnswer:
+      properties:
+        optionId:
+          type: string
+          title: Optionid
+        label:
+          type: string
+          title: Label
+        questionId:
+          type: string
+          title: Questionid
+      type: object
+      required:
+      - optionId
+      - label
+      - questionId
+      title: InteractiveQuestionAnswer
+    MortgageRecorderEvidence:
+      properties:
+        has_last_sale:
+          type: boolean
+          title: Has Last Sale
+        has_mortgage_history:
+          type: boolean
+          title: Has Mortgage History
+        has_any_lien:
+          type: boolean
+          title: Has Any Lien
+      type: object
+      required:
+      - has_last_sale
+      - has_mortgage_history
+      - has_any_lien
+      title: MortgageRecorderEvidence
+      description: 'County-recorder evidence booleans.
+
+
+        Input to a county-level coverage rate, never a per-property coverage
+
+        verdict — a never-refinanced home and an uncovered county share this
+
+        signature (see ``clients.batchdata.models.RecorderEvidence``).'
+    ToolReturnPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        content:
+          $ref: '#/components/schemas/ToolReturnContent'
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - tool_name
+      - content
+      title: ToolReturnPart
+      description: A tool return message, this encodes the result of running a tool.
+    UnprocessableQueryResult:
+      properties:
+        reason:
+          $ref: '#/components/schemas/UnprocessableQueryReason'
+          description: Why the query cannot be processed
+        message:
+          type: string
+          title: Message
+          description: 'User-friendly explanation of why the query cannot be processed. Format rules: - Use third-person, declarative statements (NOT first-person like "I can''t" or "I don''t understand")
+
+            - Do NOT ask questions (no "Did you mean...?" or "Can you specify...?")
+
+            - Be concise and actionable - explain what''s needed for a valid query'
+        suggestions:
+          items:
+            type: string
+          type: array
+          title: Suggestions
+          description: Optional list of example valid queries the user could try
+        requirements_met:
+          anyOf:
+          - $ref: '#/components/schemas/RequirementsCheck'
+          - type: 'null'
+          description: Which requirements from the query are satisfied, even if the overall query is invalid
+      type: object
+      required:
+      - reason
+      - message
+      title: UnprocessableQueryResult
+      description: Result returned when a query cannot be processed — invalid input, system limitation, or execution blocker.
+    ColumnKind:
+      type: string
+      enum:
+      - source
+      - merged
+      - enrichment
+      - system
+      - agent_derived
+      title: ColumnKind
+      description: "Provenance discriminator for a layer column.\n\n* `source` — column SELECTed directly from the canonical Overture table.\n* `merged` — column joined in from another canonical source table (e.g.\n  `parcel_owner` on a building layer joined parcel data).\n* `enrichment` — populated by an enrichment runner, not the agent's SQL.\n  (Reserved for the upcoming enrichment unification — not used yet.)\n* `system` — agent-facing hide-by-default escape for lineage columns\n  merged for enrichment plumbing the user shouldn't see by default\n  (e.g. parcel address fields plumbed onto a building layer for Owner\n  Contact Info). Stays in the registered schema and can be surfaced\n  later via `modify_columns`.\n* `agent_derived` — computed in the agent's SQL (`SUM(...) AS total`,\n  `CASE WHEN ... END AS bucket`). Still requires source_table+source_column\n  anchoring so view deltas survive a column rename."
+    InvokedSkillPayload:
+      properties:
+        skillId:
+          type: string
+          title: Skillid
+        skillName:
+          type: string
+          title: Skillname
+      type: object
+      required:
+      - skillId
+      - skillName
+      title: InvokedSkillPayload
+      description: The catalog skill a user turn invoked, for the inline chip.
+    StreamErrorCode:
+      type: string
+      enum:
+      - db_unavailable
+      - agent_failure
+      - internal
+      - run_in_progress
+      - not_continuable
+      title: StreamErrorCode
+      description: 'Stable taxonomy for generic stream errors.
+
+
+        Clients branch on `code` for retry / toast / surface decisions; the
+
+        free-form `error` message remains the user-visible string. Add
+
+        new codes here when a new error class needs distinct client handling.'
+    ToolApprovalRequest:
+      properties:
+        toolCallId:
+          type: string
+          title: Toolcallid
+        toolName:
+          type: string
+          title: Toolname
+        args:
+          additionalProperties: true
+          type: object
+          title: Args
+      type: object
+      required:
+      - toolCallId
+      - toolName
+      - args
+      title: ToolApprovalRequest
+      description: The pending approval-gated tool call, as persisted for card rendering.
+    PDLExperience:
+      properties:
+        company:
+          anyOf:
+          - $ref: '#/components/schemas/PDLCompany'
+          - type: 'null'
+        title:
+          anyOf:
+          - $ref: '#/components/schemas/PDLTitle'
+          - type: 'null'
+        location_names:
+          items:
+            type: string
+          type: array
+          title: Location Names
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        is_primary:
+          type: boolean
+          title: Is Primary
+          default: false
+      type: object
+      title: PDLExperience
+      description: Work experience from PDL.
+    StreamChatInterrupted:
+      properties:
+        last_edit_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edit Description
+          description: Human-readable description of what was changed, derived from tools called.
+        last_edited_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Edited At
+          description: Timestamp of when the project edit was recorded.
+        last_edited_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Edited By Name
+          description: Display name of the user who made the edit.
+        type:
+          type: string
+          const: interrupted
+          title: Type
+          default: interrupted
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        reason:
+          type: string
+          title: Reason
+          description: Human-readable interruption copy for display surfaces.
+        project_id:
+          type: string
+          title: Project Id
+          description: The project ID.
+        stop_reason:
+          $ref: '#/components/schemas/ChatStopReason'
+          description: Machine discriminant for why the run stopped. Clients branch on this, never on the display copy in `reason`.
+        partial_result:
+          type: boolean
+          title: Partial Result
+          description: 'Whether a finalized partial turn was persisted before this terminal. Required, no default: every emitter declares persistence state explicitly, and only the workflow''s cooperative finalize — which persists before emitting — may set True.'
+        new_messages:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: New Messages
+          description: The persisted partial turn, surfaced and instruction-filtered. Populated only by the cooperative finalize (which persists before emitting); empty for reader-synthesized hard-cancel terminals.
+      type: object
+      required:
+      - reason
+      - project_id
+      - stop_reason
+      - partial_result
+      title: StreamChatInterrupted
+      description: 'Schema for chat interruption event.
+
+
+        ``new_messages`` carries the persisted partial (surfaced) so the live client
+
+        renders a stopped turn exactly as a reload would — routing any leaked
+
+        ``<thinking>`` reasoning to the thinking display instead of leaving it as raw
+
+        chat prose. Empty when no partial was persisted (a hard-cancel synthesis),
+
+        so no partial turn is fabricated.'
+    StreamThinkingDelta:
+      properties:
+        type:
+          type: string
+          const: thinking_delta
+          title: Type
+          default: thinking_delta
+        display:
+          type: string
+          const: thinking
+          title: Display
+          default: thinking
+        content:
+          type: string
+          title: Content
+          description: Incremental thinking/reasoning content from the agent.
+      type: object
+      required:
+      - content
+      title: StreamThinkingDelta
+      description: Schema for streaming thinking/reasoning content deltas.
+    OwnershipDuration:
+      properties:
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: The reasoning for the ownership duration.
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+          description: The sources for the ownership duration.
+      type: object
+      title: OwnershipDuration
+      description: 'Property ownership duration representing when ownership began.
+
+
+        Used for property/parcel ownership (e.g., via deed records).
+
+        Can represent exact year (min == max) or range of possible years.
+
+        Confidence is inferred: exact year = confirmed, range = approximate.'
+    TextContent:
+      properties:
+        content:
+          type: string
+          title: Content
+        metadata:
+          title: Metadata
+        kind:
+          type: string
+          const: text-content
+          title: Kind
+          default: text-content
+      type: object
+      required:
+      - content
+      title: TextContent
+      description: 'String content that is tagged with additional metadata.
+
+
+        This is useful for including metadata that can be accessed programmatically by the application, but is not sent to the LLM.'
+    ToolCallPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        args:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      required:
+      - tool_name
+      title: ToolCallPart
+      description: A tool call from a model.
+    StreamProjectCreated:
+      properties:
+        type:
+          type: string
+          const: project_created
+          title: Type
+          default: project_created
+        display:
+          type: string
+          const: internal
+          title: Display
+          default: internal
+        project_id:
+          type: string
+          title: Project Id
+          description: The newly created project ID.
+        project_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Name
+          description: Auto-generated project title, if available.
+      type: object
+      required:
+      - project_id
+      title: StreamProjectCreated
+      description: Schema for project creation event, sent at stream start.
+    TextPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: text
+          title: Part Kind
+          default: text
+      type: object
+      required:
+      - content
+      title: TextPart
+      description: A plain text response from a model.
+    ChatInterruptResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Whether the interrupt was successful.
+        message:
+          type: string
+          title: Message
+          description: Status message.
+        was_active:
+          type: boolean
+          title: Was Active
+          description: Whether the chat stream was active when interrupt was requested.
+      type: object
+      required:
+      - success
+      - message
+      - was_active
+      title: ChatInterruptResponse
+      description: Schema for chat interrupt responses.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

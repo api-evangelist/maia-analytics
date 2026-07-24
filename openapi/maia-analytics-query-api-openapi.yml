@@ -1,0 +1,181 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah query API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: query
+paths:
+  /api/v1/query/parse:
+    post:
+      tags:
+      - query
+      summary: Parse User Query
+      description: 'Parse a user query in real-time, returning structured layer identification.
+
+
+        This is a lightweight, stateless endpoint designed for debounced calls
+
+        as the user types, powering the live preview chips on the Canvas empty state.'
+      operationId: parse_user_query_api_v1_query_parse_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryParseRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryParseResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    RequirementsCheck:
+      properties:
+        location:
+          type: boolean
+          title: Location
+          description: Whether the query specifies a geographic location
+        size_range:
+          type: boolean
+          title: Size Range
+          description: Whether any size/area criteria can be satisfied (building roof area, parcel lot size, etc.)
+        use_type:
+          type: boolean
+          title: Use Type
+          description: Whether property type, use type, or zoning criteria can be satisfied (from buildings, parcels, or places)
+        contextual_data:
+          type: boolean
+          title: Contextual Data
+          description: Whether contextual data needs (enrichments, POIs) can be satisfied
+      type: object
+      required:
+      - location
+      - size_range
+      - use_type
+      - contextual_data
+      title: RequirementsCheck
+      description: Tracks which key requirements from the query are satisfiable.
+    QueryParseRequest:
+      properties:
+        query_text:
+          type: string
+          minLength: 1
+          title: Query Text
+          description: The user's natural language query to parse
+      type: object
+      required:
+      - query_text
+      title: QueryParseRequest
+      description: Request body for the real-time query parse endpoint.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    QueryParseResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/QueryParseItem'
+          type: array
+          title: Items
+          description: Layers and enrichments identified from the query
+        requirements_met:
+          $ref: '#/components/schemas/RequirementsCheck'
+          description: Which key requirements from the query are satisfiable
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+          description: Warnings for the user about the parsed geography.
+        multi_geography_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Multi Geography Error
+          description: Error when the query targets multiple separate geographies (only one is supported per project)
+      type: object
+      required:
+      - requirements_met
+      title: QueryParseResponse
+      description: Lightweight real-time parse of a user query, used for live preview chips.
+    QueryParseItemKind:
+      type: string
+      enum:
+      - layer
+      - enrichment
+      title: QueryParseItemKind
+      description: Whether a parsed item is a layer (from core dataset) or an enrichment.
+    QueryParseItem:
+      properties:
+        kind:
+          $ref: '#/components/schemas/QueryParseItemKind'
+          description: '''layer'' for data from core dataset, ''enrichment'' for external/derived data'
+        type:
+          type: string
+          title: Type
+          description: 'For layers: Overture Maps table name (e.g., ''division_area'', ''building'', ''place'', ''segment'', ''parcel''). For enrichments: enrichment tool name (e.g., ''General'', ''Contacts'', ''OwnerOccupied'', ''TenantInfo'').'
+        name:
+          type: string
+          title: Name
+          description: Human-readable name (e.g., 'Adams County Boundary', 'Commercial Buildings', 'Solar Potential')
+        source_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Text
+          description: The exact substring from the user's query that this item was identified from
+      type: object
+      required:
+      - kind
+      - type
+      - name
+      title: QueryParseItem
+      description: A single item identified from a user query — either a layer or an enrichment.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

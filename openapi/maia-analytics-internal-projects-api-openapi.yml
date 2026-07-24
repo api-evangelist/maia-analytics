@@ -1,0 +1,137 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah internal-projects API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: internal-projects
+paths:
+  /api/v1/internal/projects/{project_id}/edit-session:
+    post:
+      tags:
+      - internal-projects
+      summary: Start Edit Session
+      description: 'Begin an admin write-mode editing session on a user''s project.
+
+
+        Acquires the project editing lock for the admin (409 if another user holds
+
+        it) and records one EDIT_PROJECT_AS_ADMIN audit row. With ``force=true``
+
+        the holder is evicted instead of 409ing and the audit metadata records the
+
+        takeover. The client then navigates into the project with
+
+        ``?admin_mode=write``.'
+      operationId: start_edit_session_api_v1_internal_projects__project_id__edit_session_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: force
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Force
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLockStatus'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ProjectLockStatus:
+      properties:
+        is_locked:
+          type: boolean
+          title: Is Locked
+          description: Whether the project is currently locked.
+        locked_by_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By User Id
+          description: User ID of the lock holder, if locked.
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+          description: Display name of the lock holder for UI.
+        locked_by_avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Avatar Color
+          description: Avatar color name of the lock holder for UI.
+        is_current_user:
+          type: boolean
+          title: Is Current User
+          description: True when the current user holds the lock.
+          default: false
+        ttl_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ttl Seconds
+          description: Remaining TTL of the lock in seconds, if locked.
+      type: object
+      required:
+      - is_locked
+      title: ProjectLockStatus
+      description: Status of the project editing lock.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

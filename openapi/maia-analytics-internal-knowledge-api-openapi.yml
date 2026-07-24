@@ -1,0 +1,544 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah internal-knowledge API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: internal-knowledge
+paths:
+  /api/v1/internal/knowledge:
+    get:
+      tags:
+      - internal-knowledge
+      summary: List Knowledge Entries
+      description: 'List a target owner''s entries for a scope (user or workspace).
+
+
+        The ``require_internal`` injection is redundant with the router-level gate
+
+        today, but kept for symmetry with the mutating handlers so the read path
+
+        stays admin-gated even if this router is ever re-mounted standalone.'
+      operationId: list_knowledge_entries_api_v1_internal_knowledge_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: scope
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/KnowledgeScope'
+      - name: owner_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Owner Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeEntryResponse'
+                title: Response List Knowledge Entries Api V1 Internal Knowledge Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - internal-knowledge
+      summary: Create Knowledge Entry
+      description: Create an entry at the requested scope for the target owner.
+      operationId: create_knowledge_entry_api_v1_internal_knowledge_post
+      security:
+      - FirebaseAuthMiddleware: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminKnowledgeCreateRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/knowledge/apply-run:
+    post:
+      tags:
+      - internal-knowledge
+      summary: Apply Knowledge Run
+      description: 'Apply one populate-knowledge run atomically (all-or-nothing).
+
+
+        Writes are confined to the request''s workspace; every mutation carries the
+
+        run''s provenance in its audit metadata, and a run-marker audit row advances
+
+        the refresh cursor. Any invalid item rolls back the whole run.'
+      operationId: apply_knowledge_run_api_v1_internal_knowledge_apply_run_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminKnowledgeApplyRunRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminKnowledgeApplyRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/knowledge/run-cursor:
+    get:
+      tags:
+      - internal-knowledge
+      summary: Get Knowledge Run Cursor
+      description: Read a workspace's populate-knowledge refresh cursor (newest run marker).
+      operationId: get_knowledge_run_cursor_api_v1_internal_knowledge_run_cursor_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminKnowledgeRunCursorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/knowledge/{entry_id}:
+    patch:
+      tags:
+      - internal-knowledge
+      summary: Update Knowledge Entry
+      description: Replace any entry's title + content (admin override).
+      operationId: update_knowledge_entry_api_v1_internal_knowledge__entry_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entry Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminKnowledgeUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - internal-knowledge
+      summary: Delete Knowledge Entry
+      description: Delete any entry (admin override).
+      operationId: delete_knowledge_entry_api_v1_internal_knowledge__entry_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entry Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    KnowledgeRunUpdate:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - entry_id
+      - title
+      - content
+      title: KnowledgeRunUpdate
+      description: Replace an existing entry's title + content.
+    KnowledgeRunDelete:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+      type: object
+      required:
+      - entry_id
+      title: KnowledgeRunDelete
+      description: Delete an existing entry.
+    KnowledgeRunCreate:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: KnowledgeRunCreate
+      description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    KnowledgeRunProvenance:
+      properties:
+        source:
+          type: string
+          minLength: 1
+          title: Source
+          default: populate-knowledge
+        run_at:
+          type: string
+          format: date-time
+          title: Run At
+        meetings_through:
+          type: string
+          format: date-time
+          title: Meetings Through
+      type: object
+      required:
+      - run_at
+      - meetings_through
+      title: KnowledgeRunProvenance
+      description: 'Provenance stamped into every audit row a knowledge run writes.
+
+
+        ``meetings_through`` is the refresh cursor: the latest source meeting a run
+
+        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
+
+        only newer material.'
+    AdminKnowledgeApplyRunResponse:
+      properties:
+        created:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Created
+        updated:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Updated
+        deleted_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Deleted Ids
+        run_marker_id:
+          type: string
+          format: uuid
+          title: Run Marker Id
+      type: object
+      required:
+      - created
+      - updated
+      - deleted_ids
+      - run_marker_id
+      title: AdminKnowledgeApplyRunResponse
+      description: What an applied run changed, plus the run-marker audit row's id.
+    AdminKnowledgeApplyRunRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        provenance:
+          $ref: '#/components/schemas/KnowledgeRunProvenance'
+        creates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunCreate'
+          type: array
+          title: Creates
+        updates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunUpdate'
+          type: array
+          title: Updates
+        deletes:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunDelete'
+          type: array
+          title: Deletes
+      type: object
+      required:
+      - workspace_id
+      - provenance
+      title: AdminKnowledgeApplyRunRequest
+      description: 'One populate-knowledge run, applied atomically to a single workspace.
+
+
+        The item shapes (with title/content caps) are the domain run models; the
+
+        audit actor is the authenticated internal caller, so the payload carries no
+
+        admin id.'
+    AdminKnowledgeUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: AdminKnowledgeUpdateRequest
+      description: Replace an entry's title + content.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminKnowledgeRunCursorResponse:
+      properties:
+        meetings_through:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meetings Through
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        runs:
+          type: integer
+          title: Runs
+      type: object
+      required:
+      - meetings_through
+      - last_run_at
+      - runs
+      title: AdminKnowledgeRunCursorResponse
+      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
+
+
+        ``meetings_through`` is the opaque ISO-8601 string from the newest run
+
+        marker''s metadata; ``runs`` counts all markers for the workspace.'
+    AdminKnowledgeCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: AdminKnowledgeCreateRequest
+      description: 'Create a titled entry at ``scope`` for the target ``owner_id``.
+
+
+        ``owner_id`` is the target user id (user scope) or workspace id (workspace
+
+        scope).'
+    KnowledgeEntryResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_core:
+          type: boolean
+          title: Is Core
+          description: Whether this is the reserved always-injected core entry (MAIA-2833).
+          readOnly: true
+      type: object
+      required:
+      - id
+      - scope
+      - title
+      - content
+      - created_at
+      - updated_at
+      - is_core
+      title: KnowledgeEntryResponse
+      description: A titled knowledge entry as returned to clients.
+    KnowledgeScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      title: KnowledgeScope
+      description: 'Tier a knowledge entry applies to.
+
+
+        Resolution is additive and ordered ``user -> workspace`` — precedence is
+
+        ordering only, not override (no shadowing in v1). "System" knowledge is the
+
+        agent''s existing system prompt — a separate, pre-existing mechanism that does
+
+        not live in this table — so there is no ``system`` scope here.'
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

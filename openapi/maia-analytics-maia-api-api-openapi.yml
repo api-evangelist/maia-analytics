@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah MAIA API API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: MAIA API
+paths:
+  /:
+    get:
+      summary: Root
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RootResponse'
+      tags:
+      - MAIA API
+components:
+  schemas:
+    RootResponse:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        mock_mode:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Mock Mode
+        hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hint
+        auth_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Auth Status
+      type: object
+      title: RootResponse
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

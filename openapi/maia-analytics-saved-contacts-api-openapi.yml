@@ -1,0 +1,988 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah saved-contacts API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: saved-contacts
+paths:
+  /api/v1/saved-contacts/{project_id}/contacts:
+    get:
+      tags:
+      - saved-contacts
+      summary: List Contacts
+      operationId: list_contacts_api_v1_saved_contacts__project_id__contacts_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: layer_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Layer Id
+      - name: favorites_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Favorites Only
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          default: created_at
+          title: Sort By
+      - name: sort_dir
+        in: query
+        required: false
+        schema:
+          type: string
+          default: desc
+          title: Sort Dir
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - saved-contacts
+      summary: Save Contact
+      operationId: save_contact_api_v1_saved_contacts__project_id__contacts_post
+      security:
+      - FirebaseAuthMiddleware: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveContactRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/saved-contacts/{project_id}/contacts/check:
+    get:
+      tags:
+      - saved-contacts
+      summary: Check Saved Contacts
+      operationId: check_saved_contacts_api_v1_saved_contacts__project_id__contacts_check_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: feature_ids
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ''
+          title: Feature Ids
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactCheckResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/saved-contacts/{project_id}/contacts/export:
+    get:
+      tags:
+      - saved-contacts
+      summary: Export Contacts
+      operationId: export_contacts_api_v1_saved_contacts__project_id__contacts_export_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/saved-contacts/{project_id}/contacts/{contact_id}:
+    get:
+      tags:
+      - saved-contacts
+      summary: Get Contact Detail
+      operationId: get_contact_detail_api_v1_saved_contacts__project_id__contacts__contact_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - saved-contacts
+      summary: Update Contact
+      operationId: update_contact_api_v1_saved_contacts__project_id__contacts__contact_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - saved-contacts
+      summary: Delete Contact
+      operationId: delete_contact_api_v1_saved_contacts__project_id__contacts__contact_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+                title: Response Delete Contact Api V1 Saved Contacts  Project Id  Contacts  Contact Id  Delete
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/saved-contacts/{project_id}/contacts/{contact_id}/status:
+    patch:
+      tags:
+      - saved-contacts
+      summary: Update Contact Status
+      operationId: update_contact_status_api_v1_saved_contacts__project_id__contacts__contact_id__status_patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactStatusRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/saved-contacts/{project_id}/contacts/{contact_id}/notes:
+    post:
+      tags:
+      - saved-contacts
+      summary: Add Contact Note
+      operationId: add_contact_note_api_v1_saved_contacts__project_id__contacts__contact_id__notes_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddContactNoteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactNoteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/saved-contacts/{project_id}/contacts/{contact_id}/notes/{note_id}:
+    patch:
+      tags:
+      - saved-contacts
+      summary: Update Contact Note
+      operationId: update_contact_note_api_v1_saved_contacts__project_id__contacts__contact_id__notes__note_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      - name: note_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Note Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactNoteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedContactNoteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - saved-contacts
+      summary: Delete Contact Note
+      operationId: delete_contact_note_api_v1_saved_contacts__project_id__contacts__contact_id__notes__note_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Contact Id
+      - name: note_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Note Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+                title: Response Delete Contact Note Api V1 Saved Contacts  Project Id  Contacts  Contact Id  Notes  Note Id  Delete
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    SavedContactFeatureLinkResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        saved_contact_id:
+          type: string
+          format: uuid
+          title: Saved Contact Id
+        feature_id:
+          type: string
+          title: Feature Id
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+        layer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Layer Name
+      type: object
+      required:
+      - id
+      - saved_contact_id
+      - feature_id
+      - layer_id
+      title: SavedContactFeatureLinkResponse
+    UpdateContactNoteRequest:
+      properties:
+        content:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - content
+      title: UpdateContactNoteRequest
+    SavedContactIdentity:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        full_name:
+          type: string
+          title: Full Name
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+      type: object
+      required:
+      - id
+      - full_name
+      title: SavedContactIdentity
+    AddContactNoteRequest:
+      properties:
+        content:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - content
+      title: AddContactNoteRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SavedContactListResponse:
+      properties:
+        contacts:
+          items:
+            $ref: '#/components/schemas/SavedContactResponse'
+          type: array
+          title: Contacts
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - contacts
+      - total
+      title: SavedContactListResponse
+    UpdateContactRequest:
+      properties:
+        full_name:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Name
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        status:
+          anyOf:
+          - type: string
+            enum:
+            - not_contacted
+            - contacted
+            - contact_failed
+          - type: 'null'
+          title: Status
+        is_favorite:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Favorite
+      type: object
+      title: UpdateContactRequest
+    SaveContactRequest:
+      properties:
+        full_name:
+          type: string
+          maxLength: 500
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Last Name
+        job_title:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Job Title
+        job_company_name:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Job Company Name
+        work_email:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Personal Email
+        phone:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Phone
+        mobile_phone:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Mobile Phone
+        linkedin_url:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Linkedin Url
+        location_name:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Location Name
+        source_attribution:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Source Attribution
+        feature_id:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Feature Id
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+      type: object
+      required:
+      - full_name
+      - feature_id
+      - layer_id
+      title: SaveContactRequest
+    ContactCheckResponse:
+      properties:
+        saved_feature_contacts:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/SavedContactIdentity'
+            type: array
+          type: object
+          title: Saved Feature Contacts
+      type: object
+      required:
+      - saved_feature_contacts
+      title: ContactCheckResponse
+      description: Maps feature_id -> list of saved contact identities (id + full_name + work_email).
+    SavedContactDetailResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        full_name:
+          type: string
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Name
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        source_attribution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Attribution
+        status:
+          type: string
+          title: Status
+        is_favorite:
+          type: boolean
+          title: Is Favorite
+          default: false
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        note_count:
+          type: integer
+          title: Note Count
+          default: 0
+        feature_link_count:
+          type: integer
+          title: Feature Link Count
+          default: 0
+        notes:
+          items:
+            $ref: '#/components/schemas/SavedContactNoteResponse'
+          type: array
+          title: Notes
+          default: []
+        feature_links:
+          items:
+            $ref: '#/components/schemas/SavedContactFeatureLinkResponse'
+          type: array
+          title: Feature Links
+          default: []
+      type: object
+      required:
+      - id
+      - project_id
+      - full_name
+      - status
+      - created_by
+      - created_at
+      - updated_at
+      title: SavedContactDetailResponse
+    SavedContactNoteResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        saved_contact_id:
+          type: string
+          format: uuid
+          title: Saved Contact Id
+        content:
+          type: string
+          title: Content
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - saved_contact_id
+      - content
+      - created_by
+      - created_at
+      title: SavedContactNoteResponse
+    UpdateContactStatusRequest:
+      properties:
+        status:
+          type: string
+          enum:
+          - not_contacted
+          - contacted
+          - contact_failed
+          title: Status
+      type: object
+      required:
+      - status
+      title: UpdateContactStatusRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SavedContactResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        full_name:
+          type: string
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Name
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        source_attribution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Attribution
+        status:
+          type: string
+          title: Status
+        is_favorite:
+          type: boolean
+          title: Is Favorite
+          default: false
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        note_count:
+          type: integer
+          title: Note Count
+          default: 0
+        feature_link_count:
+          type: integer
+          title: Feature Link Count
+          default: 0
+      type: object
+      required:
+      - id
+      - project_id
+      - full_name
+      - status
+      - created_by
+      - created_at
+      - updated_at
+      title: SavedContactResponse
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

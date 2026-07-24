@@ -1,0 +1,389 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah filters API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: filters
+paths:
+  /api/v1/filters:
+    post:
+      tags:
+      - filters
+      summary: Create Filter Spec
+      description: 'Create (or return existing) FilterSpec for the given filter shape.
+
+
+        Idempotent: repeated POSTs with the same canonical body return the same
+
+        ``filter_id``. Sliding TTL means downstream reads keep the spec alive.'
+      operationId: create_filter_spec_api_v1_filters_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterSpecRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterSpecResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    DateCondition:
+      properties:
+        filterType:
+          type: string
+          const: date
+          title: Filtertype
+          default: date
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - inRange
+          - equals
+          - notEqual
+          - lessThan
+          - greaterThan
+          - unavailable
+          title: Type
+        dateFrom:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Datefrom
+        dateTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dateto
+      type: object
+      required:
+      - type
+      title: DateCondition
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SetCondition:
+      properties:
+        filterType:
+          type: string
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
+      type: object
+      title: SetCondition
+    CompoundFilter-Input:
+      properties:
+        filterType:
+          type: string
+          enum:
+          - text
+          - number
+          - set
+          - date
+          - boolean
+          title: Filtertype
+        operator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Operator
+        conditions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: array
+          title: Conditions
+        condition1:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition1
+        condition2:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition2
+      type: object
+      required:
+      - filterType
+      - operator
+      title: CompoundFilter
+    TextCondition:
+      properties:
+        filterType:
+          type: string
+          const: text
+          title: Filtertype
+          default: text
+        type:
+          type: string
+          enum:
+          - contains
+          - notContains
+          - equals
+          - notEqual
+          - startsWith
+          - endsWith
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: TextCondition
+    FilterSpecResponse:
+      properties:
+        filterId:
+          type: string
+          format: uuid
+          title: Filterid
+        expiresAt:
+          type: string
+          format: date-time
+          title: Expiresat
+      type: object
+      required:
+      - filterId
+      - expiresAt
+      title: FilterSpecResponse
+      description: 'Response returned by ``POST /filters`` and the share-mode twin.
+
+
+        ``expires_at`` reflects the current sliding TTL window. Every subsequent
+
+        consumer read (tile request / paginated fetch / etc.) refreshes the window,
+
+        so an active session never sees the spec expire mid-flight.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    NumberCondition:
+      properties:
+        filterType:
+          type: string
+          const: number
+          title: Filtertype
+          default: number
+        type:
+          type: string
+          enum:
+          - equals
+          - notEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - lessThan
+          - lessThanOrEqual
+          - inRange
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filter
+        filterTo:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filterto
+        units:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Units
+      type: object
+      required:
+      - type
+      title: NumberCondition
+    BooleanCondition:
+      properties:
+        filterType:
+          type: string
+          const: boolean
+          title: Filtertype
+          default: boolean
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - equals
+          - notEqual
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: BooleanCondition
+    FilterSpecRequest:
+      properties:
+        filterModel:
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: object
+          title: Filtermodel
+          description: AG Grid native filter model (Record<colId, FilterCondition>).
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+          description: Optional GeoJSON polygon scoping the filter.
+        searchText:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+          description: Optional free-text search applied across searchable columns.
+        favoritesOnly:
+          type: boolean
+          title: Favoritesonly
+          description: Restrict matching rows to the user's favorites.
+          default: false
+      type: object
+      title: FilterSpecRequest
+      description: 'Payload accepted by ``POST /filters``.
+
+
+        All four fields participate in the canonical hash that derives the
+
+        ``filter_id`` — same shape produces the same ID, idempotent under repeat
+
+        POST.'
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

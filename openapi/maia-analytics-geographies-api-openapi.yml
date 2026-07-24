@@ -1,0 +1,80 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah geographies API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: geographies
+paths:
+  /api/v1/internal/geographies/:
+    get:
+      tags:
+      - geographies
+      summary: List Available Geographies
+      description: Return US states with parcel coverage.
+      operationId: list_available_geographies_api_v1_internal_geographies__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeographyOptionsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    StateOption:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - code
+      - name
+      title: StateOption
+      description: A US state available for geography restriction.
+    CountyOption:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+        state:
+          type: string
+          title: State
+      type: object
+      required:
+      - fips
+      - name
+      - state
+      title: CountyOption
+      description: A FIPS county available for geography restriction.
+    GeographyOptionsResponse:
+      properties:
+        states:
+          items:
+            $ref: '#/components/schemas/StateOption'
+          type: array
+          title: States
+        counties:
+          items:
+            $ref: '#/components/schemas/CountyOption'
+          type: array
+          title: Counties
+      type: object
+      required:
+      - states
+      - counties
+      title: GeographyOptionsResponse
+      description: Available geography options for workspace restriction.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

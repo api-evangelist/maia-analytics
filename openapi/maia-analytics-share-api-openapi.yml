@@ -1,0 +1,4417 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah share API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: share
+paths:
+  /api/v1/share/{share_token}:
+    get:
+      tags:
+      - share
+      summary: Get Shared Project
+      description: "Get metadata for a shared project (read-only, no side effects).\n\nThis is the primary entry point for shared project access. Validates\nthe share token and returns project metadata. View count tracking is\nhandled separately via POST /{share_token}/view.\n\nArgs:\n    share: Validated ProjectShare from token (injected by validate_share_token)\n    share_service: ProjectShareService for fetching project data\n\nReturns:\n    Shared project metadata (subset of full project data)\n\nRaises:\n    HTTPException: 404 if project not found"
+      operationId: get_shared_project_api_v1_share__share_token__get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedProjectResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/view:
+    post:
+      tags:
+      - share
+      summary: Track Share View
+      description: "Increment the view count for a shared project.\n\nCalled by the frontend once per browser session to track views.\nSeparated from the GET endpoint to avoid double-counting from\nReact StrictMode's double-mount cycle.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for view count operations\n\nReturns:\n    Success confirmation"
+      operationId: track_share_view_api_v1_share__share_token__view_post
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareViewResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers:
+    get:
+      tags:
+      - share
+      summary: Get Shared Project Layers
+      description: "Get all layers for a shared project.\n\nArgs:\n    share: Validated ProjectShare from token\n    layer_service: Service for fetching layer data\n\nReturns:\n    List of layers in API format (excludes soft-deleted and\n    parcel-restricted layers)"
+      operationId: get_shared_project_layers_api_v1_share__share_token__layers_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LayerModel'
+                title: Response Get Shared Project Layers Api V1 Share  Share Token  Layers Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/enrichments:
+    get:
+      tags:
+      - share
+      summary: Get Shared Project Enrichments
+      description: "Get enrichment metadata for a shared project (slim, read-only).\n\nReturns only the fields needed for column mapping (id, name, layer_id,\nis_data_source, dtype). Excludes sensitive fields like params, tool,\nand description. Enrichments on share-restricted (parcel) layers are\ndropped — the layer is hidden, so its enrichment metadata must be too.\n\nArgs:\n    share: Validated ProjectShare from token\n    enrichment_repo: Repository for fetching enrichment data\n    layer_service: Service resolving which layers are share-restricted\n\nReturns:\n    Slim enrichment metadata for visible enrichments on non-restricted layers"
+      operationId: get_shared_project_enrichments_api_v1_share__share_token__enrichments_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedEnrichmentListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/filters:
+    post:
+      tags:
+      - share
+      summary: Create Shared Filter Spec
+      description: 'Share-mode twin of ``POST /filters`` — anonymous viewers create the
+
+        FilterSpec their tile / paginated / count requests will dereference.
+
+
+        Without this, share-mode clients had no path to a ``filter_id``: the
+
+        authed ``POST /filters`` blocks on Firebase auth that share viewers don''t
+
+        have, so polygon and column filters never synced to map tiles on shared
+
+        dashboards. ``favoritesOnly`` is rejected up front — share mode has no
+
+        user identity to resolve favorites against (matches
+
+        ``_reject_favorites_in_share_mode``).'
+      operationId: create_shared_filter_spec_api_v1_share__share_token__filters_post
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterSpecRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterSpecResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/tiles/{z}/{x}/{y}.pbf:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Mvt Tile
+      description: 'Serve an MVT tile for a layer in a shared project (anonymous access).
+
+
+        ``filter_id`` references a server-side FilterSpec; when present, the
+
+        tile contains only matching rows. ``viz`` is the share-mode twin of the
+
+        authed tile endpoint''s param — it names a layer column to embed so
+
+        classed styling has values below the include-all zoom.'
+      operationId: get_shared_layer_mvt_tile_api_v1_share__share_token__layers__layer_id__tiles__z___x___y__pbf_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: z
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Z
+      - name: x
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: X
+      - name: y
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Y
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+          default: '0'
+          title: V
+      - name: filter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filter Id
+      - name: viz
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Viz
+      responses:
+        '200':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/agg-tiles/{z}/{x}/{y}.pbf:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Mvt Agg Tile
+      description: 'Serve an aggregate MVT tile for a layer in a shared project.
+
+
+        ``filter_id`` — share-mode twin of the auth-side agg-tile endpoint;
+
+        counts only matching rows when present.'
+      operationId: get_shared_layer_mvt_agg_tile_api_v1_share__share_token__layers__layer_id__agg_tiles__z___x___y__pbf_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: z
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Z
+      - name: x
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: X
+      - name: y
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Y
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+          default: '0'
+          title: V
+      - name: filter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filter Id
+      responses:
+        '200':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/viz-stats:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Viz Stats
+      description: 'Share-mode twin of ``GET /map/{layer_id}/viz-stats``.
+
+
+        Shared views persist ``layerViz``, so anonymous viewers need the same
+
+        whole-layer quantile breaks that drive classed styling for the owner.'
+      operationId: get_shared_layer_viz_stats_api_v1_share__share_token__layers__layer_id__viz_stats_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: column
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 200
+          title: Column
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerVizStatsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/extent:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Extent
+      description: Bounding box of a shared layer's features (anonymous access).
+      operationId: get_shared_layer_extent_api_v1_share__share_token__layers__layer_id__extent_get
+      parameters:
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerExtentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/feature/{feature_id}:
+    get:
+      tags:
+      - share
+      summary: Get Shared Feature Detail
+      description: Full properties + GeoJSON geometry for a single feature in a shared layer.
+      operationId: get_shared_feature_detail_api_v1_share__share_token__layers__layer_id__feature__feature_id__get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: feature_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Feature Id
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/features/paginated:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Features Paginated
+      description: 'Share-scoped AG Grid SSR paginated features. Mirrors the authenticated
+
+        path in ``table_handlers.get_layer_features_paginated`` but guards with the
+
+        share token + verifies the layer belongs to the shared project.'
+      operationId: get_shared_layer_features_paginated_api_v1_share__share_token__layers__layer_id__features_paginated_get
+      parameters:
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFeaturesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/features/filtered-ids:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Filtered Ids
+      description: 'Share-scoped feature ids matching the current filter set.
+
+
+        Mirrors ``table_handlers.get_layer_filtered_ids`` but guards with the
+
+        share token + verifies the layer belongs to the shared project. Powers
+
+        map-filter sync and spatial polygon filtering on shared dashboards.'
+      operationId: get_shared_layer_filtered_ids_api_v1_share__share_token__layers__layer_id__features_filtered_ids_get
+      parameters:
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: enrichmentState
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Enrichmentstate
+      - name: enrichmentName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichmentname
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500000
+          minimum: 1
+          default: 100000
+          title: Limit
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilteredIdsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/features/filtered-count:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Filtered Count
+      description: 'Share-scoped total row count matching the current filter set.
+
+
+        Mirrors ``table_handlers.get_layer_filtered_count`` but guards with the
+
+        share token + verifies the layer belongs to the shared project.'
+      operationId: get_shared_layer_filtered_count_api_v1_share__share_token__layers__layer_id__features_filtered_count_get
+      parameters:
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: enrichmentState
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Enrichmentstate
+      - name: enrichmentName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichmentname
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilteredCountResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/features/navigate:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Navigate
+      description: 'Share-scoped prev/next cursor for shared dashboards. Mirrors
+
+        ``table_handlers.navigate_layer_feature`` — single CTE per call,
+
+        cap-free up to whatever the filtered set contains.'
+      operationId: get_shared_layer_navigate_api_v1_share__share_token__layers__layer_id__features_navigate_get
+      parameters:
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: currentId
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          title: Currentid
+      - name: wrap
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Wrap
+      - name: enrichmentState
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Enrichmentstate
+      - name: enrichmentName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichmentname
+      - name: startRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          default: 0
+          title: Startrow
+      - name: endRow
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          default: 100
+          title: Endrow
+      - name: sortModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sortmodel
+      - name: filterModel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filtermodel
+      - name: filterId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Filterid
+      - name: groupKeys
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Groupkeys
+      - name: rowGroupCols
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rowgroupcols
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+      - name: geometry
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - name: favoritesOnly
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Favoritesonly
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigateCursorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/layers/{layer_id}/columns:
+    get:
+      tags:
+      - share
+      summary: Get Shared Layer Columns Metadata
+      description: 'Share-scoped column metadata + aggregate stats. Mirrors
+
+        ``table_handlers.get_layer_columns_metadata`` with a share-token guard.'
+      operationId: get_shared_layer_columns_metadata_api_v1_share__share_token__layers__layer_id__columns_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      - name: layer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Layer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColumnsMetadataResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/views:
+    get:
+      tags:
+      - share
+      summary: Get Shared Project Views
+      description: "Get all views for a shared project.\n\nPer-view state is keyed by layer id (filters, column visibility/order,\nlayer visibility), so state for share-restricted (parcel) layers is\nstripped from each view — otherwise a shared view leaks the parcel\nlayer's column keys and the user's filter values even though the layer\nis omitted from the shared layer list.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for fetching view data\n    layer_service: Service resolving which layers are share-restricted\n\nReturns:\n    List of views with filters converted to client display units\n\nRaises:\n    HTTPException: 404 if project not found"
+      operationId: get_shared_project_views_api_v1_share__share_token__views_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewsGetResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/share/{share_token}/chats:
+    get:
+      tags:
+      - share
+      summary: Get Shared Project Chats
+      description: "Get chat history for a shared project (read-only).\n\nStructured tool data IS stripped: tool-call and tool-return parts (e.g.\nquery_sql parcel rows persisted as ToolReturnParts) are removed before the\npayload reaches the anonymous share wire. Only prose is not stripped —\nassistant natural-language messages are preserved, because scanning free-form\nconversation for incidental parcel mentions would mean parsing LLM text,\nunreliable and out of this restriction's scope.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for fetching chat data\n\nReturns:\n    Chat history with system instructions stripped, or None if no chat exists"
+      operationId: get_shared_project_chats_api_v1_share__share_token__chats_get
+      parameters:
+      - name: share_token
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Share Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatHistoryResponseSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ThinkingPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        signature:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signature
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: thinking
+          title: Part Kind
+          default: thinking
+      type: object
+      required:
+      - content
+      title: ThinkingPart
+      description: A thinking response from a model.
+    AudioUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: audio-url
+          title: Kind
+          default: audio-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: AudioUrl
+      description: A URL to an audio file.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ViewsGetResponse:
+      properties:
+        views:
+          items:
+            $ref: '#/components/schemas/ViewModel-Output'
+          type: array
+          title: Views
+      type: object
+      required:
+      - views
+      title: ViewsGetResponse
+      description: "Response model for getting project views.\n\nAttributes:\n    views: List of view models"
+    ViewModel-Output:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        layerFilters:
+          additionalProperties:
+            additionalProperties:
+              oneOf:
+              - $ref: '#/components/schemas/CompoundFilter-Output'
+              - oneOf:
+                - $ref: '#/components/schemas/TextCondition'
+                - $ref: '#/components/schemas/NumberCondition'
+                - $ref: '#/components/schemas/SetCondition'
+                - $ref: '#/components/schemas/DateCondition'
+                - $ref: '#/components/schemas/BooleanCondition'
+                discriminator:
+                  propertyName: filterType
+                  mapping:
+                    boolean: '#/components/schemas/BooleanCondition'
+                    date: '#/components/schemas/DateCondition'
+                    number: '#/components/schemas/NumberCondition'
+                    set: '#/components/schemas/SetCondition'
+                    text: '#/components/schemas/TextCondition'
+            type: object
+          type: object
+          title: Layerfilters
+        mapFilters:
+          anyOf:
+          - $ref: '#/components/schemas/MapFilterModel'
+          - type: 'null'
+        layerColumnVisibility:
+          additionalProperties:
+            additionalProperties:
+              type: boolean
+            type: object
+          type: object
+          title: Layercolumnvisibility
+        layerColumnOrder:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+          title: Layercolumnorder
+        layerColumnPinned:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+          title: Layercolumnpinned
+        layerColumnSort:
+          additionalProperties:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+          type: object
+          title: Layercolumnsort
+        layerColumnWidths:
+          additionalProperties:
+            additionalProperties:
+              type: integer
+            type: object
+          type: object
+          title: Layercolumnwidths
+        layerGroupByColumn:
+          additionalProperties:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: object
+          title: Layergroupbycolumn
+        layerVisibility:
+          anyOf:
+          - additionalProperties:
+              type: boolean
+            type: object
+          - type: 'null'
+          title: Layervisibility
+        layerViz:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Layerviz
+        basemap:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Basemap
+        currentLayerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Currentlayerid
+        isEditable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Iseditable
+        showFavoritesOnly:
+          type: boolean
+          title: Showfavoritesonly
+          default: false
+        version:
+          type: integer
+          title: Version
+          default: 0
+      type: object
+      required:
+      - id
+      - name
+      title: ViewModel
+      description: Model for a view
+    NativeToolReturnPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        content:
+          $ref: '#/components/schemas/ToolReturnContent'
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-return
+          title: Part Kind
+          default: builtin-tool-return
+      type: object
+      required:
+      - tool_name
+      - content
+      title: NativeToolReturnPart
+      description: 'A tool return message from a native tool.
+
+
+        For native tools with a stable cross-provider shape (currently `tool_search`), a
+
+        `NativeToolReturnPart` may be promoted to a typed subclass like
+
+        [`NativeToolSearchReturnPart`][pydantic_ai.messages.NativeToolSearchReturnPart]
+
+        with a narrowed `content` `TypedDict`. See `NativeToolCallPart` for the pattern.'
+    ColumnDataType:
+      type: string
+      enum:
+      - string
+      - number
+      - integer
+      - boolean
+      - date
+      - geometry
+      - array
+      - object
+      title: ColumnDataType
+      description: Optional frontend type hint for a layer column.
+    FilterSpecRequest:
+      properties:
+        filterModel:
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: object
+          title: Filtermodel
+          description: AG Grid native filter model (Record<colId, FilterCondition>).
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+          description: Optional GeoJSON polygon scoping the filter.
+        searchText:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+          description: Optional free-text search applied across searchable columns.
+        favoritesOnly:
+          type: boolean
+          title: Favoritesonly
+          description: Restrict matching rows to the user's favorites.
+          default: false
+      type: object
+      title: FilterSpecRequest
+      description: 'Payload accepted by ``POST /filters``.
+
+
+        All four fields participate in the canonical hash that derives the
+
+        ``filter_id`` — same shape produces the same ID, idempotent under repeat
+
+        POST.'
+    ModelResponse:
+      properties:
+        parts:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextPart'
+            - $ref: '#/components/schemas/ToolSearchCallPart'
+            - $ref: '#/components/schemas/LoadCapabilityCallPart'
+            - $ref: '#/components/schemas/ToolCallPart'
+            - $ref: '#/components/schemas/NativeToolSearchCallPart'
+            - $ref: '#/components/schemas/NativeToolCallPart'
+            - $ref: '#/components/schemas/NativeToolSearchReturnPart'
+            - $ref: '#/components/schemas/NativeToolReturnPart'
+            - $ref: '#/components/schemas/ThinkingPart'
+            - $ref: '#/components/schemas/CompactionPart'
+            - $ref: '#/components/schemas/FilePart'
+          type: array
+          title: Parts
+        usage:
+          $ref: '#/components/schemas/RequestUsage'
+        model_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        kind:
+          type: string
+          const: response
+          title: Kind
+          default: response
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Url
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        provider_response_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Response Id
+        finish_reason:
+          anyOf:
+          - type: string
+            enum:
+            - stop
+            - length
+            - content_filter
+            - tool_call
+            - error
+          - type: 'null'
+          title: Finish Reason
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        state:
+          type: string
+          enum:
+          - complete
+          - incomplete
+          - interrupted
+          title: State
+          default: complete
+      type: object
+      required:
+      - parts
+      title: ModelResponse
+      description: A response from a model, e.g. a message from the model to the Pydantic AI app.
+    ToolSearchReturnPart:
+      properties:
+        tool_name:
+          type: string
+          const: search_tools
+          title: Tool Name
+          default: search_tools
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        content:
+          $ref: '#/components/schemas/ToolSearchReturnContent'
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - content
+      title: ToolSearchReturnPart
+      description: 'Typed view of a [`ToolReturnPart`][pydantic_ai.messages.ToolReturnPart] for the local `search_tools` function return.
+
+
+        Used on the local-fallback path (and as the synthetic-injection target on
+
+        non-native providers receiving cross-provider history). The native server-side
+
+        path uses
+
+        [`NativeToolSearchReturnPart`][pydantic_ai.messages.NativeToolSearchReturnPart]
+
+        instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `content` with a narrower
+
+        [`ToolSearchReturnContent`][pydantic_ai.messages.ToolSearchReturnContent]
+
+        `TypedDict`.'
+    CompoundFilter-Output:
+      properties:
+        filterType:
+          type: string
+          enum:
+          - text
+          - number
+          - set
+          - date
+          - boolean
+          title: Filtertype
+        operator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Operator
+        conditions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Output'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: array
+          title: Conditions
+        condition1:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Output'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition1
+        condition2:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Output'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition2
+      type: object
+      required:
+      - filterType
+      - operator
+      title: CompoundFilter
+    SharedProjectResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        default_view_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Default View Id
+        thumbnail_bounds:
+          anyOf:
+          - $ref: '#/components/schemas/ThumbnailBounds'
+          - type: 'null'
+        is_sandbox:
+          type: boolean
+          title: Is Sandbox
+          default: false
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      title: SharedProjectResponse
+      description: 'API response model for a shared project (public, no auth).
+
+
+        Exposes only the fields needed for read-only viewing. Intentionally omits
+
+        internal fields like user_id, project_plan, visibility, is_plan_ready,
+
+        and additional_project_info.'
+    UserPromptPart:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - items:
+              anyOf:
+              - type: string
+              - $ref: '#/components/schemas/TextContent'
+              - oneOf:
+                - $ref: '#/components/schemas/ImageUrl'
+                - $ref: '#/components/schemas/AudioUrl'
+                - $ref: '#/components/schemas/DocumentUrl'
+                - $ref: '#/components/schemas/VideoUrl'
+                - $ref: '#/components/schemas/BinaryContent'
+                - $ref: '#/components/schemas/UploadedFile'
+                discriminator:
+                  propertyName: kind
+                  mapping:
+                    audio-url: '#/components/schemas/AudioUrl'
+                    binary: '#/components/schemas/BinaryContent'
+                    document-url: '#/components/schemas/DocumentUrl'
+                    image-url: '#/components/schemas/ImageUrl'
+                    uploaded-file: '#/components/schemas/UploadedFile'
+                    video-url: '#/components/schemas/VideoUrl'
+              - $ref: '#/components/schemas/CachePoint'
+            type: array
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        part_kind:
+          type: string
+          const: user-prompt
+          title: Part Kind
+          default: user-prompt
+      type: object
+      required:
+      - content
+      title: UserPromptPart
+      description: 'A user prompt, generally written by the end user.
+
+
+        Content comes from the `user_prompt` parameter of [`Agent.run`][pydantic_ai.agent.AbstractAgent.run],
+
+        [`Agent.run_sync`][pydantic_ai.agent.AbstractAgent.run_sync], and [`Agent.run_stream`][pydantic_ai.agent.AbstractAgent.run_stream].'
+    BinaryContent:
+      properties:
+        data:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/octet-stream
+          title: Data
+        media_type:
+          anyOf:
+          - type: string
+            enum:
+            - audio/wav
+            - audio/mpeg
+            - audio/ogg
+            - audio/flac
+            - audio/aiff
+            - audio/aac
+          - type: string
+            enum:
+            - image/jpeg
+            - image/png
+            - image/gif
+            - image/webp
+          - type: string
+            enum:
+            - application/pdf
+            - text/plain
+            - text/csv
+            - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+            - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+            - text/html
+            - text/markdown
+            - application/msword
+            - application/vnd.ms-excel
+          - type: string
+          title: Media Type
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: binary
+          title: Kind
+          default: binary
+        identifier:
+          type: string
+          title: Identifier
+          description: 'Identifier for the binary content, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `BinaryContent`.
+
+
+            This identifier is only automatically passed to the model when the `BinaryContent` is returned by a tool.
+
+            If you''re passing the `BinaryContent` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `BinaryContent`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - data
+      - media_type
+      - identifier
+      title: BinaryContent
+      description: Binary content, e.g. an audio or image file.
+    ErrorDetails:
+      properties:
+        type:
+          type: string
+          title: Type
+        loc:
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+          type: array
+          title: Loc
+        msg:
+          type: string
+          title: Msg
+        input:
+          title: Input
+        ctx:
+          additionalProperties: true
+          type: object
+          title: Ctx
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - type
+      - loc
+      - msg
+      - input
+      title: ErrorDetails
+    ToolReturnContent:
+      anyOf:
+      - oneOf:
+        - $ref: '#/components/schemas/ImageUrl'
+        - $ref: '#/components/schemas/AudioUrl'
+        - $ref: '#/components/schemas/DocumentUrl'
+        - $ref: '#/components/schemas/VideoUrl'
+        - $ref: '#/components/schemas/BinaryContent'
+        - $ref: '#/components/schemas/UploadedFile'
+        discriminator:
+          propertyName: kind
+          mapping:
+            audio-url: '#/components/schemas/AudioUrl'
+            binary: '#/components/schemas/BinaryContent'
+            document-url: '#/components/schemas/DocumentUrl'
+            image-url: '#/components/schemas/ImageUrl'
+            uploaded-file: '#/components/schemas/UploadedFile'
+            video-url: '#/components/schemas/VideoUrl'
+      - items:
+          $ref: '#/components/schemas/ToolReturnContent'
+        type: array
+      - additionalProperties:
+          $ref: '#/components/schemas/ToolReturnContent'
+        type: object
+      - {}
+    ShareViewResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+      type: object
+      required:
+      - success
+      title: ShareViewResponse
+      description: Response for POST view tracking on a share link.
+    ToolSearchMatch:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - description
+      title: ToolSearchMatch
+      description: A single match in a tool-search result.
+    ChatHistoryResponseSchema:
+      properties:
+        chat:
+          anyOf:
+          - $ref: '#/components/schemas/ChatHistorySchema'
+          - type: 'null'
+          description: The chat history for the project, or None if no chat exists.
+        users:
+          additionalProperties:
+            $ref: '#/components/schemas/ChatUserInfo'
+          type: object
+          title: Users
+          description: Map of user_id to display info for message attribution.
+      type: object
+      required:
+      - chat
+      title: ChatHistoryResponseSchema
+      description: Schema for the chat history of a project.
+    LayerColumn:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Stable column identifier within a layer. Hashed from the layer id plus the column's kind-specific stable identity. Source and merged columns omit `key` so alias renames keep the same id; agent-derived columns include `key` to distinguish multiple computations anchored on the same source.
+        key:
+          type: string
+          title: Key
+        provenance:
+          $ref: '#/components/schemas/ColumnProvenance'
+        display_name:
+          type: string
+          title: Display Name
+          description: Resolved user-facing column label. Unit-agnostic — does NOT include unit tokens like `(ft)`, `(m)`, `(m²)`, or `(acres)`. The FE composes the column header as `display_name + (unit)` where `unit` is the single source of truth for the unit suffix. See MAIA-1872.
+        data_type:
+          anyOf:
+          - $ref: '#/components/schemas/ColumnDataType'
+          - type: 'null'
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+          description: Display-unit suffix declared by the agent at register-layer time. Single source of truth for the user-visible unit on this column — the FE composes the header as `display_name + (unit)` and renders cells as `value + unit`. Round-trips through the resolver verbatim. Numeric formatting (decimal places) is picked from a unit→format lookup; unknown units fall back to integer formatting + raw suffix so the agent can declare arbitrary unit strings without code changes. Null for non-unit columns (names, IDs, categorical text). Currency uses the `currency` data_type / semantic type, NOT this field.
+        semantic_type:
+          anyOf:
+          - $ref: '#/components/schemas/SemanticType'
+          - type: 'null'
+          description: What the column means (currency, area, percent, address_part, …) — drives FE rendering/formatting. Hydrated server-side by `compose_layer_columns` from the column's `LayerKind`. Single on-wire source of per-column semantics, replacing the old `base_attributes.column_metadata` bag. None for columns with no canonical lineage (permissive kinds, ad-hoc derived).
+        role:
+          $ref: '#/components/schemas/ColumnRole'
+          description: Detail-panel placement signal ({stat, other}), orthogonal to `semantic_type`. `stat` columns render as headline numbers. Hydrated from the `LayerKind`; defaults to `other`.
+          default: other
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Human-readable column description surfaced in the table column metadata. Hydrated server-side (canonical column metadata or the agent's declaration), not persisted as a separate wire bag.
+      type: object
+      required:
+      - id
+      - key
+      - provenance
+      - display_name
+      title: LayerColumn
+      description: 'The resolved, persisted shape — what gets stored on `layers.columns`
+
+        and surfaced to the frontend.
+
+
+        Visibility and ordering live on the *view* (`view.layerColumnVisibility`
+
+        + `view.layerColumnOrder`), seeded at register-layer time from the
+
+        agent''s declared columns (declared = visible except `kind=system`).
+
+        `LayerColumn` carries only the schema/lineage half — what the column
+
+        IS, not how it''s displayed in any one view.'
+    LoadCapabilityArgs:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The id of the capability to load.
+      type: object
+      required:
+      - id
+      title: LoadCapabilityArgs
+      description: Typed arguments for a `load_capability` tool call.
+    NativeToolSearchCallPart:
+      properties:
+        tool_name:
+          type: string
+          const: tool_search
+          title: Tool Name
+          default: tool_search
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ToolSearchArgs'
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-call
+          title: Part Kind
+          default: builtin-tool-call
+      type: object
+      title: NativeToolSearchCallPart
+      description: 'Typed view of a [`NativeToolCallPart`][pydantic_ai.messages.NativeToolCallPart] for tool search.
+
+
+        Used on the native server-side tool-search path (Anthropic BM25/regex, OpenAI
+
+        Responses) where the provider executes the search and emits a native result.
+
+        The local-fallback path uses
+
+        [`ToolSearchCallPart`][pydantic_ai.messages.ToolSearchCallPart] instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `args` with a narrower type. The `str` variant covers the
+
+        streaming / partial-args case before parsing completes; once parsed,
+
+        `args` is a [`ToolSearchArgs`][pydantic_ai.messages.ToolSearchArgs]
+
+        `TypedDict`.'
+    ChatUserInfo:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+      type: object
+      title: ChatUserInfo
+      description: Sender info for chat message attribution.
+    FeatureDetailResponse:
+      properties:
+        properties:
+          additionalProperties: true
+          type: object
+          title: Properties
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+        enrichments:
+          additionalProperties:
+            $ref: '#/components/schemas/EnrichmentValueBaseModel'
+          type: object
+          title: Enrichments
+      type: object
+      required:
+      - properties
+      - geometry
+      title: FeatureDetailResponse
+      description: 'Full properties + GeoJSON geometry for a single feature.
+
+
+        Powers the feature detail panel and ``MapboxService.flyToFeature()``.
+
+        Base attributes live in ``properties``; enrichment wrappers live in
+
+        ``enrichments``, keyed by enrichment UUID so consumers can look them up
+
+        by ``config.id`` without reconciling column names. The paginated
+
+        endpoint keeps column-name-keyed wrappers in row data for AG Grid SSR.'
+    CachePoint:
+      properties:
+        kind:
+          type: string
+          const: cache-point
+          title: Kind
+          default: cache-point
+        ttl:
+          type: string
+          enum:
+          - 5m
+          - 1h
+          title: Ttl
+          default: 5m
+      type: object
+      title: CachePoint
+      description: 'A cache point marker for prompt caching.
+
+
+        Can be inserted into UserPromptPart.content to mark cache boundaries.
+
+        Models that don''t support caching will filter these out.
+
+
+        Supported by:
+
+
+        - Anthropic
+
+        - Amazon Bedrock (Converse API)
+
+        - OpenRouter (Anthropic and Gemini models)'
+    EnrichmentCitation:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+          description: Optional URL of the source that supports the enrichment value.
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+          description: Optional human-readable title for the source.
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+          description: Optional snippet or excerpt from the cited material.
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+          description: Provider or domain the citation originated from.
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Type
+          description: Provider-specific type identifier for the cited source.
+      type: object
+      title: EnrichmentCitation
+      description: Metadata describing a cited source returned by an enrichment.
+    SharedEnrichmentModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Layer Id
+        is_data_source:
+          type: boolean
+          title: Is Data Source
+          default: false
+        is_configured:
+          type: boolean
+          title: Is Configured
+          default: true
+        is_configuration_failed:
+          type: boolean
+          title: Is Configuration Failed
+          default: false
+        dtype:
+          type: string
+          title: Dtype
+          default: ''
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+      type: object
+      required:
+      - id
+      - name
+      title: SharedEnrichmentModel
+      description: 'Slim enrichment model for public share access.
+
+
+        Exposes only the fields needed for column mapping in the table UI.
+
+        `params` is filtered down to display-only keys (see
+
+        SHARED_ENRICHMENT_PARAM_KEYS) so categorical chips and color scales render
+
+        correctly; proprietary prompt text, tool identifiers, and task IDs remain
+
+        excluded. `tool` and `description` are likewise omitted.'
+    CompactionPart:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: compaction
+          title: Part Kind
+          default: compaction
+      type: object
+      title: CompactionPart
+      description: 'A compaction part that summarizes previous conversation history.
+
+
+        Compaction parts contain an opaque or readable summary of prior messages,
+
+        produced by provider-specific compaction mechanisms. They must be round-tripped
+
+        back to the same provider in subsequent requests.
+
+
+        For Anthropic, `content` contains a readable text summary.
+
+        For OpenAI, `content` is `None` and the encrypted data is stored in `provider_details`.'
+    ChatHistorySchema:
+      properties:
+        project_id:
+          type: string
+          title: Project Id
+        chat_history:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ModelRequest'
+            - $ref: '#/components/schemas/ModelResponse'
+            discriminator:
+              propertyName: kind
+              mapping:
+                request: '#/components/schemas/ModelRequest'
+                response: '#/components/schemas/ModelResponse'
+          type: array
+          title: Chat History
+        active_run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Active Run Id
+          description: Workflow id of a currently-live chat run for this project, or None. Populated only when a run is genuinely in flight (DBOS ACTIVE) — the FE uses it to re-attach to the durable stream after a mid-run page refresh instead of showing static (pre-completion) history.
+        last_turn_continuable:
+          type: boolean
+          title: Last Turn Continuable
+          description: True when the most recent persisted turn failed terminally mid-way and left a continuable partial. The FE renders the Continue affordance on the last turn after a refresh, when the live partial_result terminal frame is no longer available.
+          default: false
+        selected_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selected Model
+          description: The chat's persisted model-picker selection (a curated picker key), or None for the default chain. Seeds the composer dropdown.
+      type: object
+      required:
+      - project_id
+      - chat_history
+      title: ChatHistorySchema
+      description: Schema for a single chat with its full history.
+    EnrichmentModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Layer Id
+        name:
+          type: string
+          title: Name
+          default: Unconfigured enrichment
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          default: This enrichment is not configured with a tool.
+        tool:
+          type: string
+          title: Tool
+          default: unconfigured
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        dtype:
+          type: string
+          title: Dtype
+          description: Must be one of string, boolean, list[str], jsonb, int, float, categorical, url
+          default: string
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        credits_per_row:
+          type: integer
+          title: Credits Per Row
+          description: Return the number of credits per row for this tool.
+          readOnly: true
+        is_configured:
+          type: boolean
+          title: Is Configured
+          description: "Check if the enrichment is configured with a valid tool.\n\nReturns:\n    bool: True if tool is configured, False otherwise"
+          readOnly: true
+        is_configuration_failed:
+          type: boolean
+          title: Is Configuration Failed
+          description: "Check if the enrichment's configuration failed.\n\nReturns:\n    bool: True if configuration was attempted but failed"
+          readOnly: true
+        is_data_source:
+          type: boolean
+          title: Is Data Source
+          description: "Check if the enrichment is a data source.\n\nReturns:\n    bool: True if the enrichment is a data source, False otherwise"
+          readOnly: true
+      type: object
+      required:
+      - credits_per_row
+      - is_configured
+      - is_configuration_failed
+      - is_data_source
+      title: EnrichmentModel
+      description: 'Enrichment model that combines both properties and chat history.
+
+
+        This unified model simplifies the domain representation and aligns more closely
+
+        with how data is stored in the database, reducing unnecessary abstractions.'
+    DateCondition:
+      properties:
+        filterType:
+          type: string
+          const: date
+          title: Filtertype
+          default: date
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - inRange
+          - equals
+          - notEqual
+          - lessThan
+          - greaterThan
+          - unavailable
+          title: Type
+        dateFrom:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Datefrom
+        dateTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dateto
+      type: object
+      required:
+      - type
+      title: DateCondition
+    EnrichmentState:
+      type: string
+      enum:
+      - unenriched
+      - enriched
+      - attempted
+      - user_edited
+      - pending
+      title: EnrichmentState
+      description: Enum representing the state of an enrichment value.
+    CompoundFilter-Input:
+      properties:
+        filterType:
+          type: string
+          enum:
+          - text
+          - number
+          - set
+          - date
+          - boolean
+          title: Filtertype
+        operator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Operator
+        conditions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: array
+          title: Conditions
+        condition1:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition1
+        condition2:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          - type: 'null'
+          title: Condition2
+      type: object
+      required:
+      - filterType
+      - operator
+      title: CompoundFilter
+    DocumentUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: document-url
+          title: Kind
+          default: document-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: DocumentUrl
+      description: The URL of the document.
+    RequestUsage:
+      properties:
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          default: 0
+        cache_write_tokens:
+          type: integer
+          title: Cache Write Tokens
+          default: 0
+        cache_read_tokens:
+          type: integer
+          title: Cache Read Tokens
+          default: 0
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          default: 0
+        input_audio_tokens:
+          type: integer
+          title: Input Audio Tokens
+          default: 0
+        cache_audio_read_tokens:
+          type: integer
+          title: Cache Audio Read Tokens
+          default: 0
+        output_audio_tokens:
+          type: integer
+          title: Output Audio Tokens
+          default: 0
+        details:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Details
+      type: object
+      title: RequestUsage
+      description: 'LLM usage associated with a single request.
+
+
+        This is an implementation of `genai_prices.types.AbstractUsage` so it can be used to calculate the price of the
+
+        request using [genai-prices](https://github.com/pydantic/genai-prices).'
+    ToolSearchArgs:
+      properties:
+        queries:
+          items:
+            type: string
+          type: array
+          title: Queries
+      type: object
+      required:
+      - queries
+      title: ToolSearchArgs
+      description: 'Typed arguments for a tool-search call.
+
+
+        Carried on
+
+        [`NativeToolSearchCallPart.args`][pydantic_ai.messages.NativeToolSearchCallPart.args]
+
+        (native server-side path) and
+
+        [`ToolSearchCallPart.args`][pydantic_ai.messages.ToolSearchCallPart.args]
+
+        (local-fallback path) as the canonical cross-provider shape. Each adapter
+
+        normalizes its provider''s wire format into this shape on parse, and rebuilds the
+
+        wire format from this shape on emit.'
+    FilePart:
+      properties:
+        content:
+          $ref: '#/components/schemas/BinaryContent'
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: file
+          title: Part Kind
+          default: file
+      type: object
+      required:
+      - content
+      title: FilePart
+      description: A file response from a model.
+    RetryPromptPart:
+      properties:
+        content:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ErrorDetails'
+            type: array
+          - type: string
+          title: Content
+        tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Name
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        part_kind:
+          type: string
+          const: retry-prompt
+          title: Part Kind
+          default: retry-prompt
+      type: object
+      required:
+      - content
+      title: RetryPromptPart
+      description: "A message back to a model asking it to try again.\n\nThis can be sent for a number of reasons:\n\n* Pydantic validation of tool arguments failed, here content is derived from a Pydantic\n  [`ValidationError`][pydantic_core.ValidationError]\n* a tool raised a [`ModelRetry`][pydantic_ai.exceptions.ModelRetry] exception\n* no tool was found for the tool name\n* the model returned plain text when a structured response was expected\n* Pydantic validation of a structured response failed, here content is derived from a Pydantic\n  [`ValidationError`][pydantic_core.ValidationError]\n* an output validator raised a [`ModelRetry`][pydantic_ai.exceptions.ModelRetry] exception"
+    MapFilterModel:
+      properties:
+        geometries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Geometries
+        type:
+          type: string
+          const: intersects
+          title: Type
+      type: object
+      required:
+      - geometries
+      - type
+      title: MapFilterModel
+      description: Model for a map filter (spatial filter)
+    ToolSearchCallPart:
+      properties:
+        tool_name:
+          type: string
+          const: search_tools
+          title: Tool Name
+          default: search_tools
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ToolSearchArgs'
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      title: ToolSearchCallPart
+      description: 'Typed view of a [`ToolCallPart`][pydantic_ai.messages.ToolCallPart] for the local `search_tools` function call.
+
+
+        Used on the local-fallback path (and as the synthetic-injection target on
+
+        non-native providers receiving cross-provider history). The native server-side
+
+        path uses
+
+        [`NativeToolSearchCallPart`][pydantic_ai.messages.NativeToolSearchCallPart]
+
+        instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `args` with the canonical typed shape. The `str` variant covers the
+
+        streaming / partial-args case before parsing completes; once parsed,
+
+        `args` is a [`ToolSearchArgs`][pydantic_ai.messages.ToolSearchArgs]
+
+        `TypedDict`.'
+    ModelRequest:
+      properties:
+        parts:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SystemPromptPart'
+            - $ref: '#/components/schemas/UserPromptPart'
+            - $ref: '#/components/schemas/ToolSearchReturnPart'
+            - $ref: '#/components/schemas/LoadCapabilityReturnPart'
+            - $ref: '#/components/schemas/ToolReturnPart'
+            - $ref: '#/components/schemas/RetryPromptPart'
+          type: array
+          title: Parts
+        timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Timestamp
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        kind:
+          type: string
+          const: request
+          title: Kind
+          default: request
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - parts
+      title: ModelRequest
+      description: A request generated by Pydantic AI and sent to a model, e.g. a message from the Pydantic AI app to the model.
+    ColumnProvenance:
+      properties:
+        kind:
+          $ref: '#/components/schemas/ColumnKind'
+        source_table:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Table
+          description: Canonical Overture table this column derives from. None for fully derived (composite) columns with no canonical lineage.
+        source_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Column
+          description: Canonical column path on `source_table` (e.g. `names.primary`). Used by the resolver for display-name lookup and stable column ids — NOT the agent's SQL alias.
+      type: object
+      required:
+      - kind
+      title: ColumnProvenance
+      description: 'Where a column came from and how to look up its canonical metadata.
+
+
+        `source_column` is the canonical Overture column path (e.g.
+
+        `names.primary`, not the agent''s SQL alias `name`). The resolver uses it
+
+        to look up the display label and to derive a rename-stable column id —
+
+        making alias mismatches impossible by construction.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    VideoUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: video-url
+          title: Kind
+          default: video-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: VideoUrl
+      description: A URL to a video.
+    EnrichmentValueBaseModel:
+      properties:
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: 1-2 sentence explanation of the enrichment value.
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: The enrichment value.
+        citations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnrichmentCitation'
+            type: array
+          - type: 'null'
+          title: Citations
+          description: List of citations from web search sources that support the enrichment value if any were used.
+        state:
+          $ref: '#/components/schemas/EnrichmentState'
+          description: The status of the enrichment value.
+          default: unenriched
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      title: EnrichmentValueBaseModel
+      description: Enrichment value domain model.
+    LoadCapabilityReturnPart:
+      properties:
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_name:
+          type: string
+          const: load_capability
+          title: Tool Name
+          default: load_capability
+        content:
+          $ref: '#/components/schemas/LoadCapabilityReturn'
+        tool_kind:
+          type: string
+          const: capability-load
+          title: Tool Kind
+          default: capability-load
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - content
+      title: LoadCapabilityReturnPart
+      description: Typed `ToolReturnPart` for the `load_capability` tool.
+    UploadedFile:
+      properties:
+        file_id:
+          type: string
+          title: File Id
+        provider_name:
+          type: string
+          enum:
+          - anthropic
+          - openai
+          - google
+          - google-cloud
+          - google-gla
+          - google-vertex
+          - bedrock
+          - xai
+          title: Provider Name
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: uploaded-file
+          title: Kind
+          default: uploaded-file
+        media_type:
+          type: string
+          title: Media Type
+          description: 'Return the media type of the file, inferred from `file_id` if not explicitly provided.
+
+
+            Note: Inference relies on the file extension in `file_id`.
+
+            For opaque file IDs (e.g., `''file-abc123''`), the media type will default to `''application/octet-stream''`.
+
+            Inference relies on Python''s `mimetypes` module, whose results may vary across platforms.
+
+
+            Required by some providers (e.g., Bedrock) for certain file types.'
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `UploadedFile`.
+
+
+            This identifier is only automatically passed to the model when the `UploadedFile` is returned by a tool.
+
+            If you''re passing the `UploadedFile` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `UploadedFile`.'
+          readOnly: true
+      type: object
+      required:
+      - file_id
+      - provider_name
+      - media_type
+      - identifier
+      title: UploadedFile
+      description: 'A reference to a file uploaded to a provider''s file storage by ID.
+
+
+        This allows referencing files that have been uploaded via provider-specific file APIs
+
+        rather than providing the file content directly.
+
+
+        Supported by:
+
+
+        - [`AnthropicModel`][pydantic_ai.models.anthropic.AnthropicModel]
+
+        - [`OpenAIChatModel`][pydantic_ai.models.openai.OpenAIChatModel]
+
+        - [`OpenAIResponsesModel`][pydantic_ai.models.openai.OpenAIResponsesModel]
+
+        - [`BedrockConverseModel`][pydantic_ai.models.bedrock.BedrockConverseModel]
+
+        - [`GoogleModel`][pydantic_ai.models.google.GoogleModel] (Gemini API: [Files API](https://ai.google.dev/gemini-api/docs/files) URIs, Google Cloud: GCS `gs://` URIs)
+
+        - [`XaiModel`][pydantic_ai.models.xai.XaiModel]'
+    ThumbnailBounds:
+      properties:
+        min_lon:
+          type: number
+          title: Min Lon
+        min_lat:
+          type: number
+          title: Min Lat
+        max_lon:
+          type: number
+          title: Max Lon
+        max_lat:
+          type: number
+          title: Max Lat
+      type: object
+      required:
+      - min_lon
+      - min_lat
+      - max_lon
+      - max_lat
+      title: ThumbnailBounds
+      description: 'Bounding box for project thumbnail map rendering.
+
+
+        Represents the geographic extent of project features for generating
+
+        static map thumbnails via Mapbox.'
+    ColumnRole:
+      type: string
+      enum:
+      - stat
+      - other
+      title: ColumnRole
+      description: 'Narrow detail-panel placement signal, orthogonal to ``semantic_type``.
+
+
+        The one signal that cannot be derived from ``semantic_type``: parcel
+
+        ``parval`` and ``improvval`` are both ``CURRENCY``, but only ``parval`` is
+
+        a headline stat. ``role`` carries that; ``semantic_type`` carries
+
+        content/format. Ordering and visibility live on the *view*, not here.'
+    SystemPromptPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        dynamic_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dynamic Ref
+        part_kind:
+          type: string
+          const: system-prompt
+          title: Part Kind
+          default: system-prompt
+      type: object
+      required:
+      - content
+      title: SystemPromptPart
+      description: 'A system prompt, generally written by the application developer.
+
+
+        This gives the model context and guidance on how to respond.'
+    NativeToolCallPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        args:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-call
+          title: Part Kind
+          default: builtin-tool-call
+      type: object
+      required:
+      - tool_name
+      title: NativeToolCallPart
+      description: "A tool call to a native tool.\n\nFor native tools with a stable cross-provider shape (currently `tool_search`), this base\nclass can be promoted to a typed subclass with a narrowed `args` `TypedDict`. See\n[`NativeToolSearchCallPart`][pydantic_ai.messages.NativeToolSearchCallPart] for the\ncanonical example.\n\nAdding a typed subclass for a future native tool (see `pydantic_ai._tool_search` for\na worked example):\n\n1. Add a sibling `pydantic_ai/_<name>.py` module that defines the cross-provider\n   `TypedDict`s, the `NativeToolCallPart` / `NativeToolReturnPart` subclasses,\n   and registers their narrowers into `_NATIVE_CALL_NARROWERS` /\n   `_NATIVE_RETURN_NARROWERS` keyed by `tool_kind`. Subclass overrides\n   `tool_kind: Literal['<emitter>']` to match the emitting\n   [`AbstractNativeTool.kind`][pydantic_ai.native_tools.AbstractNativeTool.kind],\n   and shadows `args` / `content` with a narrower type.\n2. Late-import the new module from this file (alongside the existing tool-search\n   import) so registration runs whenever `pydantic_ai.messages` is imported.\n3. Add the subclass to `ModelResponsePart`'s discriminated union and to\n   `_model_response_part_discriminator` so Pydantic deserialization auto-promotes\n   on `model_validate` / `model_validate_json`.\n\nDispatch is by `tool_kind`, not `tool_name`. This protects users whose tools happen to\nshare a name with one of ours from accidentally getting their parts promoted (and\nfailing shape validation against the typed `args`/`content`).\n\nThe `provider_details` field carries genuinely non-portable provider extras\n(e.g. Anthropic's `strategy: 'bm25' | 'regex'` for tool search). Promote a field\nto a typed slot in `args` / `content` only when at least two of OpenAI, Anthropic,\nand Google support it (cf. [issue #3885](https://github.com/pydantic/pydantic-ai/issues/3885)).\n\nMCP server tools land here with `tool_kind='mcp_server'` (label stays in\n`tool_name='mcp_server:<label>'`); typed-subclass work for MCP is tracked by\n[issue #3561](https://github.com/pydantic/pydantic-ai/issues/3561)."
+    ImageUrl:
+      properties:
+        url:
+          type: string
+          title: Url
+        force_download:
+          anyOf:
+          - type: boolean
+          - type: string
+            const: allow-local
+          title: Force Download
+          default: false
+        vendor_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Vendor Metadata
+        kind:
+          type: string
+          const: image-url
+          title: Kind
+          default: image-url
+        media_type:
+          type: string
+          title: Media Type
+          description: Return the media type of the file, based on the URL or the provided `media_type`.
+          readOnly: true
+        identifier:
+          type: string
+          title: Identifier
+          description: 'The identifier of the file, such as a unique ID.
+
+
+            This identifier can be provided to the model in a message to allow it to refer to this file in a tool call argument,
+
+            and the tool can look up the file in question by iterating over the message history and finding the matching `FileUrl`.
+
+
+            This identifier is only automatically passed to the model when the `FileUrl` is returned by a tool.
+
+            If you''re passing the `FileUrl` as a user message, it''s up to you to include a separate text part with the identifier,
+
+            e.g. "This is file <identifier>:" preceding the `FileUrl`.
+
+
+            It''s also included in inline-text delimiters for providers that require inlining text documents, so the model can
+
+            distinguish multiple files.'
+          readOnly: true
+      type: object
+      required:
+      - url
+      - media_type
+      - identifier
+      title: ImageUrl
+      description: A URL to an image.
+    ColumnMeta:
+      properties:
+        type:
+          type: string
+          title: Type
+        source:
+          type: string
+          enum:
+          - base
+          - enrichment
+          - agent
+          title: Source
+        enrichment_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enrichment Id
+        sidecar_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sidecar Column
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      type: object
+      required:
+      - type
+      - source
+      title: ColumnMeta
+      description: 'Per-column metadata returned on the first page.
+
+
+        ``sidecar_column`` is set only for enrichment columns and names the typed
+
+        `additions` column (`value_text` / `value_numeric` /
+
+        `value_boolean` / `value_jsonb`) that drives sort and filter.
+
+
+        ``display_name`` is the user-facing header name. Resolved via
+
+        ``get_column_display_names`` so dotted paths produced by JSONB flattening
+
+        (``names.primary``, ``addresses.list.0.element.postcode``) map to the same
+
+        friendly names the legacy pre-SSR table used; user overrides on
+
+        ``LayerColumn.display_name`` win on key conflict.'
+    LoadCapabilityCallPart:
+      properties:
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_name:
+          type: string
+          const: load_capability
+          title: Tool Name
+          default: load_capability
+        args:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/LoadCapabilityArgs'
+          - type: 'null'
+          title: Args
+        tool_kind:
+          type: string
+          const: capability-load
+          title: Tool Kind
+          default: capability-load
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      title: LoadCapabilityCallPart
+      description: Typed `ToolCallPart` for the `load_capability` tool.
+    SemanticType:
+      type: string
+      enum:
+      - identifier
+      - name
+      - address_part
+      - address_full
+      - currency
+      - area
+      - height
+      - count
+      - category
+      - zoning
+      - date
+      - phone
+      - website
+      - percent
+      - generic
+      title: SemanticType
+      description: 'What a column *means* — drives FE rendering and formatting.
+
+
+        Independent from ``ColumnDataType`` (the storage type hint): a column can
+
+        be ``data_type=number, semantic_type=currency`` (parcel ``landval``) or
+
+        ``data_type=number, semantic_type=area`` (``area_acres``). The FE renderer
+
+        keys off ``semantic_type``, not ``data_type``.
+
+
+        Lives here (with the wire model) rather than on ``LayerKind`` because under
+
+        the self-describing contract this rides on ``LayerColumn`` across the wire
+
+        — ``LayerKind`` is the backend-only producer that hydrates it.'
+    EnrichmentColumnConfig:
+      properties:
+        enrichment_id:
+          type: string
+          format: uuid
+          title: Enrichment Id
+        dtype:
+          type: string
+          title: Dtype
+        tool:
+          type: string
+          title: Tool
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        sidecar_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sidecar Column
+      type: object
+      required:
+      - enrichment_id
+      - dtype
+      - tool
+      - params
+      - sidecar_column
+      title: EnrichmentColumnConfig
+      description: Enrichment config surfaced for enrichment-source columns.
+    NativeToolSearchReturnPart:
+      properties:
+        tool_name:
+          type: string
+          const: tool_search
+          title: Tool Name
+          default: tool_search
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          type: string
+          const: tool-search
+          title: Tool Kind
+          default: tool-search
+        content:
+          $ref: '#/components/schemas/ToolSearchReturnContent'
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: builtin-tool-return
+          title: Part Kind
+          default: builtin-tool-return
+      type: object
+      required:
+      - content
+      title: NativeToolSearchReturnPart
+      description: 'Typed view of a [`NativeToolReturnPart`][pydantic_ai.messages.NativeToolReturnPart] for tool search.
+
+
+        Used on the native server-side tool-search path (Anthropic BM25/regex, OpenAI
+
+        Responses) where the provider executes the search and emits a native result.
+
+        The local-fallback path uses
+
+        [`ToolSearchReturnPart`][pydantic_ai.messages.ToolSearchReturnPart] instead.
+
+
+        To detect a tool-search part regardless of execution path (native server-side
+
+        vs. local fallback), check `part.tool_kind == ''tool-search''` — this works
+
+        across both call/return and both server/local variants.
+
+
+        Shadows `content` with a narrower
+
+        [`ToolSearchReturnContent`][pydantic_ai.messages.ToolSearchReturnContent]
+
+        `TypedDict`.'
+    FilterSpecResponse:
+      properties:
+        filterId:
+          type: string
+          format: uuid
+          title: Filterid
+        expiresAt:
+          type: string
+          format: date-time
+          title: Expiresat
+      type: object
+      required:
+      - filterId
+      - expiresAt
+      title: FilterSpecResponse
+      description: 'Response returned by ``POST /filters`` and the share-mode twin.
+
+
+        ``expires_at`` reflects the current sliding TTL window. Every subsequent
+
+        consumer read (tile request / paginated fetch / etc.) refreshes the window,
+
+        so an active session never sees the spec expire mid-flight.'
+    ToolSearchReturnContent:
+      properties:
+        discovered_tools:
+          items:
+            $ref: '#/components/schemas/ToolSearchMatch'
+          type: array
+          title: Discovered Tools
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - discovered_tools
+      title: ToolSearchReturnContent
+      description: 'Typed return value of the framework-managed tool-search builtin.
+
+
+        Carried on
+
+        [`NativeToolSearchReturnPart.content`][pydantic_ai.messages.NativeToolSearchReturnPart.content]
+
+        (native server-side path) and
+
+        [`ToolSearchReturnPart.content`][pydantic_ai.messages.ToolSearchReturnPart.content]
+
+        (local-fallback path) as the canonical cross-provider shape.'
+    LayerModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        reference_layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Reference Layer Id
+        reference_layer_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Reference Layer Ids
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        style_config:
+          additionalProperties: true
+          type: object
+          title: Style Config
+        feature_count:
+          type: integer
+          title: Feature Count
+        total_size_bytes:
+          type: integer
+          title: Total Size Bytes
+        data_version:
+          type: integer
+          title: Data Version
+          default: 0
+        schema_version:
+          type: integer
+          title: Schema Version
+          default: 0
+        metadata_version:
+          type: integer
+          title: Metadata Version
+          default: 0
+        base_attributes:
+          additionalProperties: true
+          type: object
+          title: Base Attributes
+        feature_enrichments:
+          items:
+            $ref: '#/components/schemas/EnrichmentModel'
+          type: array
+          title: Feature Enrichments
+        sandbox_relation_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sandbox Relation Name
+        render_mode:
+          type: string
+          enum:
+          - detail_always
+          - agg_at_low_zoom
+          title: Render Mode
+          default: agg_at_low_zoom
+        display_kind:
+          type: string
+          enum:
+          - data
+          - boundary
+          title: Display Kind
+          description: Whether the layer is a queryable dataset (``data``) or a styling-only overlay (``boundary``). Boundary layers paint on the map but suppress the per-layer table, column manager, and feature-detail panel — there is no per-row data worth surfacing.
+          default: data
+        extent_bounds:
+          anyOf:
+          - $ref: '#/components/schemas/ThumbnailBounds'
+          - type: 'null'
+          description: Stored unfiltered extent of the layer's geometry, computed at ingest and recomputed on geometry-changing writes. None until computed (pre-backfill rows) or when the layer has no geometry. The FE uses it for initial map framing instead of a live ST_Extent call; filtered zoom-to-features stays live.
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        columns:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LayerColumn'
+            type: array
+          - type: 'null'
+          title: Columns
+          description: Producer-declared, resolved per-column metadata (id, key, provenance, display name, data type) — schema/lineage only. Visibility and ordering live on the view, seeded at register-layer time. None for legacy pre-cutover layers; the composer derives sensible defaults from physical introspection.
+        data_restricted:
+          type: boolean
+          title: Data Restricted
+          description: Share-response-only signal that the layer's geometry is shown while every per-row attribute is withheld (parcel layers on anonymous share links). Always False on authenticated reads; set True solely by the shared-project layer builder. The FE renders a 'data unavailable in the public version' state in place of an empty grid.
+          default: false
+        title_template:
+          items:
+            type: string
+          type: array
+          title: Title Template
+          description: Ordered column keys the FE concatenates to compose a feature's title (e.g. `[parcelnumb]`, `[primary_address_full]`). Sourced from the layer's `LayerKind`, empty for permissive kinds — the FE keeps its generic title fallback for the long tail.
+        address_template:
+          items:
+            type: string
+          type: array
+          title: Address Template
+          description: Ordered column keys the FE concatenates to compose a feature's address line. Sourced from the layer's `LayerKind`; may reference keys that aren't typed canonical columns (city, state_abbr, …). Empty for permissive kinds.
+      type: object
+      required:
+      - id
+      - project_id
+      - name
+      - style_config
+      - feature_count
+      - total_size_bytes
+      - base_attributes
+      - created_at
+      - updated_at
+      title: LayerModel
+      description: Model for a layer.
+    NavigateCursorResponse:
+      properties:
+        prev_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prev Id
+        next_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Id
+        position:
+          type: integer
+          title: Position
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - prev_id
+      - next_id
+      - position
+      - total
+      title: NavigateCursorResponse
+      description: 'Server-side cursor result for prev/next navigation.
+
+
+        Replaces the legacy client-side id-array cache (capped at 100k);
+
+        each navigation invocation runs a single CTE on the live filtered
+
+        set, so we cap-free up to whatever the filtered set actually
+
+        contains. ``position`` is 0-based; ``total`` is the filtered set
+
+        size.'
+    BooleanCondition:
+      properties:
+        filterType:
+          type: string
+          const: boolean
+          title: Filtertype
+          default: boolean
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - equals
+          - notEqual
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: BooleanCondition
+    LayerVizStatsResponse:
+      properties:
+        breaks:
+          items:
+            type: number
+          type: array
+          title: Breaks
+        min:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Min
+        max:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max
+        count:
+          type: integer
+          title: Count
+        geometry_kind:
+          anyOf:
+          - type: string
+            enum:
+            - point
+            - line
+            - polygon
+          - type: 'null'
+          title: Geometry Kind
+      type: object
+      required:
+      - breaks
+      - min
+      - max
+      - count
+      - geometry_kind
+      title: LayerVizStatsResponse
+      description: 'Whole-layer stats for one numeric column, for classed map styling.
+
+
+        ``breaks`` are the deduped ascending interior quintile boundaries
+
+        (p20/p40/p60/p80); together with ``min``/``max`` they delimit up to five
+
+        classes. Empty ``breaks`` with ``count`` 0 means the column has no
+
+        non-null values. ``geometry_kind`` tells the client which classed styling
+
+        applies (graduated circles for points, choropleth otherwise) — every
+
+        layer carries both point and fill style layers, so the client cannot
+
+        infer geometry from the style alone.'
+    LoadCapabilityReturn:
+      properties:
+        instructions:
+          type: string
+          title: Instructions
+      type: object
+      title: LoadCapabilityReturn
+      description: Typed return value for the `load_capability` tool.
+    TextCondition:
+      properties:
+        filterType:
+          type: string
+          const: text
+          title: Filtertype
+          default: text
+        type:
+          type: string
+          enum:
+          - contains
+          - notContains
+          - equals
+          - notEqual
+          - startsWith
+          - endsWith
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: TextCondition
+    ToolReturnPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        content:
+          $ref: '#/components/schemas/ToolReturnContent'
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        metadata:
+          title: Metadata
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        outcome:
+          type: string
+          enum:
+          - success
+          - failed
+          - denied
+          title: Outcome
+          default: success
+        part_kind:
+          type: string
+          const: tool-return
+          title: Part Kind
+          default: tool-return
+      type: object
+      required:
+      - tool_name
+      - content
+      title: ToolReturnPart
+      description: A tool return message, this encodes the result of running a tool.
+    ColumnKind:
+      type: string
+      enum:
+      - source
+      - merged
+      - enrichment
+      - system
+      - agent_derived
+      title: ColumnKind
+      description: "Provenance discriminator for a layer column.\n\n* `source` — column SELECTed directly from the canonical Overture table.\n* `merged` — column joined in from another canonical source table (e.g.\n  `parcel_owner` on a building layer joined parcel data).\n* `enrichment` — populated by an enrichment runner, not the agent's SQL.\n  (Reserved for the upcoming enrichment unification — not used yet.)\n* `system` — agent-facing hide-by-default escape for lineage columns\n  merged for enrichment plumbing the user shouldn't see by default\n  (e.g. parcel address fields plumbed onto a building layer for Owner\n  Contact Info). Stays in the registered schema and can be surfaced\n  later via `modify_columns`.\n* `agent_derived` — computed in the agent's SQL (`SUM(...) AS total`,\n  `CASE WHEN ... END AS bucket`). Still requires source_table+source_column\n  anchoring so view deltas survive a column rename."
+    FilteredIdsResponse:
+      properties:
+        ids:
+          items:
+            type: string
+          type: array
+          title: Ids
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - ids
+      - total
+      title: FilteredIdsResponse
+      description: 'Feature ids matching the current filter set, plus the unfiltered total.
+
+
+        ``total`` reflects the full match count even when ``limit`` truncates ``ids`` —
+
+        callers use it for "showing X of Y" UI and bulk-action sizing decisions.'
+    SetCondition:
+      properties:
+        filterType:
+          type: string
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
+      type: object
+      title: SetCondition
+    PaginatedFeaturesResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/PaginatedFeatureRow'
+          type: array
+          title: Rows
+        last_row:
+          type: integer
+          title: Last Row
+        column_meta:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/ColumnMeta'
+            type: object
+          - type: 'null'
+          title: Column Meta
+      type: object
+      required:
+      - rows
+      - last_row
+      title: PaginatedFeaturesResponse
+      description: 'Response for the paginated sandbox query endpoint.
+
+
+        ``last_row`` is the exact filtered match count, computed alongside the
+
+        page via a single windowed ``COUNT(*) OVER()``. AG Grid uses it to size
+
+        the scrollbar and drive the "X of Y" footer without a follow-up call.'
+    ColumnDetail:
+      properties:
+        name:
+          type: string
+          title: Name
+        pg_type:
+          type: string
+          title: Pg Type
+        type:
+          type: string
+          title: Type
+        source:
+          type: string
+          enum:
+          - base
+          - enrichment
+          - agent
+          title: Source
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        categorical_options:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Categorical Options
+        stats:
+          $ref: '#/components/schemas/ColumnStats'
+        enrichment:
+          anyOf:
+          - $ref: '#/components/schemas/EnrichmentColumnConfig'
+          - type: 'null'
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      type: object
+      required:
+      - name
+      - pg_type
+      - type
+      - source
+      - stats
+      title: ColumnDetail
+      description: Rich per-column metadata for the columns endpoint.
+    FilteredCountResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        fingerprint:
+          type: string
+          title: Fingerprint
+      type: object
+      required:
+      - total
+      - fingerprint
+      title: FilteredCountResponse
+      description: 'Total row count matching the current filter set, no ids materialized.
+
+
+        Use over ``filtered-ids`` when only the count is needed — skips the sort
+
+        pass and id fetch. Backs the bulk-enrich confirm gate.
+
+
+        ``fingerprint`` is a deterministic hash of every field on
+
+        ``SSRTableQueryParams`` (minus pagination) plus the enrichment
+
+        predicates that ride alongside; snapshot consumers like
+
+        ``/enrich_async`` echo this value back in a ``FilterSelectionRequest``
+
+        so the server can detect client-side spec drift between count and
+
+        action.'
+    NumberCondition:
+      properties:
+        filterType:
+          type: string
+          const: number
+          title: Filtertype
+          default: number
+        type:
+          type: string
+          enum:
+          - equals
+          - notEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - lessThan
+          - lessThanOrEqual
+          - inRange
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filter
+        filterTo:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filterto
+        units:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Units
+      type: object
+      required:
+      - type
+      title: NumberCondition
+    SharedEnrichmentListResponse:
+      properties:
+        enrichments:
+          items:
+            $ref: '#/components/schemas/SharedEnrichmentModel'
+          type: array
+          title: Enrichments
+      type: object
+      required:
+      - enrichments
+      title: SharedEnrichmentListResponse
+    LayerExtentResponse:
+      properties:
+        bbox:
+          anyOf:
+          - prefixItems:
+            - type: number
+            - type: number
+            - type: number
+            - type: number
+            type: array
+            maxItems: 4
+            minItems: 4
+          - type: 'null'
+          title: Bbox
+      type: object
+      required:
+      - bbox
+      title: LayerExtentResponse
+      description: Response model for layer extent.
+    TextContent:
+      properties:
+        content:
+          type: string
+          title: Content
+        metadata:
+          title: Metadata
+        kind:
+          type: string
+          const: text-content
+          title: Kind
+          default: text-content
+      type: object
+      required:
+      - content
+      title: TextContent
+      description: 'String content that is tagged with additional metadata.
+
+
+        This is useful for including metadata that can be accessed programmatically by the application, but is not sent to the LLM.'
+    PaginatedFeatureRow:
+      additionalProperties: true
+      type: object
+    ToolCallPart:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        args:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Args
+        tool_call_id:
+          type: string
+          title: Tool Call Id
+        tool_kind:
+          anyOf:
+          - type: string
+            enum:
+            - tool-search
+            - capability-load
+          - type: 'null'
+          title: Tool Kind
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: tool-call
+          title: Part Kind
+          default: tool-call
+      type: object
+      required:
+      - tool_name
+      title: ToolCallPart
+      description: A tool call from a model.
+    ColumnsMetadataResponse:
+      properties:
+        tile_url_template:
+          type: string
+          title: Tile Url Template
+        total_rows:
+          type: integer
+          title: Total Rows
+        columns:
+          additionalProperties:
+            $ref: '#/components/schemas/ColumnDetail'
+          type: object
+          title: Columns
+      type: object
+      required:
+      - tile_url_template
+      - total_rows
+      - columns
+      title: ColumnsMetadataResponse
+      description: 'Response for GET /table/{layer_id}/columns.
+
+
+        ``tile_url_template`` is a literal template; the client substitutes
+
+        ``{layer_id}`` before handing the URL to Mapbox.'
+    TextPart:
+      properties:
+        content:
+          type: string
+          title: Content
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provider Details
+        part_kind:
+          type: string
+          const: text
+          title: Part Kind
+          default: text
+      type: object
+      required:
+      - content
+      title: TextPart
+      description: A plain text response from a model.
+    ColumnStats:
+      properties:
+        total_rows:
+          type: integer
+          title: Total Rows
+        enriched_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Enriched Count
+        unenriched_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Unenriched Count
+      type: object
+      required:
+      - total_rows
+      title: ColumnStats
+      description: 'Aggregate counts for one column.
+
+
+        Only enrichment columns carry ``enriched_count``/``unenriched_count`` (from
+
+        the ``additions`` sidecar). Base columns carry ``total_rows`` alone.'
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

@@ -1,0 +1,4264 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah internal API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: internal
+paths:
+  /api/v1/internal/audit-log/:
+    get:
+      tags:
+      - internal
+      summary: List Audit Log
+      description: 'List admin audit log entries with optional filters.
+
+
+        Both from_date and to_date are inclusive. Because the client sends bare dates
+
+        (parsed by FastAPI as midnight UTC), to_date is shifted to end-of-day so that
+
+        entries logged any time on the selected date are included.'
+      operationId: list_audit_log_api_v1_internal_audit_log__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: target_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Type
+      - name: admin_user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Admin User Id
+      - name: target_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Target Id
+      - name: action
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+      - name: from_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: From Date
+      - name: to_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: To Date
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAuditLogListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/:
+    get:
+      tags:
+      - internal
+      summary: List Example Projects
+      description: List all example projects ordered by created_at.
+      operationId: list_example_projects_api_v1_internal_example_projects__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExampleProjectListResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/example-projects/search:
+    get:
+      tags:
+      - internal
+      summary: Search Projects
+      description: List created projects in the admin's workspace for mark-as-example picker.
+      operationId: search_projects_api_v1_internal_example_projects_search_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/search-all:
+    get:
+      tags:
+      - internal
+      summary: Search All Projects
+      description: List created projects across all workspaces for the admin duplicate-any picker.
+      operationId: search_all_projects_api_v1_internal_example_projects_search_all_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/mark-example:
+    post:
+      tags:
+      - internal
+      summary: Mark As Example
+      description: Mark a project as an example project.
+      operationId: mark_as_example_api_v1_internal_example_projects__project_id__mark_example_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExampleProjectListItem'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/unmark-example:
+    post:
+      tags:
+      - internal
+      summary: Unmark As Example
+      description: Unmark a project as an example (sets visibility to private).
+      operationId: unmark_as_example_api_v1_internal_example_projects__project_id__unmark_example_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExampleProjectListItem'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/duplicate:
+    post:
+      tags:
+      - internal
+      summary: Duplicate Example Project
+      description: 'Deliver a curated project to a workspace.
+
+
+        Delivery is a durable cross-Neon-branch workflow: the response carries a
+
+        ``workflow_id`` and the client tracks progress via the Recent duplications
+
+        panel (which polls the per-row status).'
+      operationId: duplicate_example_project_api_v1_internal_example_projects__project_id__duplicate_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDuplicateProjectRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDuplicateProjectResponse'
+        '409':
+          description: The project covers counties the target workspace hasn't loaded; re-submit with acknowledge_missing_counties=true to deliver anyway.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissingCountyCoverageResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/duplicate/{workflow_id}/status:
+    get:
+      tags:
+      - internal
+      summary: Get Duplicate Status
+      description: Poll a cross-branch delivery workflow's terminal state.
+      operationId: get_duplicate_status_api_v1_internal_example_projects_duplicate__workflow_id__status_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDeliveryStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/duplications/recent:
+    get:
+      tags:
+      - internal
+      summary: List Recent Duplications
+      description: Recent duplications (newest first) for the admin tracker panel.
+      operationId: list_recent_duplications_api_v1_internal_example_projects_duplications_recent_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDuplicationLogResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/example-projects/{project_id}/preview:
+    get:
+      tags:
+      - internal
+      summary: Get Project Preview
+      description: Get project preview with metadata and layer summary.
+      operationId: get_project_preview_api_v1_internal_example_projects__project_id__preview_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectPreviewResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/feature-flags/:
+    get:
+      tags:
+      - internal
+      summary: List Feature Flags
+      description: List every registered feature toggle with its global default + override count.
+      operationId: list_feature_flags_api_v1_internal_feature_flags__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalFeatureFlagsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/feature-flags/{key}/overrides:
+    get:
+      tags:
+      - internal
+      summary: List Feature Overrides
+      description: 'List the workspaces that override one feature (deviate from the global
+
+        default), with each workspace''s current value. Internal admin only.'
+      operationId: list_feature_overrides_api_v1_internal_feature_flags__key__overrides_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureOverridesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - internal
+      summary: Reset Feature Overrides
+      description: Clear every per-workspace override for one feature. Internal admin only.
+      operationId: reset_feature_overrides_api_v1_internal_feature_flags__key__overrides_delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetFeatureOverridesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/feature-flags/{key}/default:
+    patch:
+      tags:
+      - internal
+      summary: Set Global Feature Default
+      description: 'Set the platform-wide default for one feature. Internal admin only.
+
+
+        Returns the refreshed flag list so the client reflects the new default
+
+        without a second round-trip.'
+      operationId: set_global_feature_default_api_v1_internal_feature_flags__key__default_patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGlobalFlagDefaultRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalFeatureFlagsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/geographies/:
+    get:
+      tags:
+      - internal
+      summary: List Available Geographies
+      description: Return US states with parcel coverage.
+      operationId: list_available_geographies_api_v1_internal_geographies__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeographyOptionsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/knowledge:
+    get:
+      tags:
+      - internal
+      summary: List Knowledge Entries
+      description: 'List a target owner''s entries for a scope (user or workspace).
+
+
+        The ``require_internal`` injection is redundant with the router-level gate
+
+        today, but kept for symmetry with the mutating handlers so the read path
+
+        stays admin-gated even if this router is ever re-mounted standalone.'
+      operationId: list_knowledge_entries_api_v1_internal_knowledge_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: scope
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/KnowledgeScope'
+      - name: owner_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Owner Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeEntryResponse'
+                title: Response List Knowledge Entries Api V1 Internal Knowledge Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - internal
+      summary: Create Knowledge Entry
+      description: Create an entry at the requested scope for the target owner.
+      operationId: create_knowledge_entry_api_v1_internal_knowledge_post
+      security:
+      - FirebaseAuthMiddleware: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminKnowledgeCreateRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/knowledge/apply-run:
+    post:
+      tags:
+      - internal
+      summary: Apply Knowledge Run
+      description: 'Apply one populate-knowledge run atomically (all-or-nothing).
+
+
+        Writes are confined to the request''s workspace; every mutation carries the
+
+        run''s provenance in its audit metadata, and a run-marker audit row advances
+
+        the refresh cursor. Any invalid item rolls back the whole run.'
+      operationId: apply_knowledge_run_api_v1_internal_knowledge_apply_run_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminKnowledgeApplyRunRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminKnowledgeApplyRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/knowledge/run-cursor:
+    get:
+      tags:
+      - internal
+      summary: Get Knowledge Run Cursor
+      description: Read a workspace's populate-knowledge refresh cursor (newest run marker).
+      operationId: get_knowledge_run_cursor_api_v1_internal_knowledge_run_cursor_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminKnowledgeRunCursorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/knowledge/{entry_id}:
+    patch:
+      tags:
+      - internal
+      summary: Update Knowledge Entry
+      description: Replace any entry's title + content (admin override).
+      operationId: update_knowledge_entry_api_v1_internal_knowledge__entry_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entry Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminKnowledgeUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeEntryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - internal
+      summary: Delete Knowledge Entry
+      description: Delete any entry (admin override).
+      operationId: delete_knowledge_entry_api_v1_internal_knowledge__entry_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entry Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/projects/{project_id}/edit-session:
+    post:
+      tags:
+      - internal
+      summary: Start Edit Session
+      description: 'Begin an admin write-mode editing session on a user''s project.
+
+
+        Acquires the project editing lock for the admin (409 if another user holds
+
+        it) and records one EDIT_PROJECT_AS_ADMIN audit row. With ``force=true``
+
+        the holder is evicted instead of 409ing and the audit metadata records the
+
+        takeover. The client then navigates into the project with
+
+        ``?admin_mode=write``.'
+      operationId: start_edit_session_api_v1_internal_projects__project_id__edit_session_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: force
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Force
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLockStatus'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/skills/draft:
+    post:
+      tags:
+      - internal
+      summary: Draft System Skill
+      description: 'Draft a system skill from a plain-language prompt (LLM; no persistence).
+
+
+        Powers the admin "Build with MAIA" mode: the draft pre-fills the create form,
+
+        which staff review and save through the audited create path. ``current_*``
+
+        let ``prompt`` act as revision feedback on an existing draft.'
+      operationId: draft_system_skill_api_v1_internal_skills_draft_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSkillDraftRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSkillDraftResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/skills:
+    get:
+      tags:
+      - internal
+      summary: List System Skills
+      description: List every MAIA-curated (system) skill with its workspace-availability set.
+      operationId: list_system_skills_api_v1_internal_skills_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AdminSkillResponse'
+                type: array
+                title: Response List System Skills Api V1 Internal Skills Get
+      security:
+      - FirebaseAuthMiddleware: []
+    post:
+      tags:
+      - internal
+      summary: Create System Skill
+      description: 'Create a curated (system) skill, available globally or to specific
+
+        workspaces, optionally flagged as a new-project starter.'
+      operationId: create_system_skill_api_v1_internal_skills_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSkillWriteRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSkillResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/skills/for-owner:
+    get:
+      tags:
+      - internal
+      summary: List Owner Skills
+      description: 'List a specific user''s or workspace''s own skills (admin read-only view).
+
+
+        ``scope`` must be ``user`` or ``workspace`` (system skills have no owner → 422).'
+      operationId: list_owner_skills_api_v1_internal_skills_for_owner_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: scope
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/SkillScope'
+      - name: owner_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Owner Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SkillResponse'
+                title: Response List Owner Skills Api V1 Internal Skills For Owner Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/skills/{skill_id}:
+    patch:
+      tags:
+      - internal
+      summary: Update System Skill
+      description: 'Replace a curated skill''s content, starter flag, and availability.
+
+
+        ``workspace_ids`` sets availability: empty makes it global, a set restricts
+
+        it to those workspaces.'
+      operationId: update_system_skill_api_v1_internal_skills__skill_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSkillWriteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSkillResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - internal
+      summary: Delete System Skill
+      description: Delete a system skill.
+      operationId: delete_system_skill_api_v1_internal_skills__skill_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/stats/:
+    get:
+      tags:
+      - internal
+      summary: Get Stats
+      description: Return summary statistics for the admin dashboard.
+      operationId: get_stats_api_v1_internal_stats__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStatsResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/users/:
+    get:
+      tags:
+      - internal
+      summary: List Users
+      description: List all users with optional search by name or email.
+      operationId: list_users_api_v1_internal_users__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 200
+          - type: 'null'
+          title: Search
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - internal
+      summary: Create User
+      description: Create a new user account with Firebase Auth and DB record.
+      operationId: create_user_api_v1_internal_users__post
+      security:
+      - FirebaseAuthMiddleware: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCreateUserRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}:
+    get:
+      tags:
+      - internal
+      summary: Get User Detail
+      description: Get detailed user information.
+      operationId: get_user_detail_api_v1_internal_users__user_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - internal
+      summary: Update User
+      description: Update user profile fields.
+      operationId: update_user_api_v1_internal_users__user_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/move-workspace:
+    post:
+      tags:
+      - internal
+      summary: Move User Workspace
+      description: Move a user to a different workspace.
+      operationId: move_user_workspace_api_v1_internal_users__user_id__move_workspace_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMoveWorkspaceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/projects:
+    get:
+      tags:
+      - internal
+      summary: List User Projects
+      description: List all created projects owned by a user, annotated with lock status.
+      operationId: list_user_projects_api_v1_internal_users__user_id__projects_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/suspend:
+    post:
+      tags:
+      - internal
+      summary: Suspend User
+      description: Suspend a user's account, blocking them from logging in.
+      operationId: suspend_user_api_v1_internal_users__user_id__suspend_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/unsuspend:
+    post:
+      tags:
+      - internal
+      summary: Unsuspend User
+      description: Restore login access for a suspended user.
+      operationId: unsuspend_user_api_v1_internal_users__user_id__unsuspend_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/users/{user_id}/send-invite:
+    post:
+      tags:
+      - internal
+      summary: Send Invite Email
+      description: Send an invite email (password setup link or Google SSO invite).
+      operationId: send_invite_email_api_v1_internal_users__user_id__send_invite_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSendInviteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/:
+    get:
+      tags:
+      - internal
+      summary: List Workspaces
+      description: List all workspaces with member counts and credit info.
+      operationId: list_workspaces_api_v1_internal_workspaces__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceListResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/workspaces/available-counties:
+    get:
+      tags:
+      - internal
+      summary: List All Available Counties
+      description: 'Return every coverage-supported county in GCS (workspace-agnostic).
+
+
+        Source for the create-workspace picker, which runs before a workspace
+
+        exists. The per-workspace `GET /{workspace_id}/available-counties` reuses
+
+        the same gate minus already-loaded counties.'
+      operationId: list_all_available_counties_api_v1_internal_workspaces_available_counties_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AvailableCountyResponse'
+                type: array
+                title: Response List All Available Counties Api V1 Internal Workspaces Available Counties Get
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/workspaces/provision:
+    post:
+      tags:
+      - internal
+      summary: Provision Workspace
+      description: 'Provision a new workspace end-to-end with a Neon sandbox + counties.
+
+
+        Replaces the legacy bare-create `POST /`. A workspace with no loaded
+
+        counties has zero geographic query access, so provisioning is the only
+
+        sanctioned create path. Seeds the `workspace_counties` rows as `loading`
+
+        and fires the `stand_up_workspace` Dagster job. Returns once the rows
+
+        are persisted (5-15s for Neon create); county data loads asynchronously
+
+        thereafter.'
+      operationId: provision_workspace_api_v1_internal_workspaces_provision_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminWorkspaceProvisionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/internal/workspaces/{workspace_id}:
+    get:
+      tags:
+      - internal
+      summary: Get Workspace Detail
+      description: Get detailed workspace information including members.
+      operationId: get_workspace_detail_api_v1_internal_workspaces__workspace_id__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - internal
+      summary: Update Workspace
+      description: Update workspace fields.
+      operationId: update_workspace_api_v1_internal_workspaces__workspace_id__patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminWorkspaceUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/projects:
+    get:
+      tags:
+      - internal
+      summary: List Workspace Projects
+      description: List all created projects in a workspace, annotated with lock status.
+      operationId: list_workspace_projects_api_v1_internal_workspaces__workspace_id__projects_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProjectListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/credits:
+    get:
+      tags:
+      - internal
+      summary: Get Workspace Credits
+      description: Get credit summary with per-user breakdown.
+      operationId: get_workspace_credits_api_v1_internal_workspaces__workspace_id__credits_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCreditsSummaryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/credits/add:
+    post:
+      tags:
+      - internal
+      summary: Add Workspace Credits
+      description: Add enrichment credits to a workspace.
+      operationId: add_workspace_credits_api_v1_internal_workspaces__workspace_id__credits_add_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAddCreditsRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/credits/set:
+    post:
+      tags:
+      - internal
+      summary: Set Workspace Credits
+      description: Set available enrichment credits to an exact value.
+      operationId: set_workspace_credits_api_v1_internal_workspaces__workspace_id__credits_set_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSetCreditsRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/credits/reset:
+    post:
+      tags:
+      - internal
+      summary: Reset Workspace Credits
+      description: Reset used enrichment credits for workspace and all members.
+      operationId: reset_workspace_credits_api_v1_internal_workspaces__workspace_id__credits_reset_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/suspend:
+    post:
+      tags:
+      - internal
+      summary: Suspend Workspace
+      description: Suspend a workspace, blocking all members from logging in.
+      operationId: suspend_workspace_api_v1_internal_workspaces__workspace_id__suspend_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/unsuspend:
+    post:
+      tags:
+      - internal
+      summary: Unsuspend Workspace
+      description: Restore login access for a suspended workspace.
+      operationId: unsuspend_workspace_api_v1_internal_workspaces__workspace_id__unsuspend_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkspaceDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/credits/history:
+    get:
+      tags:
+      - internal
+      summary: Get Workspace Credits History
+      description: Get credit change history from the audit log.
+      operationId: get_workspace_credits_history_api_v1_internal_workspaces__workspace_id__credits_history_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAuditLogListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/retell-config:
+    get:
+      tags:
+      - internal
+      summary: Get Retell Config
+      description: 'Read the workspace''s Retell config + auto-dial gate.
+
+
+        Secrets returned masked (last 4 only). Internal admin only — workspace
+
+        admins do not manage Retell config themselves; MAIA staff onboard a
+
+        workspace by setting agent IDs/creds + flipping `auto_dial_enabled`.'
+      operationId: get_retell_config_api_v1_internal_workspaces__workspace_id__retell_config_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetellConfigResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - internal
+      summary: Update Retell Config
+      description: 'Update Retell config and/or flip the auto-dial gate. Admin-only,
+
+        audit-logged. Pass an explicit `null` to clear an override; omit a
+
+        field to leave it untouched.'
+      operationId: update_retell_config_api_v1_internal_workspaces__workspace_id__retell_config_patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetellConfigUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetellConfigResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/feature-toggles:
+    get:
+      tags:
+      - internal
+      summary: Get Feature Toggles
+      description: 'List every governable feature toggle with its effective state, override
+
+        flag, and inherited global default for the workspace. Internal admin only.'
+      operationId: get_feature_toggles_api_v1_internal_workspaces__workspace_id__feature_toggles_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureTogglesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - internal
+      summary: Update Feature Toggle
+      description: 'Set one per-workspace override. Admin-only, audit-logged.
+
+        An unregistered key is rejected with 422.'
+      operationId: update_feature_toggle_api_v1_internal_workspaces__workspace_id__feature_toggles_patch
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureToggleUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureTogglesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/feature-toggles/{key}:
+    delete:
+      tags:
+      - internal
+      summary: Clear Feature Toggle Override
+      description: 'Clear one per-workspace override so it inherits the global default.
+
+        Admin-only, audit-logged. An unregistered key is rejected with 422.'
+      operationId: clear_feature_toggle_override_api_v1_internal_workspaces__workspace_id__feature_toggles__key__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureTogglesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/counties:
+    get:
+      tags:
+      - internal
+      summary: List Workspace Counties
+      description: Return per-county sandbox load state for the workspace.
+      operationId: list_workspace_counties_api_v1_internal_workspaces__workspace_id__counties_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkspaceCountyResponse'
+                title: Response List Workspace Counties Api V1 Internal Workspaces  Workspace Id  Counties Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - internal
+      summary: Append Workspace County
+      description: 'Insert a single pending `workspace_counties` row.
+
+
+        The env-matched `workspace_county_pickup_{staging,prod}` Dagster sensor
+
+        picks the row up on its next tick (≤30s typical), registers the
+
+        partition, launches `sandbox_load`, and the run-status callbacks stamp
+
+        completion back. `workspace_counties` is the single source of truth for
+
+        workspace RBAC — `WorkspaceCountyRepository.get_loaded_fips` reads it
+
+        directly.'
+      operationId: append_workspace_county_api_v1_internal_workspaces__workspace_id__counties_post
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppendCountyRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceCountyResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/available-counties:
+    get:
+      tags:
+      - internal
+      summary: List Available Counties
+      description: Return GCS-known counties not yet loaded for this workspace.
+      operationId: list_available_counties_api_v1_internal_workspaces__workspace_id__available_counties_get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AvailableCountyResponse'
+                title: Response List Available Counties Api V1 Internal Workspaces  Workspace Id  Available Counties Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/workspaces/{workspace_id}/counties/{county_id}:
+    delete:
+      tags:
+      - internal
+      summary: Remove Workspace County
+      description: 'Revoke RBAC access to a county and remove its tracker row.
+
+
+        Does NOT drop the loaded sandbox data — the partition stays in the
+
+        workspace''s Neon branch so a re-add is idempotent (re-add still runs
+
+        the loader from scratch, the sandbox infra just doesn''t need to be
+
+        re-provisioned).'
+      operationId: remove_workspace_county_api_v1_internal_workspaces__workspace_id__counties__county_id__delete
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: county_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: County Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/internal/health:
+    get:
+      tags:
+      - internal
+      summary: Internal Health
+      description: 'Health check endpoint for internal routes.
+
+
+        Confirms the caller is authenticated and has internal staff access.'
+      operationId: internal_health_api_v1_internal_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Internal Health Api V1 Internal Health Get
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    WorkspaceCountySelection:
+      properties:
+        state_fips:
+          type: string
+          maxLength: 2
+          minLength: 2
+          pattern: ^\d{2}$
+          title: State Fips
+        county_fips:
+          type: string
+          maxLength: 3
+          minLength: 3
+          pattern: ^\d{3}$
+          title: County Fips
+      additionalProperties: false
+      type: object
+      required:
+      - state_fips
+      - county_fips
+      title: WorkspaceCountySelection
+      description: 'One county selection — FIPS-shape only.
+
+
+        Used by the append-county and workspace-provisioning request bodies.
+
+        Callers supply ``state_fips`` (2-digit) + ``county_fips`` (3-digit) only.
+
+        ``extra="forbid"`` rejects callers still constructing slug-shape kwargs
+
+        with 422 rather than silently dropping the slug pair.
+
+
+        The handler resolves the FIPS pair to a USPS state code before calling
+
+        the service (the ``workspace_counties.state`` column is USPS, not
+
+        numeric FIPS).'
+    GlobalFeatureFlagsResponse:
+      properties:
+        flags:
+          items:
+            $ref: '#/components/schemas/GlobalFeatureFlagItem'
+          type: array
+          title: Flags
+      type: object
+      required:
+      - flags
+      title: GlobalFeatureFlagsResponse
+      description: Every registered feature toggle with its global default + override count.
+    AdminWorkspaceDetailResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        member_count:
+          type: integer
+          title: Member Count
+        project_count:
+          type: integer
+          title: Project Count
+        members:
+          items:
+            $ref: '#/components/schemas/AdminWorkspaceMemberItem'
+          type: array
+          title: Members
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - avatar_color
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - is_suspended
+      - member_count
+      - project_count
+      - members
+      - created_at
+      - updated_at
+      title: AdminWorkspaceDetailResponse
+      description: Full workspace detail response for admin view.
+    AdminCreditUserUsageItem:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        email:
+          type: string
+          title: Email
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+      type: object
+      required:
+      - user_id
+      - display_name
+      - email
+      - used_enrichment_credits
+      title: AdminCreditUserUsageItem
+      description: Per-user credit usage in a workspace.
+    AdminAuditLogResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        admin_user_id:
+          type: string
+          format: uuid
+          title: Admin User Id
+        admin_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Admin Email
+        action:
+          type: string
+          title: Action
+        target_type:
+          type: string
+          title: Target Type
+        target_id:
+          type: string
+          format: uuid
+          title: Target Id
+        target_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Display Name
+        before_value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Before Value
+        after_value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: After Value
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - admin_user_id
+      - admin_email
+      - action
+      - target_type
+      - target_id
+      - target_display_name
+      - before_value
+      - after_value
+      - metadata
+      - created_at
+      title: AdminAuditLogResponse
+      description: Response schema for a single audit log entry.
+    SkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_starter:
+          type: boolean
+          title: Is Starter
+          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
+          default: false
+      type: object
+      required:
+      - id
+      - scope
+      - name
+      - description
+      - body
+      - created_at
+      - updated_at
+      title: SkillResponse
+      description: A skill as returned to clients (full record, including body).
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AdminWorkspaceProvisionRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        counties:
+          items:
+            $ref: '#/components/schemas/WorkspaceCountySelection'
+          type: array
+          title: Counties
+        initial_credits:
+          type: integer
+          minimum: 0.0
+          title: Initial Credits
+          default: 5000
+        region_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region Id
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - counties
+      title: AdminWorkspaceProvisionRequest
+      description: 'Request body for provisioning a new workspace end-to-end.
+
+
+        Wraps `AdminWorkspaceService.provision_workspace_with_counties`: creates
+
+        the Neon sandbox and seeds `workspace_counties` rows. At least one county
+
+        is mandatory — a workspace with no loaded counties has zero geographic
+
+        query access. Rejects unknown fields with 422.
+
+
+        `counties` non-emptiness and in-list duplicates are validated in the
+
+        service (400) rather than here, so the same guard covers the script caller
+
+        (`scripts/provision_prod_admin_workspace.py`) and the error is a 400, not a
+
+        422, matching the rest of the provisioning contract.'
+    AppendCountyRequest:
+      properties:
+        state_fips:
+          type: string
+          maxLength: 2
+          minLength: 2
+          pattern: ^\d{2}$
+          title: State Fips
+        county_fips:
+          type: string
+          maxLength: 3
+          minLength: 3
+          pattern: ^\d{3}$
+          title: County Fips
+      additionalProperties: false
+      type: object
+      required:
+      - state_fips
+      - county_fips
+      title: AppendCountyRequest
+      description: Request body for appending one county to an existing workspace sandbox.
+    AdminExampleProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      title: AdminExampleProjectListItem
+      description: Summary schema for example project list items.
+    AdminProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        is_locked:
+          type: boolean
+          title: Is Locked
+          default: false
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+      type: object
+      required:
+      - id
+      - name
+      - status
+      - created_at
+      - updated_at
+      title: AdminProjectListItem
+      description: Summary schema for project list items in admin views.
+    AdminWorkspaceUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+      additionalProperties: false
+      type: object
+      title: AdminWorkspaceUpdateRequest
+      description: 'Request schema for updating workspace fields.
+
+
+        All fields optional; uses exclude_unset semantics. Rejects unknown fields
+
+        with 422 — legacy callers sending the removed `allowed_geographies` key
+
+        should fail loud rather than silently no-op.'
+    FeatureToggleUpdateRequest:
+      properties:
+        key:
+          type: string
+          minLength: 1
+          title: Key
+        enabled:
+          type: boolean
+          title: Enabled
+      additionalProperties: false
+      type: object
+      required:
+      - key
+      - enabled
+      title: FeatureToggleUpdateRequest
+      description: Request to flip a single feature toggle for a workspace.
+    AdminKnowledgeApplyRunResponse:
+      properties:
+        created:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Created
+        updated:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Updated
+        deleted_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Deleted Ids
+        run_marker_id:
+          type: string
+          format: uuid
+          title: Run Marker Id
+      type: object
+      required:
+      - created
+      - updated
+      - deleted_ids
+      - run_marker_id
+      title: AdminKnowledgeApplyRunResponse
+      description: What an applied run changed, plus the run-marker audit row's id.
+    AdminDeliveryStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - status
+      title: AdminDeliveryStatusResponse
+      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
+    GlobalFeatureFlagItem:
+      properties:
+        key:
+          type: string
+          title: Key
+        label:
+          type: string
+          title: Label
+        description:
+          type: string
+          title: Description
+        global_default:
+          type: boolean
+          title: Global Default
+        override_count:
+          type: integer
+          title: Override Count
+      type: object
+      required:
+      - key
+      - label
+      - description
+      - global_default
+      - override_count
+      title: GlobalFeatureFlagItem
+      description: One feature toggle's platform-wide default and override count.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    WorkspaceCountyResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        state:
+          type: string
+          title: State
+        county_fips:
+          type: string
+          title: County Fips
+        county_name:
+          type: string
+          title: County Name
+        load_status:
+          $ref: '#/components/schemas/WorkspaceCountyLoadStatus'
+        dagster_run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dagster Run Id
+        requested_at:
+          type: string
+          format: date-time
+          title: Requested At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+      type: object
+      required:
+      - id
+      - workspace_id
+      - state
+      - county_fips
+      - county_name
+      - load_status
+      - dagster_run_id
+      - requested_at
+      - completed_at
+      - error_message
+      title: WorkspaceCountyResponse
+      description: 'A workspace''s per-county sandbox-load state.
+
+
+        ``county_name`` is the TIGER LSAD form (e.g. ``"Los Angeles County"``);
+
+        sourced from ``tiger_county.name`` via
+
+        ``WorkspaceCountyRepository.get_loaded_fips_to_name_map`` at the endpoint
+
+        layer (the domain ``WorkspaceCounty`` doesn''t carry the name).'
+    KnowledgeRunDelete:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+      type: object
+      required:
+      - entry_id
+      title: KnowledgeRunDelete
+      description: Delete an existing entry.
+    AdminWorkspaceListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        member_count:
+          type: integer
+          title: Member Count
+        project_count:
+          type: integer
+          title: Project Count
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - name
+      - member_count
+      - project_count
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - is_suspended
+      - created_at
+      - last_active_at
+      title: AdminWorkspaceListItem
+      description: Summary schema for workspace list items.
+    AdminKnowledgeApplyRunRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        provenance:
+          $ref: '#/components/schemas/KnowledgeRunProvenance'
+        creates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunCreate'
+          type: array
+          title: Creates
+        updates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunUpdate'
+          type: array
+          title: Updates
+        deletes:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunDelete'
+          type: array
+          title: Deletes
+      type: object
+      required:
+      - workspace_id
+      - provenance
+      title: AdminKnowledgeApplyRunRequest
+      description: 'One populate-knowledge run, applied atomically to a single workspace.
+
+
+        The item shapes (with title/content caps) are the domain run models; the
+
+        audit actor is the authenticated internal caller, so the payload carries no
+
+        admin id.'
+    MissingCountyCoverageDetail:
+      properties:
+        code:
+          type: string
+          title: Code
+          default: missing_county_coverage
+        missing_counties:
+          items:
+            $ref: '#/components/schemas/MissingCounty'
+          type: array
+          title: Missing Counties
+      type: object
+      required:
+      - missing_counties
+      title: MissingCountyCoverageDetail
+      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
+    AdminAddCreditsRequest:
+      properties:
+        amount:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Amount
+      type: object
+      required:
+      - amount
+      title: AdminAddCreditsRequest
+      description: Request schema for adding credits to a workspace.
+    KnowledgeScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      title: KnowledgeScope
+      description: 'Tier a knowledge entry applies to.
+
+
+        Resolution is additive and ordered ``user -> workspace`` — precedence is
+
+        ordering only, not override (no shadowing in v1). "System" knowledge is the
+
+        agent''s existing system prompt — a separate, pre-existing mechanism that does
+
+        not live in this table — so there is no ``system`` scope here.'
+    AdminProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminProjectListResponse
+      description: Response schema for admin project list endpoints.
+    KnowledgeRunCreate:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: KnowledgeRunCreate
+      description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
+    KnowledgeRunUpdate:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - entry_id
+      - title
+      - content
+      title: KnowledgeRunUpdate
+      description: Replace an existing entry's title + content.
+    AdminSetCreditsRequest:
+      properties:
+        available_credits:
+          type: integer
+          minimum: 0.0
+          title: Available Credits
+      type: object
+      required:
+      - available_credits
+      title: AdminSetCreditsRequest
+      description: Request schema for setting available credits to an exact value.
+    AdminCreditsSummaryResponse:
+      properties:
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        users:
+          items:
+            $ref: '#/components/schemas/AdminCreditUserUsageItem'
+          type: array
+          title: Users
+      type: object
+      required:
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - users
+      title: AdminCreditsSummaryResponse
+      description: Response schema for workspace credit summary with per-user breakdown.
+    AdminAuditLogListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminAuditLogResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: AdminAuditLogListResponse
+      description: Paginated response for audit log queries.
+    ResetFeatureOverridesResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+        cleared_count:
+          type: integer
+          title: Cleared Count
+      type: object
+      required:
+      - key
+      - cleared_count
+      title: ResetFeatureOverridesResponse
+      description: Result from clearing every per-workspace override for one feature.
+    AdminCreateUserRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        display_name:
+          type: string
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        is_internal:
+          type: boolean
+          title: Is Internal
+          default: false
+        auth_method:
+          type: string
+          enum:
+          - google
+          - password
+          title: Auth Method
+          default: google
+        password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Password
+        send_invite:
+          type: boolean
+          title: Send Invite
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - email
+      - display_name
+      - workspace_id
+      title: AdminCreateUserRequest
+      description: 'Request schema for creating a new user account.
+
+
+        Rejects unknown fields with 422 — legacy callers sending the removed
+
+        `create_workspace_allowed_geographies` key should fail loud rather than
+
+        silently no-op (see MAIA-1562).'
+    ProjectLockStatus:
+      properties:
+        is_locked:
+          type: boolean
+          title: Is Locked
+          description: Whether the project is currently locked.
+        locked_by_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By User Id
+          description: User ID of the lock holder, if locked.
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+          description: Display name of the lock holder for UI.
+        locked_by_avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Avatar Color
+          description: Avatar color name of the lock holder for UI.
+        is_current_user:
+          type: boolean
+          title: Is Current User
+          description: True when the current user holds the lock.
+          default: false
+        ttl_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ttl Seconds
+          description: Remaining TTL of the lock in seconds, if locked.
+      type: object
+      required:
+      - is_locked
+      title: ProjectLockStatus
+      description: Status of the project editing lock.
+    MissingCounty:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - fips
+      - name
+      title: MissingCounty
+      description: A county the source project covers but the target workspace lacks.
+    AdminUserListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminUserListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminUserListResponse
+      description: Response schema for user list endpoint.
+    AdminSendInviteResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: AdminSendInviteResponse
+      description: Response schema for send invite email endpoint.
+    RetellConfigUpdateRequest:
+      properties:
+        retell_agent_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Retell Agent Id
+        retell_qualify_agent_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Retell Qualify Agent Id
+        retell_from_number:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Retell From Number
+        retell_api_key:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Retell Api Key
+        retell_signing_secret:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Retell Signing Secret
+        auto_dial_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Auto Dial Enabled
+        monthly_dial_minute_cap:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Monthly Dial Minute Cap
+      type: object
+      title: RetellConfigUpdateRequest
+      description: 'Partial update for per-workspace Retell config (internal admin only).
+
+
+        Pass an explicit `null` to clear an override (the dispatch path then
+
+        falls back to env defaults). Omit a field to leave it untouched.
+
+
+        `auto_dial_enabled` is the single gate that turns auto-dial on for the
+
+        workspace — there is no PostHog flag layered on top, so flipping this
+
+        to true makes the feature visible to workspace users immediately.'
+    AdminStatsResponse:
+      properties:
+        workspace_count:
+          type: integer
+          title: Workspace Count
+        user_count:
+          type: integer
+          title: User Count
+        project_count:
+          type: integer
+          title: Project Count
+        example_project_count:
+          type: integer
+          title: Example Project Count
+      type: object
+      required:
+      - workspace_count
+      - user_count
+      - project_count
+      - example_project_count
+      title: AdminStatsResponse
+      description: Summary statistics for the admin dashboard.
+    AdminSkillDraftRequest:
+      properties:
+        prompt:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Prompt
+        current_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Name
+        current_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Description
+        current_body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Body
+      type: object
+      required:
+      - prompt
+      title: AdminSkillDraftRequest
+      description: 'Draft a system skill from a plain-language description (no persistence).
+
+
+        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
+
+        feedback rather than a fresh request; omit them for a first draft. The draft
+
+        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
+
+        uncapped beyond the prompt length.'
+    AdminDuplicationLogEntry:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        source_project_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Project Name
+        target_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Name
+        duplicate_type:
+          type: string
+          title: Duplicate Type
+        status:
+          type: string
+          title: Status
+        delivered_project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Delivered Project Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - source_project_name
+      - target_name
+      - duplicate_type
+      - status
+      - delivered_project_id
+      - created_at
+      title: AdminDuplicationLogEntry
+      description: 'One recent duplication for the admin tracker.
+
+
+        ``status`` is PENDING | SUCCESS | FAILURE. Synchronous user duplications are
+
+        always SUCCESS (logged after the copy committed); workspace deliveries
+
+        resolve their durable workflow''s live status. ``delivered_project_id`` is the
+
+        resulting project once it exists (immediately for the user path, on SUCCESS
+
+        for the workspace path), used to link straight to the copy.'
+    AdminProjectSearchResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        visibility:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visibility
+      type: object
+      required:
+      - id
+      - name
+      - owner_display_name
+      - workspace_name
+      - created_at
+      - updated_at
+      - visibility
+      title: AdminProjectSearchResult
+      description: Search result item for project search.
+    AdminKnowledgeRunCursorResponse:
+      properties:
+        meetings_through:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meetings Through
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        runs:
+          type: integer
+          title: Runs
+      type: object
+      required:
+      - meetings_through
+      - last_run_at
+      - runs
+      title: AdminKnowledgeRunCursorResponse
+      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
+
+
+        ``meetings_through`` is the opaque ISO-8601 string from the newest run
+
+        marker''s metadata; ``runs`` counts all markers for the workspace.'
+    KnowledgeRunProvenance:
+      properties:
+        source:
+          type: string
+          minLength: 1
+          title: Source
+          default: populate-knowledge
+        run_at:
+          type: string
+          format: date-time
+          title: Run At
+        meetings_through:
+          type: string
+          format: date-time
+          title: Meetings Through
+      type: object
+      required:
+      - run_at
+      - meetings_through
+      title: KnowledgeRunProvenance
+      description: 'Provenance stamped into every audit row a knowledge run writes.
+
+
+        ``meetings_through`` is the refresh cursor: the latest source meeting a run
+
+        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
+
+        only newer material.'
+    AdminUserUpdateRequest:
+      properties:
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
+      type: object
+      title: AdminUserUpdateRequest
+      description: Request schema for updating user fields.
+    AdminSkillDraftResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillDraftResponse
+      description: A drafted skill's three authored fields, for pre-filling the editor.
+    KnowledgeEntryResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_core:
+          type: boolean
+          title: Is Core
+          description: Whether this is the reserved always-injected core entry (MAIA-2833).
+          readOnly: true
+      type: object
+      required:
+      - id
+      - scope
+      - title
+      - content
+      - created_at
+      - updated_at
+      - is_core
+      title: KnowledgeEntryResponse
+      description: A titled knowledge entry as returned to clients.
+    AdminUserListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+        plan_type:
+          type: string
+          title: Plan Type
+        project_count:
+          type: integer
+          title: Project Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - workspace_id
+      - workspace_name
+      - is_internal
+      - is_suspended
+      - has_completed_onboarding
+      - plan_type
+      - project_count
+      - created_at
+      - last_active_at
+      title: AdminUserListItem
+      description: Summary schema for user list items.
+    AdminDuplicateProjectResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+      type: object
+      required:
+      - workflow_id
+      title: AdminDuplicateProjectResponse
+      description: 'Response schema for the duplicate (workspace delivery) endpoint.
+
+
+        Delivery is a durable cross-Neon-branch workflow that returns only a
+
+        ``workflow_id``; the delivered project id isn''t known until the workflow''s
+
+        clone step runs, so the UI tracks progress via the Recent duplications panel.'
+    AdminProjectPreviewResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        layers:
+          items:
+            $ref: '#/components/schemas/AdminLayerSummary'
+          type: array
+          title: Layers
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      - layers
+      title: AdminProjectPreviewResponse
+      description: Response schema for project preview endpoint.
+    WorkspaceCountyLoadStatus:
+      type: string
+      enum:
+      - provisioning
+      - pending
+      - loading
+      - succeeded
+      - failed
+      title: WorkspaceCountyLoadStatus
+      description: 'Load status for a workspace-county pair.
+
+
+        Lifecycle: ``provisioning`` (initial — set by workspace standup before the
+
+        Neon project is ready) → ``pending`` (set by ``provision_workspace_op``
+
+        after schema apply succeeds; the pickup sensor''s gate value) →
+
+        ``loading`` (set by ``sandbox_load`` when it starts writing for one
+
+        county) → ``succeeded`` | ``failed`` (terminal, set by the asset''s
+
+        try/finally). ``provisioning`` and the mid-load ``loading`` were
+
+        previously the same value; MAIA-2309 split them so the lifecycle reads
+
+        literally instead of overloading ``loading`` across two phases.'
+    AvailableCountyResponse:
+      properties:
+        state:
+          type: string
+          title: State
+        county_name:
+          type: string
+          title: County Name
+        state_fips:
+          type: string
+          title: State Fips
+        county_fips:
+          type: string
+          title: County Fips
+      type: object
+      required:
+      - state
+      - county_name
+      - state_fips
+      - county_fips
+      title: AvailableCountyResponse
+      description: 'A county available to load (not yet in this workspace).
+
+
+        ``county_name`` is the TIGER LSAD form (e.g. ``"Los Angeles County"``)
+
+        populated from the picker''s ``AvailableCounty`` named tuple.'
+    SkillScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      - system
+      title: SkillScope
+      description: 'Tier a skill applies to.
+
+
+        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
+
+        scope: globally-available skills that are read-only through the public
+
+        service/API and writable only via the internal admin override,
+
+        plus the in-code create-skill playbook registry. ``user`` skills are owned by
+
+        a single user, ``workspace`` skills by a workspace, ``system`` skills by
+
+        neither.'
+    AdminSkillWriteRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
+        is_starter:
+          type: boolean
+          title: Is Starter
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillWriteRequest
+      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
+
+
+        ``workspace_ids`` sets availability on both create and update: empty is a
+
+        global skill (visible to every workspace); a set restricts it to those
+
+        workspaces. ``is_starter`` is independent of availability.
+
+
+        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
+
+        caller from before the multi-workspace cutover would otherwise have it
+
+        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
+
+        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
+    AdminWorkspaceMemberItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Role
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - workspace_role
+      - is_internal
+      - is_suspended
+      - created_at
+      - used_enrichment_credits
+      - last_active_at
+      title: AdminWorkspaceMemberItem
+      description: Member summary for workspace detail view.
+    AdminUserDetailResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+        plan_type:
+          type: string
+          title: Plan Type
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        project_count:
+          type: integer
+          title: Project Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - role
+      - workspace_id
+      - workspace_name
+      - is_internal
+      - is_suspended
+      - has_completed_onboarding
+      - plan_type
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - project_count
+      - created_at
+      - updated_at
+      - last_active_at
+      title: AdminUserDetailResponse
+      description: Full user detail response for admin view.
+    AdminKnowledgeUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: AdminKnowledgeUpdateRequest
+      description: Replace an entry's title + content.
+    AdminWorkspaceListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminWorkspaceListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminWorkspaceListResponse
+      description: Response schema for workspace list endpoint.
+    AdminKnowledgeCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: AdminKnowledgeCreateRequest
+      description: 'Create a titled entry at ``scope`` for the target ``owner_id``.
+
+
+        ``owner_id`` is the target user id (user scope) or workspace id (workspace
+
+        scope).'
+    AdminMoveWorkspaceRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      type: object
+      required:
+      - workspace_id
+      title: AdminMoveWorkspaceRequest
+      description: Request schema for moving a user to a different workspace.
+    FeatureOverrideWorkspaceItem:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          type: string
+          title: Workspace Name
+        enabled:
+          type: boolean
+          title: Enabled
+      type: object
+      required:
+      - workspace_id
+      - workspace_name
+      - enabled
+      title: FeatureOverrideWorkspaceItem
+      description: One workspace overriding a feature, with its current stored value.
+    FeatureTogglesResponse:
+      properties:
+        toggles:
+          items:
+            $ref: '#/components/schemas/FeatureToggleItem'
+          type: array
+          title: Toggles
+      type: object
+      required:
+      - toggles
+      title: FeatureTogglesResponse
+      description: All governable feature toggles for a workspace (registry + overrides).
+    AdminDuplicateProjectRequest:
+      properties:
+        target_workspace_id:
+          type: string
+          format: uuid
+          title: Target Workspace Id
+        acknowledge_missing_counties:
+          type: boolean
+          title: Acknowledge Missing Counties
+          default: false
+      type: object
+      required:
+      - target_workspace_id
+      title: AdminDuplicateProjectRequest
+      description: Request schema for delivering a curated project to a workspace.
+    StateOption:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - code
+      - name
+      title: StateOption
+      description: A US state available for geography restriction.
+    MissingCountyCoverageResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/MissingCountyCoverageDetail'
+      type: object
+      required:
+      - detail
+      title: MissingCountyCoverageResponse
+      description: 'Wire shape of the county-coverage 409.
+
+
+        FastAPI serializes ``HTTPException(detail=...)`` as ``{"detail": ...}``, so
+
+        the documented response body must carry the wrapper — clients read
+
+        ``data.detail.missing_counties``.'
+    AdminExampleProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminExampleProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminExampleProjectListResponse
+      description: Response schema for example project list endpoint.
+    RetellConfigResponse:
+      properties:
+        retell_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Agent Id
+        retell_qualify_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Qualify Agent Id
+        retell_from_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell From Number
+        retell_api_key_masked:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Api Key Masked
+        retell_signing_secret_masked:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Signing Secret Masked
+        auto_dial_enabled:
+          type: boolean
+          title: Auto Dial Enabled
+          default: false
+        monthly_dial_minute_cap:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Monthly Dial Minute Cap
+      type: object
+      title: RetellConfigResponse
+      description: 'Per-workspace Retell account config. Secrets returned as last-4
+
+        masked hints only — never the decrypted value.'
+    SetGlobalFlagDefaultRequest:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+      additionalProperties: false
+      type: object
+      required:
+      - enabled
+      title: SetGlobalFlagDefaultRequest
+      description: Request to set the platform-wide default for one feature toggle.
+    AdminDuplicationLogResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminDuplicationLogResponse
+      description: Recent duplications, newest first, for the admin tracker panel.
+    CountyOption:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+        state:
+          type: string
+          title: State
+      type: object
+      required:
+      - fips
+      - name
+      - state
+      title: CountyOption
+      description: A FIPS county available for geography restriction.
+    FeatureToggleItem:
+      properties:
+        key:
+          type: string
+          title: Key
+        label:
+          type: string
+          title: Label
+        description:
+          type: string
+          title: Description
+        enabled:
+          type: boolean
+          title: Enabled
+        is_override:
+          type: boolean
+          title: Is Override
+        global_default:
+          type: boolean
+          title: Global Default
+      type: object
+      required:
+      - key
+      - label
+      - description
+      - enabled
+      - is_override
+      - global_default
+      title: FeatureToggleItem
+      description: 'One governable feature toggle and its effective state for a workspace.
+
+
+        `enabled` is the resolved on/off (override ?? global ?? seed). `is_override`
+
+        flags whether the workspace has an explicit stored value versus inheriting
+
+        the global default; `global_default` is what it inherits when not overridden.'
+    FeatureOverridesResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+        overrides:
+          items:
+            $ref: '#/components/schemas/FeatureOverrideWorkspaceItem'
+          type: array
+          title: Overrides
+      type: object
+      required:
+      - key
+      - overrides
+      title: FeatureOverridesResponse
+      description: Workspaces that override one feature (deviate from the global default).
+    AdminProjectSearchResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectSearchResult'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminProjectSearchResponse
+      description: Response schema for project search endpoint.
+    AdminLayerSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        feature_count:
+          type: integer
+          title: Feature Count
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - feature_count
+      title: AdminLayerSummary
+      description: Layer summary for project preview.
+    AdminSkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_starter:
+          type: boolean
+          title: Is Starter
+          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+          description: The workspaces this curated (system) skill is available in. Empty means global (every workspace).
+      type: object
+      required:
+      - id
+      - scope
+      - name
+      - description
+      - body
+      - created_at
+      - updated_at
+      title: AdminSkillResponse
+      description: 'A curated skill as returned to the internal admin catalog.
+
+
+        Adds the ``workspace_ids`` availability set, which the public
+
+        ``SkillResponse`` deliberately omits: for a skill restricted to a set of
+
+        workspaces, that set contains *other* tenants'' workspace ids, so exposing it
+
+        on the public read paths (picker / gallery) would leak cross-tenant data to
+
+        any workspace the skill is visible in. Only the internal admin surface
+
+        (``require_internal``) sees the availability set.'
+    GeographyOptionsResponse:
+      properties:
+        states:
+          items:
+            $ref: '#/components/schemas/StateOption'
+          type: array
+          title: States
+        counties:
+          items:
+            $ref: '#/components/schemas/CountyOption'
+          type: array
+          title: Counties
+      type: object
+      required:
+      - states
+      - counties
+      title: GeographyOptionsResponse
+      description: Available geography options for workspace restriction.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

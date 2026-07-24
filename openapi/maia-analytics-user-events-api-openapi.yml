@@ -1,0 +1,46 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah user-events API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: user-events
+paths:
+  /api/v1/users/me/events:
+    get:
+      tags:
+      - user-events
+      summary: User Events Stream
+      description: 'Subscribe to the authenticated user''s live event channel via SSE.
+
+
+        Forwards messages on ``user:{user_id}:events`` to the browser via the
+
+        per-instance ``UserEventsFanout``. Heartbeat every 15 s. The connection
+
+        closes when the client disconnects or the server shuts down; the FE
+
+        reconnects with jittered backoff and re-fetches snapshot state on each
+
+        (re)connect so a dropped event during a disconnect window is recovered
+
+        automatically.
+
+
+        No payload is required from the FE — the subscription is implicit in
+
+        opening the connection, scoped by the authenticated user.'
+      operationId: user_events_stream_api_v1_users_me_events_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

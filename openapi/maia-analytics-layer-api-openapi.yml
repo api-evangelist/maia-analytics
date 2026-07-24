@@ -1,0 +1,657 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah layer API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: layer
+paths:
+  /api/v1/layer/{project_id}:
+    get:
+      tags:
+      - layer
+      summary: Get Project Layers
+      description: "Get all layers for a specific project.\n\nArgs:\n    project_id: The ID of the project to get layers for (validated for read access)\n    layer_service: Service for handling layer operations"
+      operationId: get_project_layers_api_v1_layer__project_id__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LayerModel'
+                type: array
+                title: Response Get Project Layers Api V1 Layer  Project Id  Get
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/layer/{project_id}/upload:
+    post:
+      tags:
+      - layer
+      summary: Upload Layer
+      description: Upload a CSV or GeoJSON file as a generic sandbox layer.
+      operationId: upload_layer_api_v1_layer__project_id__upload_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_layer_api_v1_layer__project_id__upload_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerUploadResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+  /api/v1/layer/{layer_id}:
+    put:
+      tags:
+      - layer
+      summary: Update Layer
+      description: "Update a layer with the provided data.\n\nArgs:\n    request: Layer update request containing layer ID and fields to update\n    layer_service: Service for handling layer operations\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Response containing success message and updated layer\n\nRaises:\n    HTTPException: If layer not found or no fields provided for update"
+      operationId: update_layer_api_v1_layer__layer_id__put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayerUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerUpdateResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - FirebaseAuthMiddleware: []
+    delete:
+      tags:
+      - layer
+      summary: Delete Layer
+      description: "Soft delete a layer.\n\nArgs:\n    request: Layer delete request containing layer ID and project ID\n    layer_service: Service for handling layer operations\n\nReturns:\n    Response containing success message\n\nRaises:\n    HTTPException: If layer not found"
+      operationId: delete_layer_api_v1_layer__layer_id__delete
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerDeleteResponse'
+      security:
+      - FirebaseAuthMiddleware: []
+components:
+  schemas:
+    ColumnKind:
+      type: string
+      enum:
+      - source
+      - merged
+      - enrichment
+      - system
+      - agent_derived
+      title: ColumnKind
+      description: "Provenance discriminator for a layer column.\n\n* `source` — column SELECTed directly from the canonical Overture table.\n* `merged` — column joined in from another canonical source table (e.g.\n  `parcel_owner` on a building layer joined parcel data).\n* `enrichment` — populated by an enrichment runner, not the agent's SQL.\n  (Reserved for the upcoming enrichment unification — not used yet.)\n* `system` — agent-facing hide-by-default escape for lineage columns\n  merged for enrichment plumbing the user shouldn't see by default\n  (e.g. parcel address fields plumbed onto a building layer for Owner\n  Contact Info). Stays in the registered schema and can be surfaced\n  later via `modify_columns`.\n* `agent_derived` — computed in the agent's SQL (`SUM(...) AS total`,\n  `CASE WHEN ... END AS bucket`). Still requires source_table+source_column\n  anchoring so view deltas survive a column rename."
+    ThumbnailBounds:
+      properties:
+        min_lon:
+          type: number
+          title: Min Lon
+        min_lat:
+          type: number
+          title: Min Lat
+        max_lon:
+          type: number
+          title: Max Lon
+        max_lat:
+          type: number
+          title: Max Lat
+      type: object
+      required:
+      - min_lon
+      - min_lat
+      - max_lon
+      - max_lat
+      title: ThumbnailBounds
+      description: 'Bounding box for project thumbnail map rendering.
+
+
+        Represents the geographic extent of project features for generating
+
+        static map thumbnails via Mapbox.'
+    Body_upload_layer_api_v1_layer__project_id__upload_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        name:
+          type: string
+          maxLength: 255
+          title: Name
+        truncate:
+          type: boolean
+          title: Truncate
+          default: false
+      type: object
+      required:
+      - file
+      - name
+      title: Body_upload_layer_api_v1_layer__project_id__upload_post
+    LayerDeleteResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: LayerDeleteResponse
+      description: "Response schema for layer delete operations.\n\nAttributes:\n    message: Success message"
+    ColumnRole:
+      type: string
+      enum:
+      - stat
+      - other
+      title: ColumnRole
+      description: 'Narrow detail-panel placement signal, orthogonal to ``semantic_type``.
+
+
+        The one signal that cannot be derived from ``semantic_type``: parcel
+
+        ``parval`` and ``improvval`` are both ``CURRENCY``, but only ``parval`` is
+
+        a headline stat. ``role`` carries that; ``semantic_type`` carries
+
+        content/format. Ordering and visibility live on the *view*, not here.'
+    LayerColumn:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Stable column identifier within a layer. Hashed from the layer id plus the column's kind-specific stable identity. Source and merged columns omit `key` so alias renames keep the same id; agent-derived columns include `key` to distinguish multiple computations anchored on the same source.
+        key:
+          type: string
+          title: Key
+        provenance:
+          $ref: '#/components/schemas/ColumnProvenance'
+        display_name:
+          type: string
+          title: Display Name
+          description: Resolved user-facing column label. Unit-agnostic — does NOT include unit tokens like `(ft)`, `(m)`, `(m²)`, or `(acres)`. The FE composes the column header as `display_name + (unit)` where `unit` is the single source of truth for the unit suffix. See MAIA-1872.
+        data_type:
+          anyOf:
+          - $ref: '#/components/schemas/ColumnDataType'
+          - type: 'null'
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+          description: Display-unit suffix declared by the agent at register-layer time. Single source of truth for the user-visible unit on this column — the FE composes the header as `display_name + (unit)` and renders cells as `value + unit`. Round-trips through the resolver verbatim. Numeric formatting (decimal places) is picked from a unit→format lookup; unknown units fall back to integer formatting + raw suffix so the agent can declare arbitrary unit strings without code changes. Null for non-unit columns (names, IDs, categorical text). Currency uses the `currency` data_type / semantic type, NOT this field.
+        semantic_type:
+          anyOf:
+          - $ref: '#/components/schemas/SemanticType'
+          - type: 'null'
+          description: What the column means (currency, area, percent, address_part, …) — drives FE rendering/formatting. Hydrated server-side by `compose_layer_columns` from the column's `LayerKind`. Single on-wire source of per-column semantics, replacing the old `base_attributes.column_metadata` bag. None for columns with no canonical lineage (permissive kinds, ad-hoc derived).
+        role:
+          $ref: '#/components/schemas/ColumnRole'
+          description: Detail-panel placement signal ({stat, other}), orthogonal to `semantic_type`. `stat` columns render as headline numbers. Hydrated from the `LayerKind`; defaults to `other`.
+          default: other
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Human-readable column description surfaced in the table column metadata. Hydrated server-side (canonical column metadata or the agent's declaration), not persisted as a separate wire bag.
+      type: object
+      required:
+      - id
+      - key
+      - provenance
+      - display_name
+      title: LayerColumn
+      description: 'The resolved, persisted shape — what gets stored on `layers.columns`
+
+        and surfaced to the frontend.
+
+
+        Visibility and ordering live on the *view* (`view.layerColumnVisibility`
+
+        + `view.layerColumnOrder`), seeded at register-layer time from the
+
+        agent''s declared columns (declared = visible except `kind=system`).
+
+        `LayerColumn` carries only the schema/lineage half — what the column
+
+        IS, not how it''s displayed in any one view.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    LayerUpdateResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        layer:
+          $ref: '#/components/schemas/LayerModel'
+      type: object
+      required:
+      - message
+      - layer
+      title: LayerUpdateResponse
+      description: "Response schema for layer update operations.\n\nAttributes:\n    message: Success message\n    layer: Updated layer model"
+    SemanticType:
+      type: string
+      enum:
+      - identifier
+      - name
+      - address_part
+      - address_full
+      - currency
+      - area
+      - height
+      - count
+      - category
+      - zoning
+      - date
+      - phone
+      - website
+      - percent
+      - generic
+      title: SemanticType
+      description: 'What a column *means* — drives FE rendering and formatting.
+
+
+        Independent from ``ColumnDataType`` (the storage type hint): a column can
+
+        be ``data_type=number, semantic_type=currency`` (parcel ``landval``) or
+
+        ``data_type=number, semantic_type=area`` (``area_acres``). The FE renderer
+
+        keys off ``semantic_type``, not ``data_type``.
+
+
+        Lives here (with the wire model) rather than on ``LayerKind`` because under
+
+        the self-describing contract this rides on ``LayerColumn`` across the wire
+
+        — ``LayerKind`` is the backend-only producer that hydrates it.'
+    ColumnProvenance:
+      properties:
+        kind:
+          $ref: '#/components/schemas/ColumnKind'
+        source_table:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Table
+          description: Canonical Overture table this column derives from. None for fully derived (composite) columns with no canonical lineage.
+        source_column:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Column
+          description: Canonical column path on `source_table` (e.g. `names.primary`). Used by the resolver for display-name lookup and stable column ids — NOT the agent's SQL alias.
+      type: object
+      required:
+      - kind
+      title: ColumnProvenance
+      description: 'Where a column came from and how to look up its canonical metadata.
+
+
+        `source_column` is the canonical Overture column path (e.g.
+
+        `names.primary`, not the agent''s SQL alias `name`). The resolver uses it
+
+        to look up the display label and to derive a rename-stable column id —
+
+        making alias mismatches impossible by construction.'
+    LayerUploadResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        layer:
+          $ref: '#/components/schemas/LayerModel'
+        input_rows:
+          type: integer
+          title: Input Rows
+        uploaded_rows:
+          type: integer
+          title: Uploaded Rows
+        truncated:
+          type: boolean
+          title: Truncated
+        geometry_mode:
+          type: string
+          title: Geometry Mode
+      type: object
+      required:
+      - message
+      - layer
+      - input_rows
+      - uploaded_rows
+      - truncated
+      - geometry_mode
+      title: LayerUploadResponse
+      description: Response schema for uploaded generic layers.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LayerModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        reference_layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Reference Layer Id
+        reference_layer_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Reference Layer Ids
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        style_config:
+          additionalProperties: true
+          type: object
+          title: Style Config
+        feature_count:
+          type: integer
+          title: Feature Count
+        total_size_bytes:
+          type: integer
+          title: Total Size Bytes
+        data_version:
+          type: integer
+          title: Data Version
+          default: 0
+        schema_version:
+          type: integer
+          title: Schema Version
+          default: 0
+        metadata_version:
+          type: integer
+          title: Metadata Version
+          default: 0
+        base_attributes:
+          additionalProperties: true
+          type: object
+          title: Base Attributes
+        feature_enrichments:
+          items:
+            $ref: '#/components/schemas/EnrichmentModel'
+          type: array
+          title: Feature Enrichments
+        sandbox_relation_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sandbox Relation Name
+        render_mode:
+          type: string
+          enum:
+          - detail_always
+          - agg_at_low_zoom
+          title: Render Mode
+          default: agg_at_low_zoom
+        display_kind:
+          type: string
+          enum:
+          - data
+          - boundary
+          title: Display Kind
+          description: Whether the layer is a queryable dataset (``data``) or a styling-only overlay (``boundary``). Boundary layers paint on the map but suppress the per-layer table, column manager, and feature-detail panel — there is no per-row data worth surfacing.
+          default: data
+        extent_bounds:
+          anyOf:
+          - $ref: '#/components/schemas/ThumbnailBounds'
+          - type: 'null'
+          description: Stored unfiltered extent of the layer's geometry, computed at ingest and recomputed on geometry-changing writes. None until computed (pre-backfill rows) or when the layer has no geometry. The FE uses it for initial map framing instead of a live ST_Extent call; filtered zoom-to-features stays live.
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        columns:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LayerColumn'
+            type: array
+          - type: 'null'
+          title: Columns
+          description: Producer-declared, resolved per-column metadata (id, key, provenance, display name, data type) — schema/lineage only. Visibility and ordering live on the view, seeded at register-layer time. None for legacy pre-cutover layers; the composer derives sensible defaults from physical introspection.
+        data_restricted:
+          type: boolean
+          title: Data Restricted
+          description: Share-response-only signal that the layer's geometry is shown while every per-row attribute is withheld (parcel layers on anonymous share links). Always False on authenticated reads; set True solely by the shared-project layer builder. The FE renders a 'data unavailable in the public version' state in place of an empty grid.
+          default: false
+        title_template:
+          items:
+            type: string
+          type: array
+          title: Title Template
+          description: Ordered column keys the FE concatenates to compose a feature's title (e.g. `[parcelnumb]`, `[primary_address_full]`). Sourced from the layer's `LayerKind`, empty for permissive kinds — the FE keeps its generic title fallback for the long tail.
+        address_template:
+          items:
+            type: string
+          type: array
+          title: Address Template
+          description: Ordered column keys the FE concatenates to compose a feature's address line. Sourced from the layer's `LayerKind`; may reference keys that aren't typed canonical columns (city, state_abbr, …). Empty for permissive kinds.
+      type: object
+      required:
+      - id
+      - project_id
+      - name
+      - style_config
+      - feature_count
+      - total_size_bytes
+      - base_attributes
+      - created_at
+      - updated_at
+      title: LayerModel
+      description: Model for a layer.
+    EnrichmentModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        layer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Layer Id
+        name:
+          type: string
+          title: Name
+          default: Unconfigured enrichment
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          default: This enrichment is not configured with a tool.
+        tool:
+          type: string
+          title: Tool
+          default: unconfigured
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        dtype:
+          type: string
+          title: Dtype
+          description: Must be one of string, boolean, list[str], jsonb, int, float, categorical, url
+          default: string
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        credits_per_row:
+          type: integer
+          title: Credits Per Row
+          description: Return the number of credits per row for this tool.
+          readOnly: true
+        is_configured:
+          type: boolean
+          title: Is Configured
+          description: "Check if the enrichment is configured with a valid tool.\n\nReturns:\n    bool: True if tool is configured, False otherwise"
+          readOnly: true
+        is_configuration_failed:
+          type: boolean
+          title: Is Configuration Failed
+          description: "Check if the enrichment's configuration failed.\n\nReturns:\n    bool: True if configuration was attempted but failed"
+          readOnly: true
+        is_data_source:
+          type: boolean
+          title: Is Data Source
+          description: "Check if the enrichment is a data source.\n\nReturns:\n    bool: True if the enrichment is a data source, False otherwise"
+          readOnly: true
+      type: object
+      required:
+      - credits_per_row
+      - is_configured
+      - is_configuration_failed
+      - is_data_source
+      title: EnrichmentModel
+      description: 'Enrichment model that combines both properties and chat history.
+
+
+        This unified model simplifies the domain representation and aligns more closely
+
+        with how data is stored in the database, reducing unnecessary abstractions.'
+    ColumnDataType:
+      type: string
+      enum:
+      - string
+      - number
+      - integer
+      - boolean
+      - date
+      - geometry
+      - array
+      - object
+      title: ColumnDataType
+      description: Optional frontend type hint for a layer column.
+    LayerUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        style_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Style Config
+        base_attributes:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Base Attributes
+        enrichments:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Enrichments
+        column_display_name_updates:
+          anyOf:
+          - additionalProperties:
+              type: string
+              maxLength: 255
+            type: object
+          - type: 'null'
+          title: Column Display Name Updates
+      type: object
+      title: LayerUpdateRequest
+      description: "Request schema for updating a layer.\n\nAttributes:\n    name: Optional new name for the layer\n    style_config: Optional new style configuration\n    base_attributes: Optional new base attributes\n    enrichments: Optional enrichments update dict. Keys are enrichment IDs (as strings),\n                values are dicts with fields to update (name, description, tool, params, dtype)\n    column_display_name_updates: Optional partial rename map keyed by\n        ``LayerColumn.id``. Each entry sets that column's\n        ``display_name`` only; all other ``LayerColumn`` fields and all\n        other columns on the layer are preserved."
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer

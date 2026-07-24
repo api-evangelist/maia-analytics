@@ -1,0 +1,239 @@
+openapi: 3.1.0
+info:
+  title: MAIA Ah audit-log API
+  description: API for MAIA application (migrated from Firebase)
+  version: 0.1.0
+tags:
+- name: audit-log
+paths:
+  /api/v1/internal/audit-log/:
+    get:
+      tags:
+      - audit-log
+      summary: List Audit Log
+      description: 'List admin audit log entries with optional filters.
+
+
+        Both from_date and to_date are inclusive. Because the client sends bare dates
+
+        (parsed by FastAPI as midnight UTC), to_date is shifted to end-of-day so that
+
+        entries logged any time on the selected date are included.'
+      operationId: list_audit_log_api_v1_internal_audit_log__get
+      security:
+      - FirebaseAuthMiddleware: []
+      parameters:
+      - name: target_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Type
+      - name: admin_user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Admin User Id
+      - name: target_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Target Id
+      - name: action
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+      - name: from_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: From Date
+      - name: to_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: To Date
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAuditLogListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AdminAuditLogResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        admin_user_id:
+          type: string
+          format: uuid
+          title: Admin User Id
+        admin_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Admin Email
+        action:
+          type: string
+          title: Action
+        target_type:
+          type: string
+          title: Target Type
+        target_id:
+          type: string
+          format: uuid
+          title: Target Id
+        target_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Display Name
+        before_value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Before Value
+        after_value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: After Value
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - admin_user_id
+      - admin_email
+      - action
+      - target_type
+      - target_id
+      - target_display_name
+      - before_value
+      - after_value
+      - metadata
+      - created_at
+      title: AdminAuditLogResponse
+      description: Response schema for a single audit log entry.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminAuditLogListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminAuditLogResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: AdminAuditLogListResponse
+      description: Paginated response for audit log queries.
+  securitySchemes:
+    FirebaseAuthMiddleware:
+      type: http
+      scheme: bearer
