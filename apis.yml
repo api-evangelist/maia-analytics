@@ -1,9 +1,30 @@
 aid: maia-analytics
 name: Maia-analytics
-description: 'Maia-analytics is a company surfaced as a portfolio company of homebrew and added to the
-  API Evangelist network as a stub for enrichment. Sector: developer-tools. This profile is a lead awaiting
-  the enrichment pipeline.'
+description: >-
+  MAIA Analytics is an AI-powered geospatial analysis platform that lets anyone
+  turn complex location data into actionable insights through natural-language
+  queries, with no GIS degree required. It unifies open and proprietary data to
+  reveal the built environment and supports use cases such as solar-site
+  prospecting, building and parcel analysis, redevelopment and risk screening
+  (flood zones, aging infrastructure), and location intelligence. Every answer is
+  source-linked and verifiable. Founded in 2023 and backed by Homebrew. This
+  profile was enriched from MAIA's public site and its publicly-served backend
+  OpenAPI (the application's own FastAPI backend; MAIA does not publish an
+  external developer program).
 url: https://raw.githubusercontent.com/api-evangelist/maia-analytics/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://maia-analytics.com/MAIA-logo.svg
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
@@ -12,11 +33,484 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-20'
+x-enrichment:
+  date: '2026-07-20'
+  status: enriched
+  artifacts_added: 15
+  pass: local-v1
 tags:
 - Company
 - Developer Tools
-apis: []
+- Geospatial
+- GIS
+- Location Intelligence
+- Mapping
+- Artificial Intelligence
+- Analytics
+apis:
+- aid: maia-analytics:maia-analytics-ah-api
+  name: Maia-analytics Ah API
+  description: The Ah API from Maia-analytics — 1 operation(s) for ah.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - Ah
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-ah-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-analytics-api
+  name: Maia-analytics analytics API
+  description: The analytics API from Maia-analytics — 1 operation(s) for analytics.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - analytics
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-analytics-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-audit-log-api
+  name: Maia-analytics audit-log API
+  description: The audit-log API from Maia-analytics — 1 operation(s) for audit-log.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - audit-log
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-audit-log-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-auth-api
+  name: Maia-analytics auth API
+  description: The auth API from Maia-analytics — 8 operation(s) for auth.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - auth
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-auth-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-chat-api
+  name: Maia-analytics chat API
+  description: The chat API from Maia-analytics — 8 operation(s) for chat.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - chat
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-chat-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-dial-api
+  name: Maia-analytics dial API
+  description: The dial API from Maia-analytics — 8 operation(s) for dial.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - dial
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-dial-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-enrichment-api
+  name: Maia-analytics enrichment API
+  description: The enrichment API from Maia-analytics — 17 operation(s) for enrichment.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - enrichment
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-enrichment-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-example-projects-api
+  name: Maia-analytics example-projects API
+  description: The example-projects API from Maia-analytics — 9 operation(s) for example-projects.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - example-projects
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-example-projects-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-favorite-api
+  name: Maia-analytics favorite API
+  description: The favorite API from Maia-analytics — 2 operation(s) for favorite.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - favorite
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-favorite-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-feature-flags-api
+  name: Maia-analytics feature-flags API
+  description: The feature-flags API from Maia-analytics — 3 operation(s) for feature-flags.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - feature-flags
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-feature-flags-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-filters-api
+  name: Maia-analytics filters API
+  description: The filters API from Maia-analytics — 1 operation(s) for filters.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - filters
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-filters-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-geographies-api
+  name: Maia-analytics geographies API
+  description: The geographies API from Maia-analytics — 1 operation(s) for geographies.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - geographies
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-geographies-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-internal-api
+  name: Maia-analytics internal API
+  description: The internal API from Maia-analytics — 50 operation(s) for internal.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - internal
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-internal-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-internal-knowledge-api
+  name: Maia-analytics internal-knowledge API
+  description: The internal-knowledge API from Maia-analytics — 4 operation(s) for internal-knowledge.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - internal-knowledge
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-internal-knowledge-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-internal-projects-api
+  name: Maia-analytics internal-projects API
+  description: The internal-projects API from Maia-analytics — 1 operation(s) for internal-projects.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - internal-projects
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-internal-projects-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-internal-skills-api
+  name: Maia-analytics internal-skills API
+  description: The internal-skills API from Maia-analytics — 4 operation(s) for internal-skills.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - internal-skills
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-internal-skills-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-knowledge-api
+  name: Maia-analytics knowledge API
+  description: The knowledge API from Maia-analytics — 2 operation(s) for knowledge.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - knowledge
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-knowledge-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-layer-api
+  name: Maia-analytics layer API
+  description: The layer API from Maia-analytics — 3 operation(s) for layer.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - layer
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-layer-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-maia-api-api
+  name: Maia-analytics MAIA API API
+  description: The MAIA API API from Maia-analytics — 1 operation(s) for maia api.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - MAIA API
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-maia-api-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-map-api
+  name: Maia-analytics map API
+  description: The map API from Maia-analytics — 4 operation(s) for map.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - map
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-map-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-notes-api
+  name: Maia-analytics notes API
+  description: The notes API from Maia-analytics — 2 operation(s) for notes.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - notes
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-notes-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-project-api
+  name: Maia-analytics project API
+  description: The project API from Maia-analytics — 15 operation(s) for project.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - project
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-project-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-project-lock-api
+  name: Maia-analytics project-lock API
+  description: The project-lock API from Maia-analytics — 2 operation(s) for project-lock.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - project-lock
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-project-lock-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-query-api
+  name: Maia-analytics query API
+  description: The query API from Maia-analytics — 1 operation(s) for query.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - query
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-query-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-saved-contacts-api
+  name: Maia-analytics saved-contacts API
+  description: The saved-contacts API from Maia-analytics — 7 operation(s) for saved-contacts.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - saved-contacts
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-saved-contacts-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-share-api
+  name: Maia-analytics share API
+  description: The share API from Maia-analytics — 17 operation(s) for share.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - share
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-share-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-skills-api
+  name: Maia-analytics skills API
+  description: The skills API from Maia-analytics — 2 operation(s) for skills.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - skills
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-skills-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-stats-api
+  name: Maia-analytics stats API
+  description: The stats API from Maia-analytics — 1 operation(s) for stats.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - stats
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-stats-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-table-api
+  name: Maia-analytics table API
+  description: The table API from Maia-analytics — 12 operation(s) for table.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - table
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-table-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-user-events-api
+  name: Maia-analytics user-events API
+  description: The user-events API from Maia-analytics — 1 operation(s) for user-events.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - user-events
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-user-events-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-users-api
+  name: Maia-analytics users API
+  description: The users API from Maia-analytics — 7 operation(s) for users.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - users
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-users-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-workspace-api
+  name: Maia-analytics workspace API
+  description: The workspace API from Maia-analytics — 9 operation(s) for workspace.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - workspace
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-workspace-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
+- aid: maia-analytics:maia-analytics-workspaces-api
+  name: Maia-analytics workspaces API
+  description: The workspaces API from Maia-analytics — 18 operation(s) for workspaces.
+  humanURL: https://api.maia-analytics.com/docs
+  baseURL: https://api.maia-analytics.com
+  tags:
+  - workspaces
+  properties:
+  - type: OpenAPI
+    url: openapi/maia-analytics-workspaces-api-openapi.yml
+  - type: Documentation
+    url: https://api.maia-analytics.com/docs
+  - type: APIReference
+    url: https://api.maia-analytics.com/docs
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -25,3 +519,39 @@ maintainers:
 common:
 - type: Website
   url: https://www.maia-analytics.com
+- type: Documentation
+  url: https://api.maia-analytics.com/docs
+- type: APIReference
+  url: https://api.maia-analytics.com/docs
+- type: GitHubOrganization
+  url: https://github.com/maia-analytics
+- type: Login
+  url: https://app.maia-analytics.com/login
+- type: PrivacyPolicy
+  url: https://www.maia-analytics.com/privacy
+- type: TermsOfService
+  url: https://www.maia-analytics.com/terms
+- type: Authentication
+  url: authentication/maia-analytics-authentication.yml
+- type: MCPServer
+  url: mcp/maia-analytics-mcp.yml
+- type: ErrorCatalog
+  url: errors/maia-analytics-problem-types.yml
+- type: DataModel
+  url: data-model/maia-analytics-data-model.yml
+- type: Conventions
+  url: conventions/maia-analytics-conventions.yml
+- type: Idempotency
+  url: conventions/maia-analytics-conventions.yml
+- type: Conformance
+  url: conformance/maia-analytics-conformance.yml
+- type: Lifecycle
+  url: lifecycle/maia-analytics-lifecycle.yml
+- type: LLMsTxt
+  url: llms/maia-analytics-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: AgenticAccess
+  url: agentic-access/maia-analytics-agentic-access.yml
+- type: DomainSecurity
+  url: security/maia-analytics-domain-security.yml
