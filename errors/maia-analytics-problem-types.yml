@@ -1,0 +1,30 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/maia-analytics-openapi-original.json
+format: fastapi-detail
+notes: >-
+  The MAIA API (FastAPI, migrated from Firebase) does not use RFC 9457
+  application/problem+json. Validation failures return the standard FastAPI 422
+  envelope ({"detail": [{"loc": [...], "msg": "...", "type": "..."}]}) modeled by
+  the HTTPValidationError schema. Other 4xx/5xx bodies are plain
+  {"detail": "<message>"}. Codes below are the response codes actually declared
+  across the 210 operations in the spec.
+envelope:
+  validation: '{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}'
+  generic: '{"detail": "<human message>"}'
+  validation_schema: HTTPValidationError
+problems:
+- status: 409
+  title: Conflict
+  description: >-
+    Resource state conflict — e.g. duplicating an example project that is already
+    being duplicated, or a lock/edit-session already held.
+  source_operation: openapi/maia-analytics-openapi-original.json#duplicate_example_project_api_v1_internal_example_projects__project_id__duplicate_post
+- status: 422
+  title: Unprocessable Entity (Validation Error)
+  description: >-
+    Request failed schema validation. Body is the FastAPI HTTPValidationError
+    detail array. Declared on the majority of operations that accept a body or
+    typed parameters.
+  schema: HTTPValidationError
+  format: fastapi-detail

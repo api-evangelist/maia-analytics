@@ -1,0 +1,21 @@
+generated: '2026-07-20'
+method: generated
+source: openapi/maia-analytics-openapi-original.json
+skills:
+- file: maia-analytics-ask-a-geospatial-question.md
+  name: Ask MAIA a geospatial question
+  api: openapi/maia-analytics-openapi-original.json
+  operations:
+  - get_all_projects_api_v1_project_all_get
+  - get_project_api_v1_project__project_id__get
+  - chat_main_agent_api_v1_chat_stream_post
+  - get_layer_features_paginated_api_v1_table__layer_id__features_paginated_get
+  - export_layer_features_api_v1_table__layer_id__export_get
+- file: maia-analytics-enrich-features.md
+  name: Enrich MAIA features and add to a layer
+  api: openapi/maia-analytics-openapi-original.json
+  operations:
+  - create_enrichment_api_v1_enrichment_create_post
+  - enrich_row_async_api_v1_enrichment_enrich_async__enrichment_id__post
+  - get_enrichment_status_api_v1_enrichment_workflow_status__workflow_id__get
+  - add_enrichment_to_layer_api_v1_enrichment_add_to_layer_post

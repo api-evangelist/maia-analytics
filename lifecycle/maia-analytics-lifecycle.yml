@@ -1,0 +1,19 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/maia-analytics-openapi-original.json
+versioning:
+  scheme: uri-path
+  current: v1
+  base_path: /api/v1
+deprecation:
+  policy_url: null
+  sunset_header: false
+  deprecated_operations: []
+sla:
+  url: null
+status_page: null
+notes: >-
+  No public status page, deprecation policy, or SLA was found (status./trust.
+  subdomains do not resolve; no Sunset/Deprecation headers or deprecated
+  operations in the spec). Versioning is URI-path (/api/v1) with an extension
+  namespace at /api/ext/{path}.

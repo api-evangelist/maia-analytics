@@ -1,0 +1,12 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/maia-analytics-openapi-original.json
+summary:
+  types:
+  - http
+schemes:
+- name: FirebaseAuthMiddleware
+  type: http
+  scheme: bearer
+  sources:
+  - openapi/maia-analytics-openapi-original.json

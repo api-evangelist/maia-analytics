@@ -1,0 +1,87 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/maia-analytics-openapi-original.json
+notes: >-
+  Entity graph derived from the OpenAPI path hierarchy and id-reference fields
+  (*_id) across the 389 component schemas. MAIA is a geospatial analysis
+  platform; the core domain is Workspace -> Project -> Layer(s) of geographic
+  Features, enriched with data and worked as saved Contacts / dial Campaigns.
+entities:
+- name: workspace
+  description: Tenant / organization boundary; holds members, credits, counties, and projects.
+  referenced_by: 13
+- name: project
+  description: A geospatial analysis workspace (map + chat + views) owned by a workspace.
+  referenced_by: 21
+- name: layer
+  description: A dataset of geographic features rendered as vector tiles and tables within a project.
+  referenced_by: 11
+- name: feature
+  description: An individual geographic record (rooftop, parcel, building) within a layer.
+- name: enrichment
+  description: An async data-enrichment job/result attached to features or layers.
+  referenced_by: 7
+- name: user
+  description: An account belonging to a workspace with a role.
+  referenced_by: 6
+- name: saved_contact
+  description: A prospect/contact saved against a project, with notes and status.
+- name: campaign
+  description: An outbound dial campaign targeting contacts within a project.
+  referenced_by: 1
+- name: view
+  description: A saved table/map view configuration within a project.
+  referenced_by: 1
+- name: share
+  description: A share token granting scoped read access to a project's layers, views, and chats.
+- name: skill
+  description: A reusable agent skill/instruction usable in chat-driven analysis.
+- name: knowledge
+  description: Knowledge-base entries backing the AI assistant.
+relationships:
+- from: workspace
+  to: user
+  type: has_many
+  via: workspace_id
+- from: workspace
+  to: project
+  type: has_many
+  via: workspace_id
+- from: project
+  to: layer
+  type: has_many
+  via: project_id
+- from: layer
+  to: feature
+  type: has_many
+- from: project
+  to: enrichment
+  type: has_many
+  via: project_id
+- from: layer
+  to: enrichment
+  type: has_many
+  via: layer_id
+- from: project
+  to: saved_contact
+  type: has_many
+  via: project_id
+- from: project
+  to: campaign
+  type: has_many
+  via: project_id
+- from: campaign
+  to: saved_contact
+  type: has_many
+  via: contact_id
+- from: project
+  to: view
+  type: has_many
+  via: project_id
+- from: project
+  to: share
+  type: has_many
+- from: user
+  to: workspace
+  type: belongs_to
+  via: workspace_id

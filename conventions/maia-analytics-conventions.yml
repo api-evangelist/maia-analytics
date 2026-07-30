@@ -1,0 +1,53 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/maia-analytics-openapi-original.json
+notes: >-
+  Cross-cutting request/response semantics derived from the MAIA OpenAPI (FastAPI,
+  migrated from Firebase). This is the application's own backend API; there is no
+  published external developer program, so conventions are read from the spec.
+authentication:
+  style: bearer
+  scheme: Firebase ID token as HTTP Bearer (securityScheme FirebaseAuthMiddleware)
+  header: 'Authorization: Bearer <firebase_id_token>'
+  ref: authentication/maia-analytics-authentication.yml
+versioning:
+  scheme: uri-path
+  current: v1
+  base_path: /api/v1
+  extension_path: /api/ext/{path}
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  location: header
+  scope: >-
+    Declared on dial write operations — creating a contact
+    (POST /api/v1/dial/{project_id}/contacts/{contact_id}) and creating a
+    campaign (POST /api/v1/dial/{project_id}/campaigns) — to make outbound-dial
+    side effects safe to retry.
+  operations:
+  - create_contact_api_v1_dial__project_id__contacts__contact_id__post
+  - create_campaign_api_v1_dial__project_id__campaigns_post
+pagination:
+  style: server-side-rows (AG-Grid infinite-row model)
+  params: [startRow, endRow, sortModel, filterModel, groupKeys, rowGroupCols, searchText]
+  cursor_param: token
+  applies_to: table and share feature listings (e.g. /api/v1/table/{layer_id}/features/paginated)
+error_handling:
+  format: fastapi-detail
+  validation_status: 422
+  validation_schema: HTTPValidationError
+  envelope: '{"detail": ...}'
+  ref: errors/maia-analytics-problem-types.yml
+rate_limiting:
+  documented: false
+  notes: No X-RateLimit / RateLimit headers declared in the spec.
+request_tracing:
+  request_id_header: null
+  notes: No request-id/correlation header declared in the spec.
+webhooks:
+  outbound: false
+  inbound_receivers:
+  - POST /api/v1/dial/webhooks/retell/{workspace_id}  # MAIA receives Retell voice-agent callbacks
+streaming:
+  chat_stream: POST /api/v1/chat/stream  # server-sent streaming chat responses
+  vector_tiles: GET /api/v1/map/{layer_id}/tiles/{z}/{x}/{y}.pbf  # Mapbox vector tiles (protobuf)

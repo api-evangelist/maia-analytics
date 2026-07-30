@@ -1,0 +1,23 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for MAIA API
+  version: 1.0.0
+extends: openapi/maia-analytics-openapi-original.json
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: maia-analytics
+    x-apievangelist-classification: internal-application-backend
+    x-apievangelist-notes: >-
+      Publicly-served backend API for the MAIA geospatial-analysis application
+      (FastAPI, migrated from Firebase). Firebase ID token bearer auth. Not a
+      documented external developer program.
+- target: $.servers
+  update:
+  - url: https://api.maia-analytics.com
+    description: MAIA production API
+- target: $.info
+  update:
+    x-apievangelist-conventions: conventions/maia-analytics-conventions.yml
+    x-apievangelist-errors: errors/maia-analytics-problem-types.yml
+    x-apievangelist-data-model: data-model/maia-analytics-data-model.yml

@@ -1,0 +1,28 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/maia-analytics-openapi-original.json
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: spec self-declares openapi 3.1.0
+- id: http-bearer-auth
+  conforms: true
+  evidence: securityScheme FirebaseAuthMiddleware type http scheme bearer
+- id: oauth2
+  conforms: false
+  evidence: no oauth2 securityScheme declared (Firebase ID token bearer only)
+- id: openid-connect
+  conforms: false
+  evidence: no openIdConnect securityScheme; /.well-known/openid-configuration returns 404
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: errors use FastAPI detail envelope, not application/problem+json
+- id: idempotency-key
+  conforms: true
+  evidence: Idempotency-Key header on dial write operations
+- id: mapbox-vector-tiles
+  conforms: true
+  evidence: '/api/v1/map/{layer_id}/tiles/{z}/{x}/{y}.pbf serves MVT protobuf tiles'
+- id: rfc8594-sunset
+  conforms: false
+  evidence: no Sunset/Deprecation headers or deprecated operations declared
