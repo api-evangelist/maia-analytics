@@ -1,0 +1,37 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah filters API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "filters",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create Filter Spec",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/filters",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create (or return existing) FilterSpec for the given filter shape.\n\nIdempotent: repeated POSTs with the same canonical body return the same\n``filter_id``. Sliding TTL means downstream reads keep the spec alive."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

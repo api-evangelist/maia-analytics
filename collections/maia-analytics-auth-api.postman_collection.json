@@ -1,0 +1,952 @@
+{
+  "item": [
+    {
+      "id": "91b12dc6-3ef3-4f58-b09f-a0f0433ebb8b",
+      "name": "auth",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "144e7a82-b832-4d6d-8b16-d4f9983254bb",
+          "name": "Local Login",
+          "request": {
+            "name": "Local Login",
+            "description": {
+              "content": "Return a local mock token when Firebase auth is disabled.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\",\n  \"password\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a5a11d09-b78b-4ebd-98bb-f1f9a703b492",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "login"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\",\n  \"password\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"access_token\": \"string\",\n  \"user_id\": \"string\",\n  \"token_type\": \"bearer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "34c0b481-a608-43bc-ae56-51d8a25f9966",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "login"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\",\n  \"password\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "09f26979-d2b5-4a90-a0b9-dd931ce1b89e",
+          "name": "Get Current User Info",
+          "request": {
+            "name": "Get Current User Info",
+            "description": {
+              "content": "Returns information about the currently authenticated user.\n\nRequires a valid Firebase ID token in the Authorization header.\nIncludes auto-linking for users created in DB who log in via Google SSO.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "078cab15-9327-4058-b54e-5e27983cadad",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"3e3f2c88-8af5-6f8f-47a9-b4df72318b7f\",\n  \"email\": \"74Ocpa61rJq9XBo@rpeIEnLUFUFBEBYUrZZakeFI.rc\",\n  \"username\": \"string\",\n  \"available_enrichment_credits\": 6646,\n  \"used_enrichment_credits\": 9691,\n  \"workspace_id\": \"e8f59b27-8da8-cdf4-9450-405e13ec8921\",\n  \"plan\": {\n    \"type\": \"beta\",\n    \"max_features_per_layer\": 8144,\n    \"max_layers_per_project\": 6502,\n    \"default_enrichment_credits\": 5357\n  },\n  \"available_geographies\": [\n    \"string\",\n    \"string\"\n  ],\n  \"display_name\": \"string\",\n  \"workspace_name\": \"string\",\n  \"role\": \"string\",\n  \"avatar_color\": \"string\",\n  \"has_completed_onboarding\": false,\n  \"plan_type\": \"beta\",\n  \"allowed_geographies\": [\n    \"string\",\n    \"string\"\n  ],\n  \"created_at\": \"2013-02-08T17:07:28.254Z\",\n  \"updated_at\": \"1987-12-20T23:09:03.400Z\",\n  \"last_active_at\": \"1979-03-19T08:17:36.496Z\",\n  \"is_internal\": false,\n  \"is_suspended\": false,\n  \"workspace_role\": \"writer\",\n  \"is_workspace_admin\": false,\n  \"workspace_member_count\": 1,\n  \"column_preferences\": {\n    \"key_0\": {\n      \"key_0\": false,\n      \"key_1\": true,\n      \"key_2\": false\n    },\n    \"key_1\": {\n      \"key_0\": false,\n      \"key_1\": true\n    },\n    \"key_2\": {\n      \"key_0\": false\n    }\n  },\n  \"feature_toggles\": {\n    \"key_0\": false,\n    \"key_1\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "68b31bce-10d4-493e-bb91-78832ec50ff7",
+          "name": "Check Authentication",
+          "request": {
+            "name": "Check Authentication",
+            "description": {
+              "content": "Checks if the user is authenticated and returns user info if they are.\n\nDoes not require authentication - returns null if no valid token is provided.\nFalls back to email lookup if Firebase UID doesn't match database ID.\nWhen found via email fallback, updates the user's database ID to match the new\nFirebase-derived ID to prevent future mismatches.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "check"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b0733323-fb02-4627-aa3d-f7bbf44e97e8",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "check"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"3e3f2c88-8af5-6f8f-47a9-b4df72318b7f\",\n  \"email\": \"74Ocpa61rJq9XBo@rpeIEnLUFUFBEBYUrZZakeFI.rc\",\n  \"username\": \"string\",\n  \"available_enrichment_credits\": 6646,\n  \"used_enrichment_credits\": 9691,\n  \"workspace_id\": \"e8f59b27-8da8-cdf4-9450-405e13ec8921\",\n  \"plan\": {\n    \"type\": \"beta\",\n    \"max_features_per_layer\": 8144,\n    \"max_layers_per_project\": 6502,\n    \"default_enrichment_credits\": 5357\n  },\n  \"available_geographies\": [\n    \"string\",\n    \"string\"\n  ],\n  \"display_name\": \"string\",\n  \"workspace_name\": \"string\",\n  \"role\": \"string\",\n  \"avatar_color\": \"string\",\n  \"has_completed_onboarding\": false,\n  \"plan_type\": \"beta\",\n  \"allowed_geographies\": [\n    \"string\",\n    \"string\"\n  ],\n  \"created_at\": \"2013-02-08T17:07:28.254Z\",\n  \"updated_at\": \"1987-12-20T23:09:03.400Z\",\n  \"last_active_at\": \"1979-03-19T08:17:36.496Z\",\n  \"is_internal\": false,\n  \"is_suspended\": false,\n  \"workspace_role\": \"writer\",\n  \"is_workspace_admin\": false,\n  \"workspace_member_count\": 1,\n  \"column_preferences\": {\n    \"key_0\": {\n      \"key_0\": false,\n      \"key_1\": true,\n      \"key_2\": false\n    },\n    \"key_1\": {\n      \"key_0\": false,\n      \"key_1\": true\n    },\n    \"key_2\": {\n      \"key_0\": false\n    }\n  },\n  \"feature_toggles\": {\n    \"key_0\": false,\n    \"key_1\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "824084e6-d7e0-445a-805a-5fee25062574",
+          "name": "Check User Exists",
+          "request": {
+            "name": "Check User Exists",
+            "description": {
+              "content": "Checks if a user with the given email exists in the database.\n\nRate Limited: 10 requests per minute per IP address.\n\nSecurity considerations:\n- Rate limiting prevents automated user enumeration attacks\n- Consistent response timing mitigates timing-based attacks\n- All requests are logged for security monitoring\n\nDoes not require authentication - public endpoint for login flow validation.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "user-exists"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "email",
+                  "value": "<string>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "1c78eb55-6f6e-4e8f-9e9c-b09c5cde3ae0",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "user-exists"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"exists\": true,\n  \"has_password\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2579ca2a-ee33-4d39-b061-c69d23a85045",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "user-exists"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "afbd41ce-b4fc-4027-a1a3-1c66da7e1ab0",
+          "name": "Request Password Reset Email",
+          "request": {
+            "name": "Request Password Reset Email",
+            "description": {
+              "content": "Send a password reset email through MAIA's branded transactional channel.\n\nRate Limited: 5 requests per minute per IP address.\n\nDoes not require authentication — public endpoint for the forgot-password\nflow. Always returns 202 regardless of whether the email maps to an\naccount: the lookup and send happen in a background task after the\nresponse, so account existence leaks through neither status, body, nor\ntiming.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password-reset-email"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c000ddb5-ba4f-4482-b29b-72c1eaa4c4b5",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "password-reset-email"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "eb9fc550-74d1-4751-867b-f4c25a4efa45",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "password-reset-email"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "264e27ab-aee1-402a-9497-627e43374d44",
+          "name": "Mint Session",
+          "request": {
+            "name": "Mint Session",
+            "description": {
+              "content": "Mint an HttpOnly session cookie from the caller's Firebase JWT.\n\nThe client calls this whenever Firebase auth state changes. The cookie\nreplaces the `?token=<jwt>` query param on tile URLs (MAIA-1715) — Mapbox\ncaches URLs but always picks up cookies fresh from the jar, so the\n\"tile-URL goes stale during long idle\" bug class is eliminated.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "session"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "8bf55e37-f869-4ccd-be7a-55220e19f159",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "session"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"key_0\": 7072.014748507445,\n  \"key_1\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "145da46f-af54-48aa-91a5-50169f630cbe",
+          "name": "Sign Out",
+          "request": {
+            "name": "Sign Out",
+            "description": {
+              "content": "Clear the MAIA session cookie. Unauthenticated — clients should be able\nto clear their cookie even if they no longer have a valid session.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sign-out"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "5e304d92-360d-4822-bdec-6286e7741ee2",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "sign-out"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"key_0\": \"string\",\n  \"key_1\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4cf34127-e000-4161-888f-624301f56abf",
+          "name": "Update User Profile",
+          "request": {
+            "name": "Update User Profile",
+            "description": {
+              "content": "Update the current user's profile information.\nRequires authentication.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "profile"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"display_name\": \"<string>\",\n  \"role\": \"<string>\",\n  \"avatar_color\": \"<string>\",\n  \"has_completed_onboarding\": \"<boolean>\",\n  \"column_preferences\": {\n    \"key_0\": {\n      \"key_0\": \"<boolean>\",\n      \"key_1\": \"<boolean>\",\n      \"key_2\": \"<boolean>\",\n      \"key_3\": \"<boolean>\",\n      \"key_4\": \"<boolean>\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "400f5726-23da-4290-a8c6-792c3893d83c",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"display_name\": \"<string>\",\n  \"role\": \"<string>\",\n  \"avatar_color\": \"<string>\",\n  \"has_completed_onboarding\": \"<boolean>\",\n  \"column_preferences\": {\n    \"key_0\": {\n      \"key_0\": \"<boolean>\",\n      \"key_1\": \"<boolean>\",\n      \"key_2\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"key_0\": \"<boolean>\",\n      \"key_1\": \"<boolean>\",\n      \"key_2\": \"<boolean>\",\n      \"key_3\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"key_0\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"key_0\": \"<boolean>\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "efc72225-df9a-4223-b689-7cffc2e4e877",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"display_name\": \"<string>\",\n  \"role\": \"<string>\",\n  \"avatar_color\": \"<string>\",\n  \"has_completed_onboarding\": \"<boolean>\",\n  \"column_preferences\": {\n    \"key_0\": {\n      \"key_0\": \"<boolean>\",\n      \"key_1\": \"<boolean>\",\n      \"key_2\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"key_0\": \"<boolean>\",\n      \"key_1\": \"<boolean>\",\n      \"key_2\": \"<boolean>\",\n      \"key_3\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"key_0\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"key_0\": \"<boolean>\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "6a67ebdd-d32a-4fcd-bf69-238a1b883993",
+    "name": "MAIA Ah auth API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

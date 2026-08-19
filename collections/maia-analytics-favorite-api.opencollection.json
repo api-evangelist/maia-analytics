@@ -1,0 +1,55 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah favorite API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "favorite",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Project Favorites",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/favorite/:project_id",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get current user's favorited feature IDs for a project."
+        },
+        {
+          "info": {
+            "name": "Toggle Favorite",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/favorite/:project_id/:feature_id",
+            "params": [
+              {
+                "name": "feature_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Toggle a row favorite. Returns the new favorited state."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

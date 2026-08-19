@@ -1,0 +1,254 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah workspace API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "workspace",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/workspace",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get current user's workspace details including credits and member count."
+        },
+        {
+          "info": {
+            "name": "Update Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/workspace",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update workspace settings. Requires workspace admin for the name field.\n\nAll fields are optional. Only provided fields are updated."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Members",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/workspace/members",
+            "params": [
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "Sort members by 'name' (alphabetical) or 'joined' (newest first)"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all members of the current user's workspace."
+        },
+        {
+          "info": {
+            "name": "Remove Workspace Member",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/workspace/members/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Remove a member from the workspace. Requires workspace admin.\n\nThe removed user will get a new personal workspace created for them.\nCannot remove yourself. Returns 409 if the user has projects that must\nbe deleted or transferred first."
+        },
+        {
+          "info": {
+            "name": "Update Member Role",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/workspace/members/:user_id/role",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a workspace member's role. Requires workspace admin.\n\nCan change between 'writer' and 'reader' roles. Cannot change your own role."
+        },
+        {
+          "info": {
+            "name": "List Dial Template Variables",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/workspace/dial-template-variables",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return variables usable inside `dial_agent_settings` override fields."
+        },
+        {
+          "info": {
+            "name": "Update Dial Agent Settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/workspace/dial-agent-settings",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace the workspace's dial agent prompt overrides.\n\nWhole-blob replace: clients send the desired state for every field they\nwant to keep (omit a field → it's removed; explicit `null` → also removed).\nThe dispatch path treats null/missing identically — both fall through to\nthe Retell flow node's baked-in default — so we don't preserve the\ndistinction in storage."
+        },
+        {
+          "info": {
+            "name": "List Transfer Destinations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/workspace/transfer-destinations",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Transfer Destinations"
+        },
+        {
+          "info": {
+            "name": "Create Transfer Destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/workspace/transfer-destinations",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a workspace transfer destination."
+        },
+        {
+          "info": {
+            "name": "Update Transfer Destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/workspace/transfer-destinations/:destination_id",
+            "params": [
+              {
+                "name": "destination_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a workspace transfer destination."
+        },
+        {
+          "info": {
+            "name": "Delete Transfer Destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/workspace/transfer-destinations/:destination_id",
+            "params": [
+              {
+                "name": "destination_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a workspace transfer destination."
+        },
+        {
+          "info": {
+            "name": "Get Dial Usage Current",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/workspace/dial-usage/current",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Current month's auto-dial usage for the user's workspace."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

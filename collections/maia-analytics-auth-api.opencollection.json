@@ -1,0 +1,137 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah auth API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "auth",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Local Login",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Return a local mock token when Firebase auth is disabled."
+        },
+        {
+          "info": {
+            "name": "Get Current User Info",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns information about the currently authenticated user.\n\nRequires a valid Firebase ID token in the Authorization header.\nIncludes auto-linking for users created in DB who log in via Google SSO."
+        },
+        {
+          "info": {
+            "name": "Check Authentication",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/check"
+          },
+          "docs": "Checks if the user is authenticated and returns user info if they are.\n\nDoes not require authentication - returns null if no valid token is provided.\nFalls back to email lookup if Firebase UID doesn't match database ID.\nWhen found via email fallback, updates the user's database ID to match the new\nFirebase-derived ID to prevent future mismatches."
+        },
+        {
+          "info": {
+            "name": "Check User Exists",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/user-exists",
+            "params": [
+              {
+                "name": "email",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Checks if a user with the given email exists in the database.\n\nRate Limited: 10 requests per minute per IP address.\n\nSecurity considerations:\n- Rate limiting prevents automated user enumeration attacks\n- Consistent response timing mitigates timing-based attacks\n- All requests are logged for security monitoring\n\nDoes not require authentication - public endpoint for login flow validation."
+        },
+        {
+          "info": {
+            "name": "Request Password Reset Email",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/password-reset-email",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Send a password reset email through MAIA's branded transactional channel.\n\nRate Limited: 5 requests per minute per IP address.\n\nDoes not require authentication — public endpoint for the forgot-password\nflow. Always returns 202 regardless of whether the email maps to an\naccount: the lookup and send happen in a background task after the\nresponse, so account existence leaks through neither status, body, nor\ntiming."
+        },
+        {
+          "info": {
+            "name": "Mint Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/session",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Mint an HttpOnly session cookie from the caller's Firebase JWT.\n\nThe client calls this whenever Firebase auth state changes. The cookie\nreplaces the `?token=<jwt>` query param on tile URLs (MAIA-1715) — Mapbox\ncaches URLs but always picks up cookies fresh from the jar, so the\n\"tile-URL goes stale during long idle\" bug class is eliminated."
+        },
+        {
+          "info": {
+            "name": "Sign Out",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/sign-out"
+          },
+          "docs": "Clear the MAIA session cookie. Unauthenticated — clients should be able\nto clear their cookie even if they no longer have a valid session."
+        },
+        {
+          "info": {
+            "name": "Update User Profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/auth/profile",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update the current user's profile information.\nRequires authentication."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

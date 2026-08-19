@@ -1,0 +1,75 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah audit-log API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "audit-log",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Audit Log",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/audit-log/",
+            "params": [
+              {
+                "name": "target_type",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "admin_user_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "target_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "action",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "from_date",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "to_date",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List admin audit log entries with optional filters.\n\nBoth from_date and to_date are inclusive. Because the client sends bare dates\n(parsed by FastAPI as midnight UTC), to_date is shifted to end-of-day so that\nentries logged any time on the selected date are included."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

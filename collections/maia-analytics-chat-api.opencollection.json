@@ -1,0 +1,157 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah chat API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "chat",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Submit Chat Feedback",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/chat/feedback",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Receives and processes feedback for a specific chat message via the ChatService.\n\nArgs:\n    request: The feedback request data.\n    chat_service: The ChatService instance (dependency).\n\nReturns:\n    A confirmation response.\n\nRaises:\n    HTTPException: 400 if saving feedback fails (e.g., invalid data).\n    HTTPException: 500 for unexpected errors."
+        },
+        {
+          "info": {
+            "name": "List Picker Models",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/chat/models",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Curated model-picker options for the chat composer dropdown.\n\nServed from the backend registry so the client list cannot drift from the\nkeys ``ChatRequest.selected_model`` validates against. 404s when the\nworkspace's model-picker toggle is off — off means the surface is absent."
+        },
+        {
+          "info": {
+            "name": "Chat Main Agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/chat/stream",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Receives and processes a streaming chat request via the AgentService.\n\nThis endpoint streams the agent's response in real-time using Server-Sent Events.\n\nArgs:\n    request: The chat request data containing message and project_id (pre-validated).\n    agent_service: The AgentService instance (dependency).\n\nReturns:\n    StreamingResponse with Server-Sent Events containing streaming chat data.\n\nRaises:\n    HTTPException: 400 for validation errors.\n    HTTPException: 404 if project not found or user "
+        },
+        {
+          "info": {
+            "name": "Resume Chat Main Agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/chat/stream/resume",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Re-attach to a project's in-flight chat run after a mid-stream refresh.\n\nRead-only second reader: tails the existing workflow's durable stream\n(``read_stream`` replays from offset 0 → the full ordered sequence: the\nuser-message echo, every delta so far, then the terminal) WITHOUT starting\na run or claiming a slot. If no run is live the generator yields nothing; the\nFE then sees no terminal and falls back to reloading persisted history (the\nempty replay is the signal that the run finished and rel"
+        },
+        {
+          "info": {
+            "name": "Interrupt Chat",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/chat/chat/interrupt",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Stop an in-flight chat run via the cooperative interrupt flag.\n\nStopping resolves the chat's ``active_workflow_id`` (liveness from the DBOS\nstatus row) and raises the single cooperative stop signal. The workflow\nobserves it at its next node boundary and finalizes normally — persisting\nthe sanitized partial turn, stamping last-edit, capturing the trace, and\nemitting the ``interrupted`` terminal — while in-flight tools observe the\nsame flag at their checkpoints and bail BEFORE committing DB side-e"
+        },
+        {
+          "info": {
+            "name": "Expose Schemas",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/chat/schemas"
+          },
+          "docs": "Schema exposure endpoint for OpenAPI/TypeScript generation.\nThis endpoint is never called by the frontend but ensures all chat-related\nschemas are included in the OpenAPI specification for type generation."
+        },
+        {
+          "info": {
+            "name": "Get Chat Archives",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/chat/archives/:project_id",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get archive metadata for a project's chat, without message bodies."
+        },
+        {
+          "info": {
+            "name": "Get Chat Archive Content",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/chat/archives/:project_id/:archive_id",
+            "params": [
+              {
+                "name": "archive_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get one archive's message bodies on demand, scoped to the project's chat.\n\nThe archive UUID doubles as a strong ETag (content never changes once\nwritten), so a matching ``If-None-Match`` short-circuits to 304 before the\nexpensive blob read. The validator is client-constructible from the URL,\nso the short-circuit is gated on a cheap existence+scope check — a forged\nvalidator for an out-of-scope or missing archive still 404s. Blob\nvalidation is intentionally skipped on the 304 path: blobs are immu"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

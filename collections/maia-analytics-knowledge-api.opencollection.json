@@ -1,0 +1,107 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah knowledge API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "knowledge",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Knowledge Entries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/knowledge",
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List the caller's entries for a scope (user or workspace)."
+        },
+        {
+          "info": {
+            "name": "Create Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/knowledge",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a titled user- or workspace-scoped knowledge entry."
+        },
+        {
+          "info": {
+            "name": "Update Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/knowledge/:entry_id",
+            "params": [
+              {
+                "name": "entry_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace an entry's title + content (caller must be entitled to edit it)."
+        },
+        {
+          "info": {
+            "name": "Delete Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/knowledge/:entry_id",
+            "params": [
+              {
+                "name": "entry_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete an entry the caller is entitled to edit."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

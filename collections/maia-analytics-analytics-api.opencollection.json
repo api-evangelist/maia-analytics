@@ -1,0 +1,72 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah analytics API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "analytics",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Proxy Posthog",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/ext/:path",
+            "params": [
+              {
+                "name": "path",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Proxy requests to PostHog API.\n\nThis allows analytics to work even when ad blockers are enabled,\nsince requests go through our own domain instead of posthog.com."
+        },
+        {
+          "info": {
+            "name": "Proxy Posthog",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/ext/:path",
+            "params": [
+              {
+                "name": "path",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Proxy requests to PostHog API.\n\nThis allows analytics to work even when ad blockers are enabled,\nsince requests go through our own domain instead of posthog.com."
+        },
+        {
+          "info": {
+            "name": "Proxy Posthog",
+            "type": "http"
+          },
+          "http": {
+            "method": "OPTIONS",
+            "url": "{{baseUrl}}/api/ext/:path",
+            "params": [
+              {
+                "name": "path",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Proxy requests to PostHog API.\n\nThis allows analytics to work even when ad blockers are enabled,\nsince requests go through our own domain instead of posthog.com."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

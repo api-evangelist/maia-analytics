@@ -1,0 +1,37 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah query API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "query",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Parse User Query",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/query/parse",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Parse a user query in real-time, returning structured layer identification.\n\nThis is a lightweight, stateless endpoint designed for debounced calls\nas the user types, powering the live preview chips on the Canvas empty state."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

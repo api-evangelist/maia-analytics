@@ -1,0 +1,129 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah skills API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "skills",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Skills",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/skills",
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List the skills visible to the caller for a scope (user/workspace/system)."
+        },
+        {
+          "info": {
+            "name": "Create Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/skills",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a user- or workspace-scoped skill (system scope is read-only → 403)."
+        },
+        {
+          "info": {
+            "name": "Get Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return a single skill (incl. body); 404 if not visible to the caller."
+        },
+        {
+          "info": {
+            "name": "Update Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace a skill's name + description + body (caller must be entitled)."
+        },
+        {
+          "info": {
+            "name": "Delete Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a skill the caller is entitled to edit."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

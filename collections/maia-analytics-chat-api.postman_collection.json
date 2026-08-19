@@ -1,0 +1,1136 @@
+{
+  "item": [
+    {
+      "id": "5458c4c1-82d5-4ccc-af30-07dcbb2e61ca",
+      "name": "chat",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ddec4cc9-0725-469f-8b39-a7f3487c198f",
+          "name": "Submit Chat Feedback",
+          "request": {
+            "name": "Submit Chat Feedback",
+            "description": {
+              "content": "Receives and processes feedback for a specific chat message via the ChatService.\n\nArgs:\n    request: The feedback request data.\n    chat_service: The ChatService instance (dependency).\n\nReturns:\n    A confirmation response.\n\nRaises:\n    HTTPException: 400 if saving feedback fails (e.g., invalid data).\n    HTTPException: 500 for unexpected errors.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "feedback"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_id\": \"<string>\",\n  \"feedback_type\": \"<string>\",\n  \"feedback_text\": \"<string>\",\n  \"project_id\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "1b63c1cc-8a49-4e51-b0fe-409a551effc7",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "feedback"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message_id\": \"<string>\",\n  \"feedback_type\": \"<string>\",\n  \"feedback_text\": \"<string>\",\n  \"project_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"received\",\n  \"message\": \"Feedback received successfully.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5fdc5516-2a7b-4f32-9b79-d06b0ee05ec6",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "feedback"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message_id\": \"<string>\",\n  \"feedback_type\": \"<string>\",\n  \"feedback_text\": \"<string>\",\n  \"project_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9c686317-bf11-47a3-9bbe-bf3838cc3636",
+          "name": "List Picker Models",
+          "request": {
+            "name": "List Picker Models",
+            "description": {
+              "content": "Curated model-picker options for the chat composer dropdown.\n\nServed from the backend registry so the client list cannot drift from the\nkeys ``ChatRequest.selected_model`` validates against. 404s when the\nworkspace's model-picker toggle is off — off means the surface is absent.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "models"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "dee1b6fa-99b7-449c-ac05-54cc25fb1aba",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "models"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"models\": [\n    {\n      \"key\": \"string\",\n      \"label\": \"string\",\n      \"is_default\": true\n    },\n    {\n      \"key\": \"string\",\n      \"label\": \"string\",\n      \"is_default\": false\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a21fed38-a893-444c-a81e-a73ff26cfe13",
+          "name": "Chat Main Agent",
+          "request": {
+            "name": "Chat Main Agent",
+            "description": {
+              "content": "Receives and processes a streaming chat request via the AgentService.\n\nThis endpoint streams the agent's response in real-time using Server-Sent Events.\n\nArgs:\n    request: The chat request data containing message and project_id (pre-validated).\n    agent_service: The AgentService instance (dependency).\n\nReturns:\n    StreamingResponse with Server-Sent Events containing streaming chat data.\n\nRaises:\n    HTTPException: 400 for validation errors.\n    HTTPException: 404 if project not found or user doesn't own it.\n    HTTPException: 500 for unexpected errors.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "stream"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"<string>\",\n  \"project_id\": \"<uuid>\",\n  \"current_focused_layer_id\": \"<uuid>\",\n  \"action_type\": \"<string>\",\n  \"action_subtype\": \"<string>\",\n  \"hidden_context\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  },\n  \"current_view_id\": \"<string>\",\n  \"iterate_over_rows\": false,\n  \"selected_model\": \"<string>\",\n  \"feature_context\": {\n    \"feature_id\": \"<string>\",\n    \"layer_id\": \"<uuid>\"\n  },\n  \"mentioned_feature_contexts\": [\n    {\n      \"feature_id\": \"<string>\",\n      \"layer_id\": \"<uuid>\"\n    },\n    {\n      \"feature_id\": \"<string>\",\n      \"layer_id\": \"<uuid>\"\n    }\n  ],\n  \"prior_answer\": {\n    \"optionId\": \"<string>\",\n    \"label\": \"<string>\",\n    \"questionId\": \"<string>\"\n  },\n  \"tool_approval\": {\n    \"toolCallId\": \"<string>\",\n    \"approved\": \"<boolean>\",\n    \"message\": \"<string>\"\n  },\n  \"continue_turn\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7686cd90-d70c-4678-95ba-a1431f87435f",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "stream"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"<string>\",\n  \"project_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"current_focused_layer_id\": \"<uuid>\",\n  \"action_type\": \"new_layer\",\n  \"action_subtype\": \"<string>\",\n  \"hidden_context\": {\n    \"key_0\": true\n  },\n  \"current_view_id\": \"<string>\",\n  \"iterate_over_rows\": false,\n  \"selected_model\": \"<string>\",\n  \"feature_context\": {\n    \"feature_id\": \"string\",\n    \"layer_id\": \"9e4ce610-9ba9-8c23-4381-34282710e1d0\"\n  },\n  \"mentioned_feature_contexts\": [\n    {\n      \"feature_id\": \"string\",\n      \"layer_id\": \"589f8d26-07ae-06b3-8540-51f6a4ff6c03\"\n    },\n    {\n      \"feature_id\": \"string\",\n      \"layer_id\": \"1e65f7ba-e6b8-919c-1753-d66d6be9808a\"\n    }\n  ],\n  \"prior_answer\": {\n    \"optionId\": \"string\",\n    \"label\": \"string\",\n    \"questionId\": \"string\"\n  },\n  \"tool_approval\": {\n    \"toolCallId\": \"string\",\n    \"approved\": false,\n    \"message\": \"string\"\n  },\n  \"continue_turn\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bc6ccfa9-b973-4894-b1c7-a6e3b299a04a",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "stream"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"<string>\",\n  \"project_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"current_focused_layer_id\": \"<uuid>\",\n  \"action_type\": \"new_layer\",\n  \"action_subtype\": \"<string>\",\n  \"hidden_context\": {\n    \"key_0\": true\n  },\n  \"current_view_id\": \"<string>\",\n  \"iterate_over_rows\": false,\n  \"selected_model\": \"<string>\",\n  \"feature_context\": {\n    \"feature_id\": \"string\",\n    \"layer_id\": \"9e4ce610-9ba9-8c23-4381-34282710e1d0\"\n  },\n  \"mentioned_feature_contexts\": [\n    {\n      \"feature_id\": \"string\",\n      \"layer_id\": \"589f8d26-07ae-06b3-8540-51f6a4ff6c03\"\n    },\n    {\n      \"feature_id\": \"string\",\n      \"layer_id\": \"1e65f7ba-e6b8-919c-1753-d66d6be9808a\"\n    }\n  ],\n  \"prior_answer\": {\n    \"optionId\": \"string\",\n    \"label\": \"string\",\n    \"questionId\": \"string\"\n  },\n  \"tool_approval\": {\n    \"toolCallId\": \"string\",\n    \"approved\": false,\n    \"message\": \"string\"\n  },\n  \"continue_turn\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8d51e549-54ff-4759-a18f-9721ae7d6c3d",
+          "name": "Resume Chat Main Agent",
+          "request": {
+            "name": "Resume Chat Main Agent",
+            "description": {
+              "content": "Re-attach to a project's in-flight chat run after a mid-stream refresh.\n\nRead-only second reader: tails the existing workflow's durable stream\n(``read_stream`` replays from offset 0 → the full ordered sequence: the\nuser-message echo, every delta so far, then the terminal) WITHOUT starting\na run or claiming a slot. If no run is live the generator yields nothing; the\nFE then sees no terminal and falls back to reloading persisted history (the\nempty replay is the signal that the run finished and released its slot before\nthis reattach).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "stream",
+                "resume"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": \"<uuid>\",\n  \"expected_run_id\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "f0b85120-4b75-4c62-97a1-1610da0243f7",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "stream",
+                    "resume"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project_id\": \"<uuid>\",\n  \"expected_run_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bed63f71-794f-4c82-9c0b-7d75f9cf1fbf",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "stream",
+                    "resume"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project_id\": \"<uuid>\",\n  \"expected_run_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "df5d9cd3-2d9d-40ce-b0cd-5eb1c7e24efb",
+          "name": "Interrupt Chat",
+          "request": {
+            "name": "Interrupt Chat",
+            "description": {
+              "content": "Stop an in-flight chat run via the cooperative interrupt flag.\n\nStopping resolves the chat's ``active_workflow_id`` (liveness from the DBOS\nstatus row) and raises the single cooperative stop signal. The workflow\nobserves it at its next node boundary and finalizes normally — persisting\nthe sanitized partial turn, stamping last-edit, capturing the trace, and\nemitting the ``interrupted`` terminal — while in-flight tools observe the\nsame flag at their checkpoints and bail BEFORE committing DB side-effects.\nNo hard DBOS cancel is issued here: a hard cancel skips finalization and is\nonly seen at the next step boundary (tools would commit after Stop); it\nsurvives solely as the run monitor's escalation backstop for wedged runs.\n\nArgs:\n    request: The interrupt request containing project_id and reason (pre-validated).\n\nReturns:\n    ChatInterruptResponse with ``was_active`` True iff a live run was signalled.\n\nRaises:\n    HTTPException: 400 for an invalid project id; 500 for unexpected errors.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "chat",
+                "interrupt"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": \"<string>\",\n  \"reason\": \"user_requested\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "146e9173-3f62-4eef-befe-9944a2dc81f9",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "chat",
+                    "interrupt"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project_id\": \"<string>\",\n  \"reason\": \"user_requested\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"string\",\n  \"was_active\": false\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "770da25c-7489-4a99-b80c-8cac0239e115",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "chat",
+                    "interrupt"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project_id\": \"<string>\",\n  \"reason\": \"user_requested\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6ec5d4eb-0bed-4dfd-a5cb-6f1d4151b77d",
+          "name": "Expose Schemas",
+          "request": {
+            "name": "Expose Schemas",
+            "description": {
+              "content": "Schema exposure endpoint for OpenAPI/TypeScript generation.\nThis endpoint is never called by the frontend but ensures all chat-related\nschemas are included in the OpenAPI specification for type generation.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "schemas"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b53851b6-b780-43f0-8138-e43d57800229",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "schemas"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "null",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "976b337d-a1bd-4584-8686-dd2b57dc08a8",
+          "name": "Get Chat Archives",
+          "request": {
+            "name": "Get Chat Archives",
+            "description": {
+              "content": "Get archive metadata for a project's chat, without message bodies.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "archives",
+                ":project_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "4a493eae-0639-412e-93ae-6a01d10e7bd6",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "archives",
+                    ":project_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"archives\": [\n    {\n      \"id\": \"26c5974c-cca2-4e48-d806-345c1b547361\",\n      \"safe_split_index\": 1128,\n      \"message_count\": 8500,\n      \"created_at\": \"1948-11-26T18:25:06.387Z\",\n      \"summary_content\": \"string\"\n    },\n    {\n      \"id\": \"eb2c05bc-e0dd-9954-a136-9b17df269cee\",\n      \"safe_split_index\": 574,\n      \"message_count\": 4864,\n      \"created_at\": \"1965-09-21T15:38:50.799Z\",\n      \"summary_content\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ed58a1cd-49eb-4eab-8913-cfda6f1974ef",
+          "name": "Get Chat Archive Content",
+          "request": {
+            "name": "Get Chat Archive Content",
+            "description": {
+              "content": "Get one archive's message bodies on demand, scoped to the project's chat.\n\nThe archive UUID doubles as a strong ETag (content never changes once\nwritten), so a matching ``If-None-Match`` short-circuits to 304 before the\nexpensive blob read. The validator is client-constructible from the URL,\nso the short-circuit is gated on a cheap existence+scope check — a forged\nvalidator for an out-of-scope or missing archive still 404s. Blob\nvalidation is intentionally skipped on the 304 path: blobs are immutable\nafter write, so a validator for a corrupt archive cannot come from a real\n200, and a fresh (unconditional) read still 422s.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "chat",
+                "archives",
+                ":project_id",
+                ":archive_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "archive_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "51526eb0-244d-4590-b8bc-b43e8e3a3ab2",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "archives",
+                    ":project_id",
+                    ":archive_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "archive_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"archived_messages\": [\n    {\n      \"parts\": [\n        {\n          \"content\": \"string\",\n          \"timestamp\": \"1955-05-11T00:14:09.067Z\",\n          \"dynamic_ref\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"part_kind\": \"system-prompt\"\n        },\n        {\n          \"content\": \"string\",\n          \"timestamp\": \"1997-08-04T23:44:10.319Z\",\n          \"dynamic_ref\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"part_kind\": \"system-prompt\"\n        }\n      ],\n      \"timestamp\": \"1982-09-18T19:35:32.306Z\",\n      \"instructions\": \"string\",\n      \"kind\": \"request\",\n      \"run_id\": \"string\",\n      \"conversation_id\": \"string\",\n      \"metadata\": {\n        \"key_0\": 7514\n      }\n    },\n    {\n      \"parts\": [\n        {\n          \"content\": \"string\",\n          \"timestamp\": \"2003-11-16T23:06:29.939Z\",\n          \"dynamic_ref\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"part_kind\": \"system-prompt\"\n        },\n        {\n          \"content\": \"string\",\n          \"timestamp\": \"2016-08-24T18:03:28.727Z\",\n          \"dynamic_ref\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"part_kind\": \"system-prompt\"\n        }\n      ],\n      \"timestamp\": \"2015-12-31T15:21:51.555Z\",\n      \"instructions\": \"string\",\n      \"kind\": \"request\",\n      \"run_id\": \"string\",\n      \"conversation_id\": \"string\",\n      \"metadata\": {\n        \"key_0\": false,\n        \"key_1\": 7302.809066228544,\n        \"key_2\": true,\n        \"key_3\": true\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "faebe77d-5a89-49a8-9860-6f78ee225155",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "chat",
+                    "archives",
+                    ":project_id",
+                    ":archive_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "archive_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "9815b8e8-1706-43a8-bd1c-4e6cc85e3f19",
+    "name": "MAIA Ah chat API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

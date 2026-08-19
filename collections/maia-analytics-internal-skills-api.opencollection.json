@@ -1,0 +1,146 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah internal-skills API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "internal-skills",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Draft System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/skills/draft",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Draft a system skill from a plain-language prompt (LLM; no persistence).\n\nPowers the admin \"Build with MAIA\" mode: the draft pre-fills the create form,\nwhich staff review and save through the audited create path. ``current_*``\nlet ``prompt`` act as revision feedback on an existing draft."
+        },
+        {
+          "info": {
+            "name": "List System Skills",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/skills",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every MAIA-curated (system) skill with its workspace-availability set."
+        },
+        {
+          "info": {
+            "name": "Create System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/skills",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a curated (system) skill, available globally or to specific\nworkspaces, optionally flagged as a new-project starter."
+        },
+        {
+          "info": {
+            "name": "List Owner Skills",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/skills/for-owner",
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "owner_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List a specific user's or workspace's own skills (admin read-only view).\n\n``scope`` must be ``user`` or ``workspace`` (system skills have no owner → 422)."
+        },
+        {
+          "info": {
+            "name": "Update System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace a curated skill's content, starter flag, and availability.\n\n``workspace_ids`` sets availability: empty makes it global, a set restricts\nit to those workspaces."
+        },
+        {
+          "info": {
+            "name": "Delete System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a system skill."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

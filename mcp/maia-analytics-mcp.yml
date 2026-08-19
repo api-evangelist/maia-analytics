@@ -2,11 +2,9 @@ generated: '2026-07-20'
 method: derived
 status: candidate
 source: openapi/maia-analytics-openapi-original.json
-notes: >-
-  No official hosted/remote MCP server was found for MAIA (no mcp. subdomain, no
-  npm @modelcontextprotocol package, not in public MCP registries). The following
-  is a DERIVED candidate tool list mapping the user-facing (non-internal, non-auth)
-  operations of the MAIA API to MCP tools. status: candidate.
+notes: 'No official hosted/remote MCP server was found for MAIA (no mcp. subdomain, no npm @modelcontextprotocol
+  package, not in public MCP registries). The following is a DERIVED candidate tool list mapping the user-facing
+  (non-internal, non-auth) operations of the MAIA API to MCP tools. status: candidate.'
 server:
   name: maia-analytics
   transport: http
@@ -36,3 +34,9 @@ tools:
 - name: list_saved_contacts
   description: List saved contacts for a project.
   source_operation: openapi/maia-analytics-openapi-original.json#list_contacts_api_v1_saved_contacts__project_id__contacts_get
+deployment:
+  mode: none
+  verified: derived
+  tools: 8
+  checked: '2026-08-12'
+  source: catalog MCP census

@@ -1,0 +1,196 @@
+{
+  "item": [
+    {
+      "id": "556a20d5-edcc-4c31-9a8b-58f3c7730ccf",
+      "name": "filters",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ddf2f01e-2092-403a-a8fb-201485334c5f",
+          "name": "Create Filter Spec",
+          "request": {
+            "name": "Create Filter Spec",
+            "description": {
+              "content": "Create (or return existing) FilterSpec for the given filter shape.\n\nIdempotent: repeated POSTs with the same canonical body return the same\n``filter_id``. Sliding TTL means downstream reads keep the spec alive.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "filters"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterModel\": {\n    \"key_0\": {\n      \"filterType\": \"<string>\",\n      \"operator\": \"<string>\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_1\": {\n      \"filterType\": \"<string>\",\n      \"operator\": \"<string>\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    }\n  },\n  \"geometry\": {\n    \"key_0\": \"string\",\n    \"key_1\": 2419\n  },\n  \"searchText\": \"<string>\",\n  \"favoritesOnly\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "4d817310-986e-4ae5-aa09-19127f6ff8c5",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "filters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"filterModel\": {\n    \"key_0\": {\n      \"filterType\": \"set\",\n      \"operator\": \"OR\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_1\": {\n      \"filterType\": \"text\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_2\": {\n      \"filterType\": \"number\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    }\n  },\n  \"geometry\": {\n    \"key_0\": 2333\n  },\n  \"searchText\": \"<string>\",\n  \"favoritesOnly\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"filterId\": \"928d9677-2248-ae33-6cf4-4abf9eb18e1d\",\n  \"expiresAt\": \"1963-11-21T14:42:22.568Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "beaf75cd-dc90-4310-8feb-e868af0e66b1",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "filters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"filterModel\": {\n    \"key_0\": {\n      \"filterType\": \"set\",\n      \"operator\": \"OR\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_1\": {\n      \"filterType\": \"text\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_2\": {\n      \"filterType\": \"number\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    }\n  },\n  \"geometry\": {\n    \"key_0\": 2333\n  },\n  \"searchText\": \"<string>\",\n  \"favoritesOnly\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "534b3301-730f-40ec-af9d-c386f73e7994",
+    "name": "MAIA Ah filters API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

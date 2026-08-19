@@ -1,0 +1,126 @@
+{
+  "item": [
+    {
+      "id": "cde2c85f-5013-43e2-8609-f91f76a06ebc",
+      "name": "user-events",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5a69a553-d15f-4d03-b24a-85f8c8cd19b9",
+          "name": "User Events Stream",
+          "request": {
+            "name": "User Events Stream",
+            "description": {
+              "content": "Subscribe to the authenticated user's live event channel via SSE.\n\nForwards messages on ``user:{user_id}:events`` to the browser via the\nper-instance ``UserEventsFanout``. Heartbeat every 15 s. The connection\ncloses when the client disconnects or the server shuts down; the FE\nreconnects with jittered backoff and re-fetches snapshot state on each\n(re)connect so a dropped event during a disconnect window is recovered\nautomatically.\n\nNo payload is required from the FE — the subscription is implicit in\nopening the connection, scoped by the authenticated user.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "events"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e6b34a7e-eab6-467b-b032-33bea917568e",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "me",
+                    "events"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "b3f9a333-9cb4-44b1-a2e3-41815bdb8075",
+    "name": "MAIA Ah user-events API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

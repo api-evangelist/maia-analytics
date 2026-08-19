@@ -1,0 +1,2425 @@
+{
+  "item": [
+    {
+      "id": "b8b3f73a-9fb1-454c-8983-ddf9d24dce9c",
+      "name": "enrichment",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5cc916cf-fa21-4b6e-a030-a58931e326e6",
+          "name": "Get Enrichment Limits",
+          "request": {
+            "name": "Get Enrichment Limits",
+            "description": {
+              "content": "Per-batch limits for column-wide bulk enrichment.\n\nReturns the canonical server values backing the column-header Enrich\nsubmenu's clamps and confirm gates. The FE should fetch these once and\ncache; never carry its own copy of these constants.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "limits"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "48da48c9-d361-44fe-830f-1f010cd01d87",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "limits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"filtered_ids_default_limit\": 3164,\n  \"filtered_ids_max_limit\": 536\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3b0ebead-a3bd-4919-9b07-f483f104dede",
+          "name": "Get All Enrichments",
+          "request": {
+            "name": "Get All Enrichments",
+            "description": {
+              "content": "Get all custom enrichments.\nRequires authentication. Allows read access to owned or example projects.\n\nArgs:\n    request: The request object containing project_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    List of all enrichments",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "all"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "bbe8a7ad-131e-4bec-9e39-d538bc191236",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "all"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"enrichments\": [\n    {\n      \"credits_per_row\": 4657,\n      \"is_configured\": true,\n      \"is_configuration_failed\": true,\n      \"is_data_source\": true,\n      \"id\": \"0c502c4e-e9ce-1b30-c1b5-60c595d55f2a\",\n      \"layer_id\": \"d95ed0cc-331d-9630-6280-b305a2273626\",\n      \"name\": \"Unconfigured enrichment\",\n      \"description\": \"string\",\n      \"tool\": \"unconfigured\",\n      \"params\": {\n        \"key_0\": 6445.980029092994,\n        \"key_1\": 9700,\n        \"key_2\": 3021,\n        \"key_3\": 8220.309448613696\n      },\n      \"dtype\": \"string\",\n      \"created_at\": \"2002-02-16T14:52:50.086Z\",\n      \"updated_at\": \"1982-11-08T17:58:40.681Z\"\n    },\n    {\n      \"credits_per_row\": 7369,\n      \"is_configured\": true,\n      \"is_configuration_failed\": false,\n      \"is_data_source\": false,\n      \"id\": \"5a5ffb28-71fb-e260-0d6b-716248ce4d02\",\n      \"layer_id\": \"82802ef1-5b1b-699f-c121-09aa5f55fcc1\",\n      \"name\": \"Unconfigured enrichment\",\n      \"description\": \"string\",\n      \"tool\": \"unconfigured\",\n      \"params\": {\n        \"key_0\": \"string\"\n      },\n      \"dtype\": \"string\",\n      \"created_at\": \"2006-08-27T21:01:23.189Z\",\n      \"updated_at\": \"2013-04-13T07:00:55.544Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9eedc637-2e9b-496f-9faf-ecb7d166b787",
+          "name": "Create Enrichment",
+          "request": {
+            "name": "Create Enrichment",
+            "description": {
+              "content": "Create a new enrichment with default values. Requires layer ownership.\n\nArgs:\n    request: The request object containing layer_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dictionary containing enrichment data",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": \"<uuid>\",\n  \"layer_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "430f02ed-365e-4ec4-9885-f91deff26358",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "create"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"layer_id\": \"00000000-0000-0000-0000-000000000000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"enrichment\": {\n    \"credits_per_row\": 4881,\n    \"is_configured\": false,\n    \"is_configuration_failed\": false,\n    \"is_data_source\": true,\n    \"id\": \"e490e7dc-1d6b-e841-b740-bf3a87489a3d\",\n    \"layer_id\": \"83906b2d-0596-74f9-51b1-d61f8ad6edee\",\n    \"name\": \"Unconfigured enrichment\",\n    \"description\": \"string\",\n    \"tool\": \"unconfigured\",\n    \"params\": {\n      \"key_0\": 878,\n      \"key_1\": 6078\n    },\n    \"dtype\": \"string\",\n    \"created_at\": \"2023-06-24T07:07:52.265Z\",\n    \"updated_at\": \"2017-08-29T14:17:24.287Z\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "560ffaec-9cd3-4ea5-a85c-56ee41febe01",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "create"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"layer_id\": \"00000000-0000-0000-0000-000000000000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d8d33e55-256b-4fca-a85a-2fcd97601c24",
+          "name": "Get Enrichment Status Batch",
+          "request": {
+            "name": "Get Enrichment Status Batch",
+            "description": {
+              "content": "Get the status of multiple enrichment workflows.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "enrich_async",
+                "status_batch"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workflow_ids\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "d6f93dec-5f8a-4597-8b69-0f529c5a6f2b",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "enrich_async",
+                    "status_batch"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workflow_ids\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"statuses\": [\n    {\n      \"workflow_id\": \"string\",\n      \"status\": \"string\",\n      \"result\": {\n        \"value\": \"string\",\n        \"state\": \"enriched\",\n        \"reasoning\": \"string\",\n        \"citations\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      },\n      \"error_info\": \"string\",\n      \"completed_at\": \"2002-02-27T08:27:32.820Z\"\n    },\n    {\n      \"workflow_id\": \"string\",\n      \"status\": \"string\",\n      \"result\": {\n        \"value\": \"string\",\n        \"state\": \"user_edited\",\n        \"reasoning\": \"string\",\n        \"citations\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      },\n      \"error_info\": \"string\",\n      \"completed_at\": \"1955-07-15T23:00:38.820Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0e0d5dee-6c70-4fa3-b3c8-82865dfc6a98",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "enrich_async",
+                    "status_batch"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workflow_ids\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e2a32553-8fc7-470e-ad8d-a37cd2931e70",
+          "name": "Enrich Row Async",
+          "request": {
+            "name": "Enrich Row Async",
+            "description": {
+              "content": "Enrich rows in the dataset asynchronously.\n\nSupports two selection modes (exactly one per request, enforced by\n``EnrichRowRequest`` validator):\n\n- ``feature_ids`` — explicit ids; legacy path, unchanged.\n- ``selection`` — filter spec + fingerprint + expected count. The\n  server validates the fingerprint (400 on mismatch), recomputes the\n  live count (409 on drift), and resolves the matching ids\n  server-side before enqueueing — no wire-payload of large id\n  arrays.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "enrich_async",
+                ":enrichment_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feature_ids\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"selection\": {\n    \"filter_spec\": {\n      \"startRow\": 0,\n      \"endRow\": 100,\n      \"sortModel\": [\n        {\n          \"colId\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sort\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sortMode\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        {\n          \"colId\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sort\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sortMode\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        }\n      ],\n      \"filterModel\": {\n        \"key_0\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_1\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_2\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_3\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        }\n      },\n      \"filterId\": \"<uuid>\",\n      \"groupKeys\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"rowGroupCols\": [\n        {\n          \"id\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"field\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"displayName\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        {\n          \"id\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"field\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"displayName\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        }\n      ],\n      \"searchText\": \"<string>\",\n      \"geometry\": {\n        \"type\": \"<string>\",\n        \"coordinates\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      },\n      \"favoritesOnly\": false\n    },\n    \"fingerprint\": \"<string>\",\n    \"expected_count\": \"<integer>\",\n    \"enrichment_state\": \"<string>\",\n    \"enrichment_name\": \"<string>\"\n  },\n  \"high_priority\": false,\n  \"point_action\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "894158b8-ef29-40ed-be04-ab34837a12ee",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "enrich_async",
+                    ":enrichment_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"feature_ids\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"selection\": {\n    \"filter_spec\": {\n      \"startRow\": 0,\n      \"endRow\": 100,\n      \"sortModel\": [\n        {\n          \"colId\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sort\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sortMode\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        {\n          \"colId\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sort\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sortMode\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        }\n      ],\n      \"filterModel\": {\n        \"key_0\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_1\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_2\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        }\n      },\n      \"filterId\": \"bbdf0729-9580-4f55-0434-b0b0952e2957\",\n      \"groupKeys\": [\n        \"string\",\n        \"string\"\n      ],\n      \"rowGroupCols\": [\n        {\n          \"id\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"field\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"displayName\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        {\n          \"id\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"field\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"displayName\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        }\n      ],\n      \"searchText\": \"string\",\n      \"geometry\": {\n        \"type\": \"MultiPolygon\",\n        \"coordinates\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      },\n      \"favoritesOnly\": false\n    },\n    \"fingerprint\": \"string\",\n    \"expected_count\": 8531,\n    \"enrichment_state\": \"string\",\n    \"enrichment_name\": \"string\"\n  },\n  \"high_priority\": false,\n  \"point_action\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"workflow_ids\": [\n    \"string\",\n    \"string\"\n  ],\n  \"feature_ids\": [\n    \"string\",\n    \"string\"\n  ],\n  \"coordinator_workflow_id\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3998b96f-fe39-444a-a692-e89e6f222594",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "enrich_async",
+                    ":enrichment_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"feature_ids\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"selection\": {\n    \"filter_spec\": {\n      \"startRow\": 0,\n      \"endRow\": 100,\n      \"sortModel\": [\n        {\n          \"colId\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sort\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sortMode\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        {\n          \"colId\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sort\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"sortMode\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        }\n      ],\n      \"filterModel\": {\n        \"key_0\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_1\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        },\n        \"key_2\": {\n          \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n        }\n      },\n      \"filterId\": \"bbdf0729-9580-4f55-0434-b0b0952e2957\",\n      \"groupKeys\": [\n        \"string\",\n        \"string\"\n      ],\n      \"rowGroupCols\": [\n        {\n          \"id\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"field\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"displayName\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        {\n          \"id\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"field\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"displayName\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        }\n      ],\n      \"searchText\": \"string\",\n      \"geometry\": {\n        \"type\": \"MultiPolygon\",\n        \"coordinates\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      },\n      \"favoritesOnly\": false\n    },\n    \"fingerprint\": \"string\",\n    \"expected_count\": 8531,\n    \"enrichment_state\": \"string\",\n    \"enrichment_name\": \"string\"\n  },\n  \"high_priority\": false,\n  \"point_action\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "38e1af22-aeea-4419-af26-0f775bd719f5",
+          "name": "Update Enrichment",
+          "request": {
+            "name": "Update Enrichment",
+            "description": {
+              "content": "Update an enrichment. Requires ownership of the project containing the enrichment.\n\nThe mortgage entitlement check fetches the user profile lazily — only a\nretarget onto the mortgage tool pays the profile DB round-trip.\n\nArgs:\n    enrichment_id: The ID of the enrichment to update (pre-validated)\n    request: The request object containing updated fields\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dictionary containing enrichment data",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                ":enrichment_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"updates\": {\n    \"name\": \"<string>\",\n    \"description\": \"<string>\",\n    \"tool\": \"<string>\",\n    \"params\": {\n      \"key_0\": true\n    },\n    \"dtype\": \"<string>\",\n    \"updated_at\": \"<dateTime>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "8cadaef5-f893-4604-925b-d95d4c14973b",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    ":enrichment_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"updates\": {\n    \"name\": \"New Name\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"enrichment\": {\n    \"credits_per_row\": 4881,\n    \"is_configured\": false,\n    \"is_configuration_failed\": false,\n    \"is_data_source\": true,\n    \"id\": \"e490e7dc-1d6b-e841-b740-bf3a87489a3d\",\n    \"layer_id\": \"83906b2d-0596-74f9-51b1-d61f8ad6edee\",\n    \"name\": \"Unconfigured enrichment\",\n    \"description\": \"string\",\n    \"tool\": \"unconfigured\",\n    \"params\": {\n      \"key_0\": 878,\n      \"key_1\": 6078\n    },\n    \"dtype\": \"string\",\n    \"created_at\": \"2023-06-24T07:07:52.265Z\",\n    \"updated_at\": \"2017-08-29T14:17:24.287Z\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e34289b6-82f0-44e3-99f5-7821fe48a937",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    ":enrichment_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"updates\": {\n    \"name\": \"New Name\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "37340642-ce3c-4d77-a59b-e79800466b3e",
+          "name": "Delete Enrichment",
+          "request": {
+            "name": "Delete Enrichment",
+            "description": {
+              "content": "Delete an enrichment. Requires ownership of the project containing the enrichment.\n\nArgs:\n    request: The request object containing enrichment_id and project_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dict with success status and message",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "delete"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrichment_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "35c54312-d599-4952-af95-924f44afc253",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "delete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrichment_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"project_id\": \"00000000-0000-0000-0000-000000000001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d4ba45d5-2deb-4555-941b-010f2c194461",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "delete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrichment_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"project_id\": \"00000000-0000-0000-0000-000000000001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "33ab0bd3-299b-425e-a25a-36fae22f7594",
+          "name": "Get Enrichment Status",
+          "request": {
+            "name": "Get Enrichment Status",
+            "description": {
+              "content": "Get the status of a single enrichment workflow.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "workflow",
+                "status",
+                ":workflow_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "workflow_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "31beaee2-b6e0-465b-8a76-c4340f71fee9",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "workflow",
+                    "status",
+                    ":workflow_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workflow_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"workflow_id\": \"string\",\n  \"status\": \"string\",\n  \"result\": {\n    \"value\": \"string\",\n    \"state\": \"attempted\",\n    \"reasoning\": \"string\",\n    \"citations\": [\n      {\n        \"url\": \"string\",\n        \"title\": \"string\",\n        \"snippet\": \"string\",\n        \"provider\": \"string\",\n        \"source_type\": \"string\"\n      },\n      {\n        \"url\": \"string\",\n        \"title\": \"string\",\n        \"snippet\": \"string\",\n        \"provider\": \"string\",\n        \"source_type\": \"string\"\n      }\n    ]\n  },\n  \"error_info\": \"string\",\n  \"completed_at\": \"1978-08-16T00:06:35.906Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "65d504d5-bbda-4b85-9f39-d7d680d6be6e",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "workflow",
+                    "status",
+                    ":workflow_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workflow_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1b9839ae-5d9a-48a7-b263-0e0b982127bb",
+          "name": "Get Enrichment Agent Task Status",
+          "request": {
+            "name": "Get Enrichment Agent Task Status",
+            "description": {
+              "content": "Get the status of an enrichment agent (creation/update) workflow.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "agent_workflow",
+                "status",
+                ":workflow_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "workflow_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3f5d932e-d12d-435a-b0d1-833e8af9a9d6",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "agent_workflow",
+                    "status",
+                    ":workflow_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workflow_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"workflow_id\": \"string\",\n  \"status\": \"string\",\n  \"result\": {\n    \"status\": \"string\",\n    \"output_type\": \"string\",\n    \"message\": \"string\",\n    \"resources\": [\n      {\n        \"resource_type\": \"view\",\n        \"operation\": \"create\",\n        \"resource_id\": \"string\",\n        \"display_name\": \"string\",\n        \"created_at\": \"string\",\n        \"feature_count\": 3835,\n        \"task_id\": \"string\"\n      },\n      {\n        \"resource_type\": \"layer\",\n        \"operation\": \"update\",\n        \"resource_id\": \"string\",\n        \"display_name\": \"string\",\n        \"created_at\": \"string\",\n        \"feature_count\": 5984,\n        \"task_id\": \"string\"\n      }\n    ],\n    \"reason\": \"string\",\n    \"output\": {},\n    \"deep_research_timed_out\": false\n  },\n  \"error_info\": \"string\",\n  \"completed_at\": \"1994-11-23T13:58:58.464Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8b369688-68a7-474a-9222-08c8e602bf4c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "agent_workflow",
+                    "status",
+                    ":workflow_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workflow_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "84aa8e7f-e122-4ed7-9098-bf2fea63074d",
+          "name": "Get All User Enrichments",
+          "request": {
+            "name": "Get All User Enrichments",
+            "description": {
+              "content": "Get all enrichments.\nRequires authentication.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "all_user"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "37793469-9fcb-4138-898e-1ab5a587a46c",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "all_user"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"enrichments\": [\n    {\n      \"credits_per_row\": 471,\n      \"is_configured\": false,\n      \"is_configuration_failed\": true,\n      \"is_data_source\": false,\n      \"id\": \"18a030f9-1703-301b-6dbd-8df66d686555\",\n      \"layer_id\": \"f58e2c07-f3ef-c07c-21c6-75404dc423e2\",\n      \"name\": \"Unconfigured enrichment\",\n      \"description\": \"string\",\n      \"tool\": \"unconfigured\",\n      \"params\": {\n        \"key_0\": false,\n        \"key_1\": false\n      },\n      \"dtype\": \"string\",\n      \"created_at\": \"1963-07-19T15:25:50.490Z\",\n      \"updated_at\": \"1963-05-08T03:41:32.761Z\"\n    },\n    {\n      \"credits_per_row\": 3379,\n      \"is_configured\": true,\n      \"is_configuration_failed\": true,\n      \"is_data_source\": false,\n      \"id\": \"2f641007-87d1-60a2-fcad-0c239e2777f3\",\n      \"layer_id\": \"edefd678-2aa9-e405-02cc-9cc5bfaefad4\",\n      \"name\": \"Unconfigured enrichment\",\n      \"description\": \"string\",\n      \"tool\": \"unconfigured\",\n      \"params\": {\n        \"key_0\": 6140\n      },\n      \"dtype\": \"string\",\n      \"created_at\": \"1985-01-28T12:46:09.525Z\",\n      \"updated_at\": \"2006-11-19T16:03:52.878Z\"\n    }\n  ],\n  \"available_enrichment_names\": [\n    \"geometry\",\n    \"Improvement Value\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "55bd00ec-2c53-4308-8c48-d88f48efd1df",
+          "name": "Add Enrichment To Layer",
+          "request": {
+            "name": "Add Enrichment To Layer",
+            "description": {
+              "content": "Add an enrichment to a layer. Requires ownership of the project containing the layer.\n\nArgs:\n    request: The request object containing enrichment_id and layer_id (pre-validated)\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    message with success status",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "add_to_layer"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrichment_id\": \"<uuid>\",\n  \"layer_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "531cd701-3928-45a1-8938-be229650dd7b",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "add_to_layer"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrichment_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"layer_id\": \"00000000-0000-0000-0000-000000000000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ed224b60-e493-40ba-84f2-393846b0f686",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "add_to_layer"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrichment_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"layer_id\": \"00000000-0000-0000-0000-000000000000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "297bfe9f-928b-4e0f-9499-9af5e9f83bfc",
+          "name": "Delete Enrichment From Library",
+          "request": {
+            "name": "Delete Enrichment From Library",
+            "description": {
+              "content": "Delete an enrichment.\nRequires authentication.\n\nArgs:\n    request: The request object containing enrichment_id\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Dict with success status and message",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "delete_from_library"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrichment_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "efec647e-6a54-4fcc-90f5-ec6649a7c542",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "delete_from_library"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrichment_id\": \"00000000-0000-0000-0000-000000000001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8939be67-3288-4378-89b8-b31f4eff6c70",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "delete_from_library"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrichment_id\": \"00000000-0000-0000-0000-000000000001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5be1af3d-f14c-4422-88dd-98843e7c2532",
+          "name": "Get Enrichment Credits",
+          "request": {
+            "name": "Get Enrichment Credits",
+            "description": {
+              "content": "Get the number of enrichments credits available for this user.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "credits"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2355b94d-cc56-4ec4-87bf-1ba19d75b4d9",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "credits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"available_credits\": 10,\n  \"used_credits\": 5,\n  \"reserved_credits\": 2\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0793085f-7935-473e-850f-42453d8aad90",
+          "name": "Get In Flight Tasks",
+          "request": {
+            "name": "Get In Flight Tasks",
+            "description": {
+              "content": "Get all in-flight enrichment workflows for a project.\n\nQueries DBOS workflow status filtered to non-terminal row-enrichment\nworkflows and aggregates per-field for the polling UI.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "in-flight",
+                ":project_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "12e2c1d6-9fb5-488c-9438-1a20c457a858",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "in-flight",
+                    ":project_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"tasks\": [\n    {\n      \"workflow_id\": \"string\",\n      \"enrichment_id\": \"6f44de9d-2615-36dc-554f-e2b0fa941770\",\n      \"feature_id\": \"string\",\n      \"field_name\": \"string\",\n      \"started_at\": \"2015-12-21T17:34:29.191Z\",\n      \"phase\": \"queued\",\n      \"coordinator_workflow_id\": \"string\",\n      \"task_type\": \"column\"\n    },\n    {\n      \"workflow_id\": \"string\",\n      \"enrichment_id\": \"c520de2e-b317-1f69-fff3-a2349141d7d5\",\n      \"feature_id\": \"string\",\n      \"field_name\": \"string\",\n      \"started_at\": \"1986-04-17T02:17:05.176Z\",\n      \"phase\": \"active\",\n      \"coordinator_workflow_id\": \"string\",\n      \"task_type\": \"column\"\n    }\n  ],\n  \"count\": 5537,\n  \"batches\": [\n    {\n      \"coordinator_workflow_id\": \"string\",\n      \"field_name\": \"string\",\n      \"launched_total\": 7698,\n      \"resolved_count\": 7774,\n      \"started_at\": \"1950-12-19T00:54:20.708Z\"\n    },\n    {\n      \"coordinator_workflow_id\": \"string\",\n      \"field_name\": \"string\",\n      \"launched_total\": 318,\n      \"resolved_count\": 383,\n      \"started_at\": \"1993-11-19T15:37:50.014Z\"\n    }\n  ],\n  \"totals_by_field\": {\n    \"key_0\": 8671,\n    \"key_1\": 480\n  },\n  \"field_info\": {\n    \"key_0\": {\n      \"total_count\": 4088,\n      \"started_at\": \"1983-06-11T06:31:04.405Z\"\n    },\n    \"key_1\": {\n      \"total_count\": 1770,\n      \"started_at\": \"1972-10-16T04:13:27.227Z\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2df4a3b9-9f57-42cd-9b68-761d34b96ceb",
+          "name": "Get All In Flight Tasks",
+          "request": {
+            "name": "Get All In Flight Tasks",
+            "description": {
+              "content": "Get all in-flight enrichment workflows across the user's projects.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "in-flight"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d56f969f-a942-4a28-a83d-a78375e07a02",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "in-flight"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"projects\": [\n    {\n      \"project_id\": \"368a48a2-ab72-f26b-275f-d2eb1af0008c\",\n      \"tasks\": [\n        {\n          \"workflow_id\": \"string\",\n          \"enrichment_id\": \"2dc9d2cb-db1d-ddf8-6b04-75477644312e\",\n          \"feature_id\": \"string\",\n          \"field_name\": \"string\",\n          \"started_at\": \"2012-12-20T21:16:25.048Z\",\n          \"phase\": \"active\",\n          \"coordinator_workflow_id\": \"string\",\n          \"task_type\": \"column\"\n        },\n        {\n          \"workflow_id\": \"string\",\n          \"enrichment_id\": \"6a3a378b-c19f-f04c-fe22-e6012d2c5e9b\",\n          \"feature_id\": \"string\",\n          \"field_name\": \"string\",\n          \"started_at\": \"1977-12-17T19:23:55.764Z\",\n          \"phase\": \"active\",\n          \"coordinator_workflow_id\": \"string\",\n          \"task_type\": \"column\"\n        }\n      ],\n      \"count\": 2441,\n      \"batches\": [\n        {\n          \"coordinator_workflow_id\": \"string\",\n          \"field_name\": \"string\",\n          \"launched_total\": 4180,\n          \"resolved_count\": 8435,\n          \"started_at\": \"2002-03-28T05:20:18.644Z\"\n        },\n        {\n          \"coordinator_workflow_id\": \"string\",\n          \"field_name\": \"string\",\n          \"launched_total\": 6994,\n          \"resolved_count\": 6074,\n          \"started_at\": \"1950-03-01T15:16:06.670Z\"\n        }\n      ],\n      \"totals_by_field\": {\n        \"key_0\": 4911,\n        \"key_1\": 8067,\n        \"key_2\": 5823\n      },\n      \"field_info\": {\n        \"key_0\": {\n          \"total_count\": 7421,\n          \"started_at\": \"1981-09-03T12:13:12.401Z\"\n        }\n      }\n    },\n    {\n      \"project_id\": \"303a261d-159b-b576-ab8e-2348c7c35d2f\",\n      \"tasks\": [\n        {\n          \"workflow_id\": \"string\",\n          \"enrichment_id\": \"ff03219e-4d4b-193f-3e8b-e45c51b86d14\",\n          \"feature_id\": \"string\",\n          \"field_name\": \"string\",\n          \"started_at\": \"1954-03-10T03:08:38.753Z\",\n          \"phase\": \"active\",\n          \"coordinator_workflow_id\": \"string\",\n          \"task_type\": \"column\"\n        },\n        {\n          \"workflow_id\": \"string\",\n          \"enrichment_id\": \"87d50a24-d16b-615f-2207-c51bbdbbe16f\",\n          \"feature_id\": \"string\",\n          \"field_name\": \"string\",\n          \"started_at\": \"2024-10-20T14:31:03.761Z\",\n          \"phase\": \"active\",\n          \"coordinator_workflow_id\": \"string\",\n          \"task_type\": \"column\"\n        }\n      ],\n      \"count\": 4159,\n      \"batches\": [\n        {\n          \"coordinator_workflow_id\": \"string\",\n          \"field_name\": \"string\",\n          \"launched_total\": 1198,\n          \"resolved_count\": 6072,\n          \"started_at\": \"1954-12-16T22:01:24.494Z\"\n        },\n        {\n          \"coordinator_workflow_id\": \"string\",\n          \"field_name\": \"string\",\n          \"launched_total\": 6699,\n          \"resolved_count\": 9737,\n          \"started_at\": \"1962-01-06T21:23:07.091Z\"\n        }\n      ],\n      \"totals_by_field\": {\n        \"key_0\": 7904\n      },\n      \"field_info\": {\n        \"key_0\": {\n          \"total_count\": 4406,\n          \"started_at\": \"2002-06-28T03:13:16.390Z\"\n        },\n        \"key_1\": {\n          \"total_count\": 7944,\n          \"started_at\": \"1968-07-21T10:25:42.379Z\"\n        }\n      }\n    }\n  ],\n  \"total_count\": 7808\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "745bb71f-2a4c-4832-a7d8-c2674a85f130",
+          "name": "Cancel Enrichment Workflows Bulk",
+          "request": {
+            "name": "Cancel Enrichment Workflows Bulk",
+            "description": {
+              "content": "Bulk-cancel in-flight DBOS enrichment workflows.\n\nBest-effort + idempotent, matching the single-cancel contract. Returns\n204 unconditionally — workflows the caller doesn't own, workflows\nwithout a reservation row, and workflows already in a terminal state\nare silently skipped. The FE's column-level cancel sends every\nworkflow_id it tracked and relies on polling to converge each one to\nREVOKED.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "cancel",
+                "bulk"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workflow_ids\": [\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "4f96a1ed-25d4-4b11-aedb-6789ef64a597",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "cancel",
+                    "bulk"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workflow_ids\": [\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "d5451722-eca6-42d5-9a3d-ecfd0a3df960",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "cancel",
+                    "bulk"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workflow_ids\": [\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "87586f7c-fa31-452f-a187-acf28a85f3eb",
+          "name": "Cancel Enrichment Workflow",
+          "request": {
+            "name": "Cancel Enrichment Workflow",
+            "description": {
+              "content": "Cancel an in-flight DBOS enrichment workflow + refund any unsettled credits [MAIA-1468].\n\nReturns 204 on success (idempotent on terminal states). 404 if the\nworkflow has no reservation row (Celery-routed enrichment or unknown ID)\nor if the user doesn't own the workspace it belongs to. Cross-workspace\naccess is 404 not 403 to avoid leaking workflow existence.\n\nThe ``_current_user`` Depends enforces authn; workspace authz is resolved\ninside the service via the request-scoped ``UserService`` (already bound\nto the current user via DI).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "enrichment",
+                "cancel",
+                ":workflow_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "workflow_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2a762d6c-6ecc-4c30-8d0a-972f55fd92c9",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "cancel",
+                    ":workflow_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workflow_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "08b16b66-e92c-426c-852d-ec305576c7da",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "enrichment",
+                    "cancel",
+                    ":workflow_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workflow_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "95412a24-4190-416e-a845-efd19f88b9ad",
+    "name": "MAIA Ah enrichment API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

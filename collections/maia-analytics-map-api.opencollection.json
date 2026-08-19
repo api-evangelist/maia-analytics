@@ -1,0 +1,182 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah map API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "map",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Layer Mvt Tile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/map/:layer_id/tiles/:z/:x/:y.pbf",
+            "params": [
+              {
+                "name": "z",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "x",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "y",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "v",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "viz",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ]
+          },
+          "docs": "Serve an MVT tile for a layer.\n\n``v`` is a client-supplied cache-busting token — change it (e.g., to a\ntimestamp) when you know the underlying data has moved. ``filter_id``\nreferences a server-side FilterSpec (POSTed via ``/filters``); when\npresent, the tile contains only matching rows. Favorites-only filtering\npulls the user's favorite ids inline so the tile WHERE-clause includes\nthem — without that, the tile would visually drop the favorites filter\neven though the table respects it. ``viz`` na"
+        },
+        {
+          "info": {
+            "name": "Get Layer Mvt Agg Tile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/map/:layer_id/agg-tiles/:z/:x/:y.pbf",
+            "params": [
+              {
+                "name": "z",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "x",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "y",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "v",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ]
+          },
+          "docs": "Serve an aggregate (bin-count) MVT tile for low-zoom rendering.\n\nEmits one MVT point per occupied grid cell with a ``count`` property —\nthe client renders bubbles sized by count at zoom levels below the\ndetail-layer threshold so panning over dense data doesn't tessellate\ntens of thousands of features the user can't actually see.\n\n``filter_id`` — same as detail tiles; the aggregate counts then reflect\nthe active filter instead of the layer total. Favorites-only resolution\nmatches ``get_layer_mvt_"
+        },
+        {
+          "info": {
+            "name": "Get Layer Viz Stats",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/map/:layer_id/viz-stats",
+            "params": [
+              {
+                "name": "column",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Whole-layer quantile breaks for one numeric column.\n\nDrives classed (quantile) map styling on the client — the color/size\nscale must come from the full dataset, not the rendered viewport, or the\nsame feature changes class as the user pans."
+        },
+        {
+          "info": {
+            "name": "Get Layer Extent",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/map/:layer_id/extent",
+            "params": [
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get the bounding box of a layer's features, optionally filtered."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

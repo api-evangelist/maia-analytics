@@ -1,0 +1,213 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah example-projects API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "example-projects",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Example Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all example projects ordered by created_at."
+        },
+        {
+          "info": {
+            "name": "Search Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/search",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List created projects in the admin's workspace for mark-as-example picker."
+        },
+        {
+          "info": {
+            "name": "Search All Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/search-all",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List created projects across all workspaces for the admin duplicate-any picker."
+        },
+        {
+          "info": {
+            "name": "Mark As Example",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/mark-example",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Mark a project as an example project."
+        },
+        {
+          "info": {
+            "name": "Unmark As Example",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/unmark-example",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Unmark a project as an example (sets visibility to private)."
+        },
+        {
+          "info": {
+            "name": "Duplicate Example Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/duplicate",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deliver a curated project to a workspace.\n\nDelivery is a durable cross-Neon-branch workflow: the response carries a\n``workflow_id`` and the client tracks progress via the Recent duplications\npanel (which polls the per-row status)."
+        },
+        {
+          "info": {
+            "name": "Get Duplicate Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/duplicate/:workflow_id/status",
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Poll a cross-branch delivery workflow's terminal state."
+        },
+        {
+          "info": {
+            "name": "List Recent Duplications",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/duplications/recent",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Recent duplications (newest first) for the admin tracker panel."
+        },
+        {
+          "info": {
+            "name": "Get Project Preview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/preview",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get project preview with metadata and layer summary."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

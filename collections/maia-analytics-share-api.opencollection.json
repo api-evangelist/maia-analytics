@@ -1,0 +1,698 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah share API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "share",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Shared Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get metadata for a shared project (read-only, no side effects).\n\nThis is the primary entry point for shared project access. Validates\nthe share token and returns project metadata. View count tracking is\nhandled separately via POST /{share_token}/view.\n\nArgs:\n    share: Validated ProjectShare from token (injected by validate_share_token)\n    share_service: ProjectShareService for fetching project data\n\nReturns:\n    Shared project metadata (subset of full project data)\n\nRaises:\n    HTTPException: "
+        },
+        {
+          "info": {
+            "name": "Track Share View",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/view",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Increment the view count for a shared project.\n\nCalled by the frontend once per browser session to track views.\nSeparated from the GET endpoint to avoid double-counting from\nReact StrictMode's double-mount cycle.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for view count operations\n\nReturns:\n    Success confirmation"
+        },
+        {
+          "info": {
+            "name": "Get Shared Project Layers",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get all layers for a shared project.\n\nArgs:\n    share: Validated ProjectShare from token\n    layer_service: Service for fetching layer data\n\nReturns:\n    List of layers in API format (excludes soft-deleted and\n    parcel-restricted layers)"
+        },
+        {
+          "info": {
+            "name": "Get Shared Project Enrichments",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/enrichments",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get enrichment metadata for a shared project (slim, read-only).\n\nReturns only the fields needed for column mapping (id, name, layer_id,\nis_data_source, dtype). Excludes sensitive fields like params, tool,\nand description. Enrichments on share-restricted (parcel) layers are\ndropped — the layer is hidden, so its enrichment metadata must be too.\n\nArgs:\n    share: Validated ProjectShare from token\n    enrichment_repo: Repository for fetching enrichment data\n    layer_service: Service resolving which"
+        },
+        {
+          "info": {
+            "name": "Create Shared Filter Spec",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/filters",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Share-mode twin of ``POST /filters`` — anonymous viewers create the\nFilterSpec their tile / paginated / count requests will dereference.\n\nWithout this, share-mode clients had no path to a ``filter_id``: the\nauthed ``POST /filters`` blocks on Firebase auth that share viewers don't\nhave, so polygon and column filters never synced to map tiles on shared\ndashboards. ``favoritesOnly`` is rejected up front — share mode has no\nuser identity to resolve favorites against (matches\n``_reject_favorites_in_s"
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Mvt Tile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/tiles/:z/:x/:y.pbf",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "z",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "x",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "y",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "v",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "viz",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Serve an MVT tile for a layer in a shared project (anonymous access).\n\n``filter_id`` references a server-side FilterSpec; when present, the\ntile contains only matching rows. ``viz`` is the share-mode twin of the\nauthed tile endpoint's param — it names a layer column to embed so\nclassed styling has values below the include-all zoom."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Mvt Agg Tile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/agg-tiles/:z/:x/:y.pbf",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "z",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "x",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "y",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "v",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_id",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Serve an aggregate MVT tile for a layer in a shared project.\n\n``filter_id`` — share-mode twin of the auth-side agg-tile endpoint;\ncounts only matching rows when present."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Viz Stats",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/viz-stats",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "column",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Share-mode twin of ``GET /map/{layer_id}/viz-stats``.\n\nShared views persist ``layerViz``, so anonymous viewers need the same\nwhole-layer quantile breaks that drive classed styling for the owner."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Extent",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/extent",
+            "params": [
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Bounding box of a shared layer's features (anonymous access)."
+        },
+        {
+          "info": {
+            "name": "Get Shared Feature Detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/feature/:feature_id",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "feature_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Full properties + GeoJSON geometry for a single feature in a shared layer."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Features Paginated",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/features/paginated",
+            "params": [
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Share-scoped AG Grid SSR paginated features. Mirrors the authenticated\npath in ``table_handlers.get_layer_features_paginated`` but guards with the\nshare token + verifies the layer belongs to the shared project."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Filtered Ids",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/features/filtered-ids",
+            "params": [
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "enrichmentState",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Share-scoped feature ids matching the current filter set.\n\nMirrors ``table_handlers.get_layer_filtered_ids`` but guards with the\nshare token + verifies the layer belongs to the shared project. Powers\nmap-filter sync and spatial polygon filtering on shared dashboards."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Filtered Count",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/features/filtered-count",
+            "params": [
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "enrichmentState",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Share-scoped total row count matching the current filter set.\n\nMirrors ``table_handlers.get_layer_filtered_count`` but guards with the\nshare token + verifies the layer belongs to the shared project."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Navigate",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/features/navigate",
+            "params": [
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "currentId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "wrap",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentState",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Share-scoped prev/next cursor for shared dashboards. Mirrors\n``table_handlers.navigate_layer_feature`` — single CTE per call,\ncap-free up to whatever the filtered set contains."
+        },
+        {
+          "info": {
+            "name": "Get Shared Layer Columns Metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/layers/:layer_id/columns",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "layer_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Share-scoped column metadata + aggregate stats. Mirrors\n``table_handlers.get_layer_columns_metadata`` with a share-token guard."
+        },
+        {
+          "info": {
+            "name": "Get Shared Project Views",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/views",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get all views for a shared project.\n\nPer-view state is keyed by layer id (filters, column visibility/order,\nlayer visibility), so state for share-restricted (parcel) layers is\nstripped from each view — otherwise a shared view leaks the parcel\nlayer's column keys and the user's filter values even though the layer\nis omitted from the shared layer list.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for fetching view data\n    layer_service: Service resolv"
+        },
+        {
+          "info": {
+            "name": "Get Shared Project Chats",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/share/:share_token/chats",
+            "params": [
+              {
+                "name": "share_token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get chat history for a shared project (read-only).\n\nStructured tool data IS stripped: tool-call and tool-return parts (e.g.\nquery_sql parcel rows persisted as ToolReturnParts) are removed before the\npayload reaches the anonymous share wire. Only prose is not stripped —\nassistant natural-language messages are preserved, because scanning free-form\nconversation for incidental parcel mentions would mean parsing LLM text,\nunreliable and out of this restriction's scope.\n\nArgs:\n    share: Validated Pro"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

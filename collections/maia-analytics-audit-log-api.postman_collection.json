@@ -1,0 +1,280 @@
+{
+  "item": [
+    {
+      "id": "7dd764fb-2f1e-4ff6-93da-1c95905fa78c",
+      "name": "audit-log",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "f753917c-5021-46b4-b8fc-0a390f00470e",
+          "name": "List Audit Log",
+          "request": {
+            "name": "List Audit Log",
+            "description": {
+              "content": "List admin audit log entries with optional filters.\n\nBoth from_date and to_date are inclusive. Because the client sends bare dates\n(parsed by FastAPI as midnight UTC), to_date is shifted to end-of-day so that\nentries logged any time on the selected date are included.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "audit-log",
+                ""
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "target_type",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "admin_user_id",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "target_id",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "action",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "from_date",
+                  "value": "<dateTime>"
+                },
+                {
+                  "disabled": false,
+                  "key": "to_date",
+                  "value": "<dateTime>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "c4749597-dfb8-40ba-a07c-ca4ede2e6470",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "audit-log",
+                    ""
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "target_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "admin_user_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "target_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "action",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_date",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_date",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"3f3aa1ee-9487-1439-1bcc-8c891b10761c\",\n      \"admin_user_id\": \"83489845-a40c-fa35-4dd7-11236958c71c\",\n      \"admin_email\": \"string\",\n      \"action\": \"string\",\n      \"target_type\": \"string\",\n      \"target_id\": \"b2cf710f-3553-c1d1-93d3-73507d7a4ba7\",\n      \"target_display_name\": \"string\",\n      \"before_value\": {\n        \"key_0\": false,\n        \"key_1\": 4124\n      },\n      \"after_value\": {\n        \"key_0\": \"string\"\n      },\n      \"metadata\": {\n        \"key_0\": 5187,\n        \"key_1\": 8236\n      },\n      \"created_at\": \"1961-07-29T03:40:30.383Z\"\n    },\n    {\n      \"id\": \"45665f2a-3929-5322-51d6-eea34bae1fa7\",\n      \"admin_user_id\": \"c6827414-52f5-b823-44a1-436a02f73bb3\",\n      \"admin_email\": \"string\",\n      \"action\": \"string\",\n      \"target_type\": \"string\",\n      \"target_id\": \"0122fda4-68c2-a2f0-ae97-84ebe2ef9930\",\n      \"target_display_name\": \"string\",\n      \"before_value\": {\n        \"key_0\": 4772.779395868476,\n        \"key_1\": 1660.3092670537146\n      },\n      \"after_value\": {\n        \"key_0\": 3636\n      },\n      \"metadata\": {\n        \"key_0\": 9559.521859333232\n      },\n      \"created_at\": \"2011-06-07T07:16:19.443Z\"\n    }\n  ],\n  \"total\": 2111,\n  \"limit\": 7887,\n  \"offset\": 2909\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "de5402af-a09b-4610-8c2c-6de838e9809a",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "audit-log",
+                    ""
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "target_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "admin_user_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "target_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "action",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_date",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_date",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "ac45bdce-5b15-4886-bc51-5482ecf87333",
+    "name": "MAIA Ah audit-log API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

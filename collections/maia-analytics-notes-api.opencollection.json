@@ -1,0 +1,114 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah notes API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "notes",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Feature Notes",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/notes/:project_id/:feature_id",
+            "params": [
+              {
+                "name": "feature_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all notes for a feature."
+        },
+        {
+          "info": {
+            "name": "Create Feature Note",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/notes/:project_id/:feature_id",
+            "params": [
+              {
+                "name": "feature_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new note on a feature. One note per user per feature per source."
+        },
+        {
+          "info": {
+            "name": "Update Feature Note",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/notes/:project_id/:note_id",
+            "params": [
+              {
+                "name": "note_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a note's content. Only the author can update."
+        },
+        {
+          "info": {
+            "name": "Delete Feature Note",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/notes/:project_id/:note_id",
+            "params": [
+              {
+                "name": "note_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a note. Only the author can delete their own notes."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

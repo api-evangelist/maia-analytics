@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah user-events API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "user-events",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "User Events Stream",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/users/me/events",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Subscribe to the authenticated user's live event channel via SSE.\n\nForwards messages on ``user:{user_id}:events`` to the browser via the\nper-instance ``UserEventsFanout``. Heartbeat every 15 s. The connection\ncloses when the client disconnects or the server shuts down; the FE\nreconnects with jittered backoff and re-fetches snapshot state on each\n(re)connect so a dropped event during a disconnect window is recovered\nautomatically.\n\nNo payload is required from the FE — the subscription is implicit"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

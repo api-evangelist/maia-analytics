@@ -1,0 +1,2996 @@
+{
+  "item": [
+    {
+      "id": "538657fe-0565-47a1-92c7-6534ac84fe95",
+      "name": "table",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "74b7b57b-3955-425a-8a72-6bec3baeb9f3",
+          "name": "Get Layer Features Paginated",
+          "request": {
+            "name": "Get Layer Features Paginated",
+            "description": {
+              "content": "Paginated features from the workspace sandbox for AG Grid SSR.\n\nQuery params use AG Grid's native camelCase (``startRow``, ``sortModel``,\netc.) to match the ``IServerSideGetRowsRequest`` shape.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "features",
+                "paginated"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "7ab16aae-238d-451d-bc75-29b90256cf80",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "paginated"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"rows\": [\n    {\n      \"key_0\": 7124,\n      \"key_1\": true\n    },\n    {\n      \"key_0\": true\n    }\n  ],\n  \"last_row\": 8561,\n  \"column_meta\": {\n    \"key_0\": {\n      \"type\": \"string\",\n      \"source\": \"base\",\n      \"enrichment_id\": \"string\",\n      \"sidecar_column\": \"string\",\n      \"display_name\": \"string\",\n      \"unit\": \"string\"\n    },\n    \"key_1\": {\n      \"type\": \"string\",\n      \"source\": \"enrichment\",\n      \"enrichment_id\": \"string\",\n      \"sidecar_column\": \"string\",\n      \"display_name\": \"string\",\n      \"unit\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0fb6eec8-b067-4bbd-821b-9af9b2c5160c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "paginated"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e4f4ee19-b2af-4e9c-a760-503abb008f33",
+          "name": "Get Layer Columns Metadata",
+          "request": {
+            "name": "Get Layer Columns Metadata",
+            "description": {
+              "content": "Column metadata + aggregate stats for a layer, without fetching row data.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "columns"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b145e183-6d6a-4757-90d6-4385a21912f0",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "columns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"tile_url_template\": \"string\",\n  \"total_rows\": 763,\n  \"columns\": {\n    \"key_0\": {\n      \"name\": \"string\",\n      \"pg_type\": \"string\",\n      \"type\": \"string\",\n      \"source\": \"enrichment\",\n      \"stats\": {\n        \"total_rows\": 6800,\n        \"enriched_count\": 1198,\n        \"unenriched_count\": 4181\n      },\n      \"display_name\": \"string\",\n      \"description\": \"string\",\n      \"categorical_options\": [\n        {\n          \"key_0\": 1850.8331217209627,\n          \"key_1\": 1964\n        },\n        {\n          \"key_0\": \"string\"\n        }\n      ],\n      \"enrichment\": {\n        \"enrichment_id\": \"1af0c3e5-f3af-2be6-f8e2-2d9bddd0f59d\",\n        \"dtype\": \"string\",\n        \"tool\": \"string\",\n        \"params\": {\n          \"key_0\": \"string\"\n        },\n        \"sidecar_column\": \"string\"\n      },\n      \"unit\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "10768070-35eb-475d-893b-a0f92bc94615",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "columns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ba7f0a6e-a849-4344-b7b6-49075d1bccc2",
+          "name": "Get Column Distinct Values",
+          "request": {
+            "name": "Get Column Distinct Values",
+            "description": {
+              "content": "Distinct values + counts for a column — populates AG Grid's set filter.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "columns",
+                ":column_id",
+                "values"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "search",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "500"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "column_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3f7a3f09-8a18-4bea-9a5b-3522ee1dc5c2",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "columns",
+                    ":column_id",
+                    "values"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "500"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "column_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"values\": [\n    {\n      \"value\": \"string\",\n      \"count\": 3893\n    },\n    {\n      \"value\": \"string\",\n      \"count\": 9623\n    }\n  ],\n  \"truncated\": false\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "175e4a1c-9d90-41ab-9b5b-9abcabd5a8a1",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "columns",
+                    ":column_id",
+                    "values"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "500"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "column_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1d0f04e1-153f-4e8a-9a5d-9716a7a2ab42",
+          "name": "Get Layer Filtered Ids",
+          "request": {
+            "name": "Get Layer Filtered Ids",
+            "description": {
+              "content": "Feature ids matching the current filter set, capped by ``limit``.\n\nPowers map filter sync (which features to show on the map given the\ncurrent table filters), spatial polygon filtering (draw polygon →\nfilter table to features inside it), and enrichment targeting (find\nunenriched rows for a given enrichment, capped). ``total`` reflects\nthe full match count regardless of ``limit``.\n\nHonors ``favoritesOnly`` so map-filter sync and enrichment targeting\nstay consistent with the table when the favorites toggle is on.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "features",
+                "filtered-ids"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "enrichmentState",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentName",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "100000"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "306ea2c5-5a01-4141-b5de-587026022103",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "filtered-ids"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "100000"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"ids\": [\n    \"string\",\n    \"string\"\n  ],\n  \"total\": 3356\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0c9dea31-366c-476a-8083-b4a8706da58c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "filtered-ids"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "100000"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ea278ae3-025c-41d5-8ce6-f32fb8e12cc6",
+          "name": "Get Layer Filtered Count",
+          "request": {
+            "name": "Get Layer Filtered Count",
+            "description": {
+              "content": "Total row count matching the current filter set; no ids materialized.\n\nCounterpart to ``/filtered-ids`` for callers that only need the total —\nskips the sort + id fetch. Backs the column-wide bulk-enrich confirm gate.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "features",
+                "filtered-count"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "enrichmentState",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentName",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f9015a84-e03f-4609-8be4-f28f7be9ac33",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "filtered-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"total\": 6269,\n  \"fingerprint\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9d1d3245-1d62-460d-bd2b-4e4d7384741e",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "filtered-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "24b2db12-6896-401b-9ac2-12a5274086d6",
+          "name": "Navigate Layer Feature",
+          "request": {
+            "name": "Navigate Layer Feature",
+            "description": {
+              "content": "Server-side prev/next cursor for the focused-feature panel.\n\nRuns a single CTE on the current filtered set per call — no cap on\nset size and no client-side id materialization, so navigation works\npast the old 100k boundary. ``wrap`` controls behavior at the\nendpoints (true → loop, false → ``None``).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "features",
+                "navigate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "currentId",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "wrap",
+                  "value": "true"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentState",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentName",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e732248d-6113-4d7b-bf49-7cf9d7d30a41",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "navigate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "currentId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "wrap",
+                      "value": "true"
+                    },
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"prev_id\": \"string\",\n  \"next_id\": \"string\",\n  \"position\": 2007,\n  \"total\": 7478\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7eaa4e39-4f4c-4f6f-ac80-b629e4cc185b",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features",
+                    "navigate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "currentId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "wrap",
+                      "value": "true"
+                    },
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8f6ee14c-ef12-4ea0-aa6c-ec43363c1d46",
+          "name": "Export Layer Features",
+          "request": {
+            "name": "Export Layer Features",
+            "description": {
+              "content": "Stream the filtered layer rows as CSV or XLSX.\n\nReplaces the page-scoped client-side export for SSR-backed layers.\nRow shaping mirrors ``client/src/components/Table/csvExportUtils.ts``\n— contact/tenant sub-field expansion, reasoning columns, and a\n``Favorited`` column when requested. Exceeding\n``settings.MAX_EXPORT_ROWS`` returns 413 before any byte streams.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "export"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "format",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "columns",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "includeReasoning",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "includeProvenance",
+                  "value": "<boolean>"
+                },
+                {
+                  "disabled": false,
+                  "key": "selectedContactFields",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "includeFavorites",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "653301c7-abc0-438b-8100-ab74d426f9e6",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "export"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "format",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "columns",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "includeReasoning",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "includeProvenance",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "selectedContactFields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "includeFavorites",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0ab5a670-a644-4adc-bff0-3193d37cfa5e",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "export"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "format",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "columns",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "includeReasoning",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "includeProvenance",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "selectedContactFields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "includeFavorites",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1df172ec-e9d4-4c90-af3f-70118fd59276",
+          "name": "Get Feature Detail",
+          "request": {
+            "name": "Get Feature Detail",
+            "description": {
+              "content": "Full properties + GeoJSON geometry for a single feature.\n\nPowers the feature detail panel and ``MapboxService.flyToFeature()``.\nEnrichment wrappers always include ``reasoning`` and ``citations`` when\na sidecar row exists.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "feature",
+                ":feature_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "feature_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "c58c5cf4-a8e7-44e1-b281-0afa5401f288",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "feature",
+                    ":feature_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "feature_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"properties\": {\n    \"key_0\": false,\n    \"key_1\": \"string\"\n  },\n  \"geometry\": {\n    \"key_0\": true,\n    \"key_1\": 2214.0342707414306,\n    \"key_2\": \"string\",\n    \"key_3\": \"string\"\n  },\n  \"enrichments\": {\n    \"key_0\": {\n      \"reasoning\": \"string\",\n      \"value\": \"string\",\n      \"citations\": [\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        },\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        }\n      ],\n      \"state\": \"unenriched\",\n      \"created_at\": \"2021-07-13T04:22:23.024Z\"\n    },\n    \"key_1\": {\n      \"reasoning\": \"string\",\n      \"value\": \"string\",\n      \"citations\": [\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        },\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        }\n      ],\n      \"state\": \"unenriched\",\n      \"created_at\": \"2006-10-15T06:32:17.796Z\"\n    },\n    \"key_2\": {\n      \"reasoning\": \"string\",\n      \"value\": \"string\",\n      \"citations\": [\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        },\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        }\n      ],\n      \"state\": \"unenriched\",\n      \"created_at\": \"1951-02-28T21:57:51.924Z\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a0decca3-15e1-4f0e-9365-105945d59815",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "feature",
+                    ":feature_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "feature_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8eeb4096-bd24-4338-9e55-cbf008add52e",
+          "name": "Search Layer Features",
+          "request": {
+            "name": "Search Layer Features",
+            "description": {
+              "content": "Case-insensitive substring search across feature display fields.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "fields",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "fields",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Firebase ID token for MVT authentication"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "85eb4c71-6782-4394-b018-238eb6163bff",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"results\": [\n    {\n      \"featureId\": \"string\",\n      \"matchField\": \"string\",\n      \"name\": \"string\",\n      \"owner\": \"string\",\n      \"address\": \"string\",\n      \"parcelnumb\": \"string\"\n    },\n    {\n      \"featureId\": \"string\",\n      \"matchField\": \"string\",\n      \"name\": \"string\",\n      \"owner\": \"string\",\n      \"address\": \"string\",\n      \"parcelnumb\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "898c3d86-22cc-4870-a00e-ec0bb8837112",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2a057734-07c7-4e11-bed8-a5c353338c22",
+          "name": "Add Feature To Layer",
+          "request": {
+            "name": "Add Feature To Layer",
+            "description": {
+              "content": "Add a complete GeoJSON feature to a layer.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":layer_id",
+                "features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"<string>\",\n  \"coordinates\": [],\n  \"layer_id\": \"<uuid>\",\n  \"properties\": {},\n  \"source_feature_id\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "4d48c911-f88f-49cf-90d5-8f93a58dcc50",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"<string>\",\n  \"coordinates\": [],\n  \"layer_id\": \"<uuid>\",\n  \"properties\": {},\n  \"source_feature_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"data_version\": 4388,\n  \"feature_id\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9bfd0bc4-7fda-424a-baa8-6eb2f83b3432",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":layer_id",
+                    "features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"<string>\",\n  \"coordinates\": [],\n  \"layer_id\": \"<uuid>\",\n  \"properties\": {},\n  \"source_feature_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "cd439de1-3bc8-44bf-8bdb-15296ecdc765",
+          "name": "Create Layer From Feature",
+          "request": {
+            "name": "Create Layer From Feature",
+            "description": {
+              "content": "Create a new typed layer seeded with one Overture feature.\n\nUsed when a nearby-features add targets an Overture table (building/parcel/\nplace) with no layer in the project yet. Idempotent on the feature ref.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":project_id",
+                "features",
+                "from-source"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source_table\": \"<string>\",\n  \"source_feature_id\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "1140d720-8471-4ffe-937b-49cf6197f272",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":project_id",
+                    "features",
+                    "from-source"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"source_table\": \"parcel\",\n  \"source_feature_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"layer_id\": \"b7e285ad-be33-6ab2-6829-f52a5a1e03ce\",\n  \"layer_name\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c8a987ed-006b-4325-a877-642e04af6112",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":project_id",
+                    "features",
+                    "from-source"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"source_table\": \"parcel\",\n  \"source_feature_id\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7ea1c198-81ff-495f-b78d-d9f3125ccb8b",
+          "name": "Search Feature",
+          "request": {
+            "name": "Search Feature",
+            "description": {
+              "content": "Find a feature by latitude, longitude, or address.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "table",
+                ":project_id",
+                "search",
+                ":lat",
+                ":lng"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<number>",
+                  "key": "lat",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<number>",
+                  "key": "lng",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "4a995c3b-c9f2-40b4-ac17-c4ad5d46a7c9",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":project_id",
+                    "search",
+                    ":lat",
+                    ":lng"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "lat",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "lng",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"suggestions\": [\n    {\n      \"feature\": {\n        \"id\": \"string\",\n        \"geometry\": {\n          \"key_0\": 5255.0705261938565\n        },\n        \"layer_id\": \"690e3aae-fbcc-e9e0-d757-c97c5562977a\",\n        \"base_attributes\": {\n          \"key_0\": \"string\",\n          \"key_1\": \"string\",\n          \"key_2\": true\n        },\n        \"enrichments\": {\n          \"key_0\": false,\n          \"key_1\": 1470\n        },\n        \"agent_attributes\": {\n          \"key_0\": true,\n          \"key_1\": \"string\",\n          \"key_2\": false,\n          \"key_3\": true\n        }\n      },\n      \"recommended_layer\": \"29e64915-b0f7-4746-147f-9520e56d0a06\",\n      \"source_table\": \"parcel\",\n      \"source_feature_id\": \"string\",\n      \"already_in_layer\": false\n    },\n    {\n      \"feature\": {\n        \"id\": \"string\",\n        \"geometry\": {\n          \"key_0\": \"string\",\n          \"key_1\": \"string\",\n          \"key_2\": 9821.286515367767\n        },\n        \"layer_id\": \"79928e86-6c34-331a-f6a1-bdb443299889\",\n        \"base_attributes\": {\n          \"key_0\": 528.125353250074,\n          \"key_1\": 9013,\n          \"key_2\": 3514.7573851491798\n        },\n        \"enrichments\": {\n          \"key_0\": true\n        },\n        \"agent_attributes\": {\n          \"key_0\": 4565,\n          \"key_1\": 6855.835298427829,\n          \"key_2\": 6066.131590706748\n        }\n      },\n      \"recommended_layer\": \"81dacb32-0a3c-195d-082e-b98c55171f84\",\n      \"source_table\": \"address\",\n      \"source_feature_id\": \"string\",\n      \"already_in_layer\": false\n    }\n  ],\n  \"out_of_county\": false\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dce8fa6c-93fa-4ebd-b313-2819a4b0ff8d",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "table",
+                    ":project_id",
+                    "search",
+                    ":lat",
+                    ":lng"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "lat",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "lng",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "a418efe7-53f2-4750-887a-0c36a28bf02c",
+    "name": "MAIA Ah table API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,1498 @@
+{
+  "item": [
+    {
+      "id": "8039279a-4b47-4ada-9f63-6b7890a216de",
+      "name": "dial",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "fa31a98b-fdb0-4e3a-8cd7-cf21c19661b0",
+          "name": "Start Dial",
+          "request": {
+            "name": "Start Dial",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "contacts",
+                ":contact_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "contact_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "key": "Idempotency-Key",
+                "value": "<string>",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transfer_destination_id\": \"<uuid>\",\n  \"transfer_destination_override\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "e083b06a-21c5-4c86-b35d-22bc9316f92b",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "contacts",
+                    ":contact_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "contact_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transfer_destination_id\": \"<uuid>\",\n  \"transfer_destination_override\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"b9ec8865-d489-c234-50be-5d59e7cc0453\",\n  \"workspace_id\": \"ad9168db-13a5-b7a2-3bb1-1733f8a293bd\",\n  \"project_id\": \"69915393-a432-98ca-99fd-eab1396b8c5f\",\n  \"saved_contact_id\": \"f26b0c14-9f3a-f7ad-00ab-8b4d03d64391\",\n  \"started_by\": \"2b3951cc-47c0-f891-00ce-809863b9d21a\",\n  \"campaign_id\": \"da332bf2-4fbf-2af1-0c5f-88afab05ab47\",\n  \"retell_call_id\": \"string\",\n  \"to_number\": \"string\",\n  \"transfer_destination\": \"string\",\n  \"status\": \"string\",\n  \"outcome\": \"string\",\n  \"disconnect_reason\": \"string\",\n  \"transcript\": \"string\",\n  \"recording_url\": \"string\",\n  \"started_at\": \"1966-11-23T06:09:59.527Z\",\n  \"ended_at\": \"2020-11-21T02:07:15.293Z\",\n  \"duration_seconds\": 3125,\n  \"last_event_type\": \"string\",\n  \"contact_outcome\": \"string\",\n  \"interest_topics\": [\n    \"string\",\n    \"string\"\n  ],\n  \"interest_unclear\": false,\n  \"callback_window\": \"string\",\n  \"notes_for_rep\": \"string\",\n  \"requested_dnc\": false,\n  \"disclosure_acknowledged\": false,\n  \"created_at\": \"1985-11-06T10:39:30.272Z\",\n  \"updated_at\": \"1985-06-10T10:40:28.115Z\",\n  \"saved_contact_name\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "15ace1b1-14bc-40c0-a674-623b01c3e7f7",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "contacts",
+                    ":contact_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "contact_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transfer_destination_id\": \"<uuid>\",\n  \"transfer_destination_override\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "70daac14-4198-42c6-af97-6dafb211ec67",
+          "name": "List Calls",
+          "request": {
+            "name": "List Calls",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "contacts",
+                ":contact_id",
+                "calls"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "contact_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ab125216-a32e-4f67-9624-952aebbc8519",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "contacts",
+                    ":contact_id",
+                    "calls"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "contact_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"calls\": [\n    {\n      \"id\": \"c78e7286-2281-9853-d6f8-b713030f7d70\",\n      \"workspace_id\": \"6ac6c878-ebaa-a897-5390-5ec05b288bf5\",\n      \"project_id\": \"c073f940-d0ef-214a-2be4-af684de3a478\",\n      \"saved_contact_id\": \"9466f13d-14e5-7ccc-ca73-c010e4108c8d\",\n      \"started_by\": \"05cae790-8741-661c-8923-14e8f9cbb506\",\n      \"campaign_id\": \"f217c7f6-71de-fb41-6326-69edf45ec443\",\n      \"retell_call_id\": \"string\",\n      \"to_number\": \"string\",\n      \"transfer_destination\": \"string\",\n      \"status\": \"string\",\n      \"outcome\": \"string\",\n      \"disconnect_reason\": \"string\",\n      \"transcript\": \"string\",\n      \"recording_url\": \"string\",\n      \"started_at\": \"2011-11-26T14:53:55.236Z\",\n      \"ended_at\": \"2016-11-15T23:27:24.585Z\",\n      \"duration_seconds\": 1077,\n      \"last_event_type\": \"string\",\n      \"contact_outcome\": \"string\",\n      \"interest_topics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"interest_unclear\": true,\n      \"callback_window\": \"string\",\n      \"notes_for_rep\": \"string\",\n      \"requested_dnc\": false,\n      \"disclosure_acknowledged\": true,\n      \"created_at\": \"1973-05-24T08:25:54.380Z\",\n      \"updated_at\": \"1949-05-16T12:01:02.074Z\",\n      \"saved_contact_name\": \"string\"\n    },\n    {\n      \"id\": \"9fcc7bb3-ffa1-e02a-e6cd-f83171b67714\",\n      \"workspace_id\": \"9685b53a-3a82-b1ea-9dd6-9c21ec2fbe8a\",\n      \"project_id\": \"89451c10-edd8-8592-be2f-a0346c9adfb3\",\n      \"saved_contact_id\": \"953f5c8d-9d28-b9fb-90bd-d7654e795bac\",\n      \"started_by\": \"906585aa-9193-af37-3a16-21623b8ab5ac\",\n      \"campaign_id\": \"069cda56-ff3a-6799-2a4e-5874b7548416\",\n      \"retell_call_id\": \"string\",\n      \"to_number\": \"string\",\n      \"transfer_destination\": \"string\",\n      \"status\": \"string\",\n      \"outcome\": \"string\",\n      \"disconnect_reason\": \"string\",\n      \"transcript\": \"string\",\n      \"recording_url\": \"string\",\n      \"started_at\": \"2022-07-28T22:45:47.463Z\",\n      \"ended_at\": \"1993-07-19T21:58:06.459Z\",\n      \"duration_seconds\": 7002,\n      \"last_event_type\": \"string\",\n      \"contact_outcome\": \"string\",\n      \"interest_topics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"interest_unclear\": false,\n      \"callback_window\": \"string\",\n      \"notes_for_rep\": \"string\",\n      \"requested_dnc\": true,\n      \"disclosure_acknowledged\": false,\n      \"created_at\": \"2025-08-12T16:04:04.760Z\",\n      \"updated_at\": \"1966-09-03T06:00:55.583Z\",\n      \"saved_contact_name\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1513adcf-551c-41bf-8e60-fb25e9388960",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "contacts",
+                    ":contact_id",
+                    "calls"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "contact_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2b980b3c-0a69-4133-b6ff-2b7ee0e77c81",
+          "name": "Start Campaign",
+          "request": {
+            "name": "Start Campaign",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "campaigns"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "key": "Idempotency-Key",
+                "value": "<string>",
+                "description": ""
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contact_ids\": [\n    \"<uuid>\",\n    \"<uuid>\"\n  ],\n  \"name\": \"<string>\",\n  \"transfer_destination_id\": \"<uuid>\",\n  \"transfer_destination_override\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "ad61a0c0-cc46-4e65-868b-af9dc8229a99",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contact_ids\": [\n    \"<uuid>\",\n    \"<uuid>\"\n  ],\n  \"name\": \"<string>\",\n  \"transfer_destination_id\": \"<uuid>\",\n  \"transfer_destination_override\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"cbd089aa-f25f-75b1-2ad1-450c20f06a79\",\n  \"workspace_id\": \"4ce9240e-9ea5-b618-7d76-d360b1d329c9\",\n  \"project_id\": \"c098ca4d-4219-14d1-3f3c-9ecb1c4740c8\",\n  \"started_by\": \"76ef5ca3-e10a-40be-67d5-ba5f4319da9f\",\n  \"name\": \"string\",\n  \"status\": \"string\",\n  \"contact_count\": 5276,\n  \"transfer_destination\": \"string\",\n  \"completed_at\": \"1991-02-19T14:12:38.935Z\",\n  \"created_at\": \"1981-04-21T01:08:23.153Z\",\n  \"updated_at\": \"1990-10-05T03:14:08.514Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "84fe54ba-d12f-49ad-8151-f102fd6b4ae7",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "key": "Idempotency-Key",
+                    "value": "<string>",
+                    "description": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contact_ids\": [\n    \"<uuid>\",\n    \"<uuid>\"\n  ],\n  \"name\": \"<string>\",\n  \"transfer_destination_id\": \"<uuid>\",\n  \"transfer_destination_override\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a37c7152-2581-4075-9399-a27884c0dc46",
+          "name": "List Campaigns",
+          "request": {
+            "name": "List Campaigns",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "campaigns"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "6e1d074d-a497-4deb-83e3-3378662d82bb",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"campaigns\": [\n    {\n      \"id\": \"162f6fcc-d089-a57d-20d5-9303f2ee22ba\",\n      \"workspace_id\": \"d260f8b7-6b7b-a206-e484-f918d2b6101b\",\n      \"project_id\": \"94a04776-3970-183b-e63d-0a87a2d27b2e\",\n      \"started_by\": \"8639e793-1362-c489-2dda-229b79e75f67\",\n      \"name\": \"string\",\n      \"status\": \"string\",\n      \"contact_count\": 5304,\n      \"transfer_destination\": \"string\",\n      \"completed_at\": \"1946-09-22T03:44:07.071Z\",\n      \"created_at\": \"1982-11-18T12:31:10.261Z\",\n      \"updated_at\": \"2011-09-08T04:15:08.485Z\"\n    },\n    {\n      \"id\": \"f3ad5435-1780-91f6-7f63-87937c554578\",\n      \"workspace_id\": \"ca3a2826-4545-af9b-9771-dcaddf9fc192\",\n      \"project_id\": \"4392aaff-1329-8420-c45a-2e810d351b63\",\n      \"started_by\": \"b51d96dd-4307-e3e6-8795-ef21dba1cac7\",\n      \"name\": \"string\",\n      \"status\": \"string\",\n      \"contact_count\": 7148,\n      \"transfer_destination\": \"string\",\n      \"completed_at\": \"2017-11-24T12:53:08.217Z\",\n      \"created_at\": \"1952-01-20T18:35:39.196Z\",\n      \"updated_at\": \"2011-05-23T14:50:06.021Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4a3d0b2a-30e8-4624-9526-d1653ce723c1",
+          "name": "Pause Campaign",
+          "request": {
+            "name": "Pause Campaign",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "campaigns",
+                ":campaign_id",
+                "pause"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "campaign_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "29363f25-06a8-408f-94c9-974bdbf0a7a5",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id",
+                    "pause"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"cbd089aa-f25f-75b1-2ad1-450c20f06a79\",\n  \"workspace_id\": \"4ce9240e-9ea5-b618-7d76-d360b1d329c9\",\n  \"project_id\": \"c098ca4d-4219-14d1-3f3c-9ecb1c4740c8\",\n  \"started_by\": \"76ef5ca3-e10a-40be-67d5-ba5f4319da9f\",\n  \"name\": \"string\",\n  \"status\": \"string\",\n  \"contact_count\": 5276,\n  \"transfer_destination\": \"string\",\n  \"completed_at\": \"1991-02-19T14:12:38.935Z\",\n  \"created_at\": \"1981-04-21T01:08:23.153Z\",\n  \"updated_at\": \"1990-10-05T03:14:08.514Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e5f4dc6b-1fd8-408a-8e3e-b1cc50468e2a",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id",
+                    "pause"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "969e99fa-d40d-4863-a04a-568e477e8d35",
+          "name": "Resume Campaign",
+          "request": {
+            "name": "Resume Campaign",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "campaigns",
+                ":campaign_id",
+                "resume"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "campaign_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "4543ae4d-45d8-4234-8080-e845472b2f9d",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id",
+                    "resume"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"cbd089aa-f25f-75b1-2ad1-450c20f06a79\",\n  \"workspace_id\": \"4ce9240e-9ea5-b618-7d76-d360b1d329c9\",\n  \"project_id\": \"c098ca4d-4219-14d1-3f3c-9ecb1c4740c8\",\n  \"started_by\": \"76ef5ca3-e10a-40be-67d5-ba5f4319da9f\",\n  \"name\": \"string\",\n  \"status\": \"string\",\n  \"contact_count\": 5276,\n  \"transfer_destination\": \"string\",\n  \"completed_at\": \"1991-02-19T14:12:38.935Z\",\n  \"created_at\": \"1981-04-21T01:08:23.153Z\",\n  \"updated_at\": \"1990-10-05T03:14:08.514Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c43ed8de-d97b-439d-a45a-5d2b1f870131",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id",
+                    "resume"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1612edce-a581-4efc-8281-ce94ffe95908",
+          "name": "Cancel Campaign",
+          "request": {
+            "name": "Cancel Campaign",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "campaigns",
+                ":campaign_id",
+                "cancel"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "campaign_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b30a1c57-7297-47fe-833a-c11b1c09892a",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"cbd089aa-f25f-75b1-2ad1-450c20f06a79\",\n  \"workspace_id\": \"4ce9240e-9ea5-b618-7d76-d360b1d329c9\",\n  \"project_id\": \"c098ca4d-4219-14d1-3f3c-9ecb1c4740c8\",\n  \"started_by\": \"76ef5ca3-e10a-40be-67d5-ba5f4319da9f\",\n  \"name\": \"string\",\n  \"status\": \"string\",\n  \"contact_count\": 5276,\n  \"transfer_destination\": \"string\",\n  \"completed_at\": \"1991-02-19T14:12:38.935Z\",\n  \"created_at\": \"1981-04-21T01:08:23.153Z\",\n  \"updated_at\": \"1990-10-05T03:14:08.514Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c4ea06d7-484d-473a-b0c9-91cb1225dff3",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a9fb903f-2f1e-4c29-9afb-9ee97fb624c5",
+          "name": "Get Campaign Detail",
+          "request": {
+            "name": "Get Campaign Detail",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                ":project_id",
+                "campaigns",
+                ":campaign_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "campaign_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "fd9602ad-5ec7-4c2d-94a7-c4b762d7c25b",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"campaign\": {\n    \"id\": \"c0e131d4-4a8b-33c0-737b-fd0c7f2c14cf\",\n    \"workspace_id\": \"46ec4cb7-c2d8-8b1f-0fdb-46506484b8dc\",\n    \"project_id\": \"de555edf-791a-fd35-bf73-ce3ec259e328\",\n    \"started_by\": \"f22a78ad-cd27-409e-a7c3-9dcd9255f45d\",\n    \"name\": \"string\",\n    \"status\": \"string\",\n    \"contact_count\": 397,\n    \"transfer_destination\": \"string\",\n    \"completed_at\": \"1949-12-05T18:49:12.510Z\",\n    \"created_at\": \"1979-02-20T11:28:03.528Z\",\n    \"updated_at\": \"1964-01-29T09:55:03.822Z\"\n  },\n  \"calls\": [\n    {\n      \"id\": \"ef694965-34a7-8a17-dca9-bfbeaf9ffcb4\",\n      \"workspace_id\": \"9472819d-1dec-3c59-e9d7-8c9e4c8b8dcf\",\n      \"project_id\": \"da2495ab-56e0-f6df-ff10-5d2a17e4e11c\",\n      \"saved_contact_id\": \"80061b09-c775-7f13-7056-2c8fa19c57a9\",\n      \"started_by\": \"62ed4269-7985-fafd-4208-eb36c12131c1\",\n      \"campaign_id\": \"2da82862-4fb5-dc56-b4f7-8b3691f58afc\",\n      \"retell_call_id\": \"string\",\n      \"to_number\": \"string\",\n      \"transfer_destination\": \"string\",\n      \"status\": \"string\",\n      \"outcome\": \"string\",\n      \"disconnect_reason\": \"string\",\n      \"transcript\": \"string\",\n      \"recording_url\": \"string\",\n      \"started_at\": \"2022-05-14T01:59:28.373Z\",\n      \"ended_at\": \"1990-02-19T07:05:56.061Z\",\n      \"duration_seconds\": 5845,\n      \"last_event_type\": \"string\",\n      \"contact_outcome\": \"string\",\n      \"interest_topics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"interest_unclear\": false,\n      \"callback_window\": \"string\",\n      \"notes_for_rep\": \"string\",\n      \"requested_dnc\": false,\n      \"disclosure_acknowledged\": false,\n      \"created_at\": \"2019-04-18T02:14:45.828Z\",\n      \"updated_at\": \"1969-02-23T05:19:36.541Z\",\n      \"saved_contact_name\": \"string\"\n    },\n    {\n      \"id\": \"f1f2f7d8-c8bb-899b-a556-84a4d34e2623\",\n      \"workspace_id\": \"ef1ede7d-4242-0e43-7ad7-b71b4ccbf55a\",\n      \"project_id\": \"01c3d229-d29c-52fc-a508-ebf05e41fc21\",\n      \"saved_contact_id\": \"77a4eac0-847d-d672-959c-db8c5e2737f2\",\n      \"started_by\": \"eb7250f2-5c56-f495-d4dd-125a9ee1d008\",\n      \"campaign_id\": \"522540dc-60df-24d9-1773-4db31d504df7\",\n      \"retell_call_id\": \"string\",\n      \"to_number\": \"string\",\n      \"transfer_destination\": \"string\",\n      \"status\": \"string\",\n      \"outcome\": \"string\",\n      \"disconnect_reason\": \"string\",\n      \"transcript\": \"string\",\n      \"recording_url\": \"string\",\n      \"started_at\": \"1996-10-19T09:49:07.954Z\",\n      \"ended_at\": \"1996-07-13T02:23:41.941Z\",\n      \"duration_seconds\": 6554,\n      \"last_event_type\": \"string\",\n      \"contact_outcome\": \"string\",\n      \"interest_topics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"interest_unclear\": false,\n      \"callback_window\": \"string\",\n      \"notes_for_rep\": \"string\",\n      \"requested_dnc\": true,\n      \"disclosure_acknowledged\": false,\n      \"created_at\": \"1978-01-18T15:57:34.014Z\",\n      \"updated_at\": \"1976-11-16T08:50:12.833Z\",\n      \"saved_contact_name\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1588040f-9831-4318-bae7-5c314b6df18d",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    ":project_id",
+                    "campaigns",
+                    ":campaign_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "campaign_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c5e32223-68b6-49ee-b5ca-3be3ccf72974",
+          "name": "Retell Webhook",
+          "request": {
+            "name": "Retell Webhook",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "dial",
+                "webhooks",
+                "retell",
+                ":workspace_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "workspace_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8db90333-ffac-4d1e-8a2f-baa2dd007fab",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    "webhooks",
+                    "retell",
+                    ":workspace_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "355c3ccf-3381-4a30-9b8e-bbb85bf3c9a5",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "dial",
+                    "webhooks",
+                    "retell",
+                    ":workspace_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "6814a569-102f-42db-850d-8180ec1eb234",
+    "name": "MAIA Ah dial API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,655 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah table API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "table",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Layer Features Paginated",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/features/paginated",
+            "params": [
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Paginated features from the workspace sandbox for AG Grid SSR.\n\nQuery params use AG Grid's native camelCase (``startRow``, ``sortModel``,\netc.) to match the ``IServerSideGetRowsRequest`` shape."
+        },
+        {
+          "info": {
+            "name": "Get Layer Columns Metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/columns",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Column metadata + aggregate stats for a layer, without fetching row data."
+        },
+        {
+          "info": {
+            "name": "Get Column Distinct Values",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/columns/:column_id/values",
+            "params": [
+              {
+                "name": "column_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Distinct values + counts for a column — populates AG Grid's set filter."
+        },
+        {
+          "info": {
+            "name": "Get Layer Filtered Ids",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/features/filtered-ids",
+            "params": [
+              {
+                "name": "enrichmentState",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Feature ids matching the current filter set, capped by ``limit``.\n\nPowers map filter sync (which features to show on the map given the\ncurrent table filters), spatial polygon filtering (draw polygon →\nfilter table to features inside it), and enrichment targeting (find\nunenriched rows for a given enrichment, capped). ``total`` reflects\nthe full match count regardless of ``limit``.\n\nHonors ``favoritesOnly`` so map-filter sync and enrichment targeting\nstay consistent with the table when the favorit"
+        },
+        {
+          "info": {
+            "name": "Get Layer Filtered Count",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/features/filtered-count",
+            "params": [
+              {
+                "name": "enrichmentState",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Total row count matching the current filter set; no ids materialized.\n\nCounterpart to ``/filtered-ids`` for callers that only need the total —\nskips the sort + id fetch. Backs the column-wide bulk-enrich confirm gate."
+        },
+        {
+          "info": {
+            "name": "Navigate Layer Feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/features/navigate",
+            "params": [
+              {
+                "name": "currentId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "wrap",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentState",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "enrichmentName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Server-side prev/next cursor for the focused-feature panel.\n\nRuns a single CTE on the current filtered set per call — no cap on\nset size and no client-side id materialization, so navigation works\npast the old 100k boundary. ``wrap`` controls behavior at the\nendpoints (true → loop, false → ``None``)."
+        },
+        {
+          "info": {
+            "name": "Export Layer Features",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/export",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              },
+              {
+                "name": "startRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "endRow",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sortModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterModel",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filterId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "groupKeys",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "rowGroupCols",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchText",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "geometry",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favoritesOnly",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "format",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "columns",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "includeReasoning",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "includeProvenance",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "selectedContactFields",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "includeFavorites",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Stream the filtered layer rows as CSV or XLSX.\n\nReplaces the page-scoped client-side export for SSR-backed layers.\nRow shaping mirrors ``client/src/components/Table/csvExportUtils.ts``\n— contact/tenant sub-field expansion, reasoning columns, and a\n``Favorited`` column when requested. Exceeding\n``settings.MAX_EXPORT_ROWS`` returns 413 before any byte streams."
+        },
+        {
+          "info": {
+            "name": "Get Feature Detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/feature/:feature_id",
+            "params": [
+              {
+                "name": "feature_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Full properties + GeoJSON geometry for a single feature.\n\nPowers the feature detail panel and ``MapboxService.flyToFeature()``.\nEnrichment wrappers always include ``reasoning`` and ``citations`` when\na sidecar row exists."
+        },
+        {
+          "info": {
+            "name": "Search Layer Features",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/search",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Firebase ID token for MVT authentication"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Case-insensitive substring search across feature display fields."
+        },
+        {
+          "info": {
+            "name": "Add Feature To Layer",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/table/:layer_id/features",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add a complete GeoJSON feature to a layer."
+        },
+        {
+          "info": {
+            "name": "Create Layer From Feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/table/:project_id/features/from-source",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new typed layer seeded with one Overture feature.\n\nUsed when a nearby-features add targets an Overture table (building/parcel/\nplace) with no layer in the project yet. Idempotent on the feature ref."
+        },
+        {
+          "info": {
+            "name": "Search Feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/table/:project_id/search/:lat/:lng",
+            "params": [
+              {
+                "name": "lat",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "lng",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Find a feature by latitude, longitude, or address."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

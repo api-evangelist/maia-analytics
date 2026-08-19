@@ -1,0 +1,3628 @@
+{
+  "item": [
+    {
+      "id": "199aacd0-3a86-4418-af60-00102f91583e",
+      "name": "share",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "3065905e-262c-4d44-a467-0416da0faf2e",
+          "name": "Get Shared Project",
+          "request": {
+            "name": "Get Shared Project",
+            "description": {
+              "content": "Get metadata for a shared project (read-only, no side effects).\n\nThis is the primary entry point for shared project access. Validates\nthe share token and returns project metadata. View count tracking is\nhandled separately via POST /{share_token}/view.\n\nArgs:\n    share: Validated ProjectShare from token (injected by validate_share_token)\n    share_service: ProjectShareService for fetching project data\n\nReturns:\n    Shared project metadata (subset of full project data)\n\nRaises:\n    HTTPException: 404 if project not found",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "10bbd7a1-853a-4085-b0c2-9a0f007ce4fd",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"name\": \"string\",\n  \"description\": \"string\",\n  \"default_view_id\": \"string\",\n  \"thumbnail_bounds\": {\n    \"min_lon\": 8920.553730958181,\n    \"min_lat\": 2540.276602832674,\n    \"max_lon\": 9519.557226066847,\n    \"max_lat\": 3839.578429960724\n  },\n  \"is_sandbox\": false,\n  \"created_at\": \"1953-12-29T05:20:34.852Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "92e9ce7d-a922-42c2-9554-0b7a0245f13e",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7990fba7-76fd-4162-a151-5584be457a9f",
+          "name": "Track Share View",
+          "request": {
+            "name": "Track Share View",
+            "description": {
+              "content": "Increment the view count for a shared project.\n\nCalled by the frontend once per browser session to track views.\nSeparated from the GET endpoint to avoid double-counting from\nReact StrictMode's double-mount cycle.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for view count operations\n\nReturns:\n    Success confirmation",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "view"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "71046e73-a832-43d0-b2cc-f30b858dfd81",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "view"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dee37d0b-1321-45b5-93e9-924dcdca725c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "view"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "06744cc6-5689-4edf-a10b-d0d6c493c52d",
+          "name": "Get Shared Project Layers",
+          "request": {
+            "name": "Get Shared Project Layers",
+            "description": {
+              "content": "Get all layers for a shared project.\n\nArgs:\n    share: Validated ProjectShare from token\n    layer_service: Service for fetching layer data\n\nReturns:\n    List of layers in API format (excludes soft-deleted and\n    parcel-restricted layers)",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "12a67e14-b40b-41ef-9412-47a4940b53b6",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"fa788d23-4310-bdf6-f4e7-05c07792f1e4\",\n    \"project_id\": \"f0106544-0e34-df2e-7617-f64da9d2e6fe\",\n    \"name\": \"string\",\n    \"style_config\": {\n      \"key_0\": true\n    },\n    \"feature_count\": 8448,\n    \"total_size_bytes\": 8442,\n    \"base_attributes\": {\n      \"key_0\": 7866.782579222604,\n      \"key_1\": false\n    },\n    \"created_at\": \"2022-01-07T02:07:44.696Z\",\n    \"updated_at\": \"2022-10-21T03:02:05.598Z\",\n    \"reference_layer_id\": \"3c3d7ea4-45b0-d9ba-ec04-84fb34732848\",\n    \"reference_layer_ids\": [\n      \"a9fa16ef-99ef-8bb2-9223-d09659fe9a23\",\n      \"4ba607e0-a088-781d-e91e-d884b653154a\"\n    ],\n    \"description\": \"string\",\n    \"data_version\": 0,\n    \"schema_version\": 0,\n    \"metadata_version\": 0,\n    \"feature_enrichments\": [\n      {\n        \"credits_per_row\": 5984,\n        \"is_configured\": true,\n        \"is_configuration_failed\": false,\n        \"is_data_source\": true,\n        \"id\": \"a5985445-53e4-7e73-d2f9-bd1014fbd5db\",\n        \"layer_id\": \"eeacda08-a5ad-6b31-5d2c-981940e95b19\",\n        \"name\": \"Unconfigured enrichment\",\n        \"description\": \"string\",\n        \"tool\": \"unconfigured\",\n        \"params\": {\n          \"key_0\": true,\n          \"key_1\": 420.7172288728711,\n          \"key_2\": true\n        },\n        \"dtype\": \"string\",\n        \"created_at\": \"1994-11-14T05:10:06.776Z\",\n        \"updated_at\": \"1965-10-04T11:13:04.484Z\"\n      },\n      {\n        \"credits_per_row\": 1766,\n        \"is_configured\": false,\n        \"is_configuration_failed\": true,\n        \"is_data_source\": false,\n        \"id\": \"c355bdef-d600-4867-9423-7d5c1fee4bba\",\n        \"layer_id\": \"5553745b-5b6c-c293-3d8c-7f85dd32a72c\",\n        \"name\": \"Unconfigured enrichment\",\n        \"description\": \"string\",\n        \"tool\": \"unconfigured\",\n        \"params\": {\n          \"key_0\": 4651.743849543459,\n          \"key_1\": 8008.994069808959,\n          \"key_2\": 1199.6884236586325\n        },\n        \"dtype\": \"string\",\n        \"created_at\": \"1999-11-09T03:09:36.921Z\",\n        \"updated_at\": \"1968-08-03T16:29:57.378Z\"\n      }\n    ],\n    \"sandbox_relation_name\": \"string\",\n    \"render_mode\": \"agg_at_low_zoom\",\n    \"display_kind\": \"data\",\n    \"extent_bounds\": {\n      \"min_lon\": 3163.2938142823073,\n      \"min_lat\": 9855.15473712347,\n      \"max_lon\": 8131.5346686747935,\n      \"max_lat\": 2584.735289108375\n    },\n    \"columns\": [\n      {\n        \"id\": \"string\",\n        \"key\": \"string\",\n        \"provenance\": {\n          \"kind\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_table\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_column\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        \"display_name\": \"string\",\n        \"data_type\": \"string\",\n        \"unit\": \"string\",\n        \"semantic_type\": \"identifier\",\n        \"role\": \"other\",\n        \"description\": \"string\"\n      },\n      {\n        \"id\": \"string\",\n        \"key\": \"string\",\n        \"provenance\": {\n          \"kind\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_table\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_column\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        \"display_name\": \"string\",\n        \"data_type\": \"string\",\n        \"unit\": \"string\",\n        \"semantic_type\": \"phone\",\n        \"role\": \"other\",\n        \"description\": \"string\"\n      }\n    ],\n    \"data_restricted\": false,\n    \"title_template\": [\n      \"string\",\n      \"string\"\n    ],\n    \"address_template\": [\n      \"string\",\n      \"string\"\n    ]\n  },\n  {\n    \"id\": \"c3d85ea3-a015-e2b0-bcac-35f195f84ee3\",\n    \"project_id\": \"3db85bc7-653d-38df-0a76-db116cc63019\",\n    \"name\": \"string\",\n    \"style_config\": {\n      \"key_0\": 7580.925479174719,\n      \"key_1\": 5388\n    },\n    \"feature_count\": 1180,\n    \"total_size_bytes\": 3076,\n    \"base_attributes\": {\n      \"key_0\": \"string\",\n      \"key_1\": \"string\"\n    },\n    \"created_at\": \"2024-02-21T05:26:14.398Z\",\n    \"updated_at\": \"1999-01-26T04:16:25.796Z\",\n    \"reference_layer_id\": \"590e6f6d-4013-2f1b-7545-0c6e9528a75b\",\n    \"reference_layer_ids\": [\n      \"ae93c6ff-b8f1-1af5-44cc-f84a7e9bcf08\",\n      \"429ba96b-d7a4-1b3d-0fb9-a8d331277134\"\n    ],\n    \"description\": \"string\",\n    \"data_version\": 0,\n    \"schema_version\": 0,\n    \"metadata_version\": 0,\n    \"feature_enrichments\": [\n      {\n        \"credits_per_row\": 1499,\n        \"is_configured\": true,\n        \"is_configuration_failed\": false,\n        \"is_data_source\": false,\n        \"id\": \"c86eeee6-e66b-8947-f221-03cdfcae7d1f\",\n        \"layer_id\": \"9e556ce5-c338-8868-a689-4b99f03239bd\",\n        \"name\": \"Unconfigured enrichment\",\n        \"description\": \"string\",\n        \"tool\": \"unconfigured\",\n        \"params\": {\n          \"key_0\": 9958,\n          \"key_1\": 2516,\n          \"key_2\": false,\n          \"key_3\": true\n        },\n        \"dtype\": \"string\",\n        \"created_at\": \"2012-02-23T14:44:25.263Z\",\n        \"updated_at\": \"1976-05-29T14:49:01.016Z\"\n      },\n      {\n        \"credits_per_row\": 6090,\n        \"is_configured\": false,\n        \"is_configuration_failed\": false,\n        \"is_data_source\": false,\n        \"id\": \"1276b9a5-607f-0795-51d5-bfb9f816609f\",\n        \"layer_id\": \"ad665386-13a7-c773-a150-0690c98d8b4a\",\n        \"name\": \"Unconfigured enrichment\",\n        \"description\": \"string\",\n        \"tool\": \"unconfigured\",\n        \"params\": {\n          \"key_0\": 9331,\n          \"key_1\": 174\n        },\n        \"dtype\": \"string\",\n        \"created_at\": \"1979-09-08T06:42:27.422Z\",\n        \"updated_at\": \"1962-01-24T11:04:14.703Z\"\n      }\n    ],\n    \"sandbox_relation_name\": \"string\",\n    \"render_mode\": \"agg_at_low_zoom\",\n    \"display_kind\": \"data\",\n    \"extent_bounds\": {\n      \"min_lon\": 8951.331992395271,\n      \"min_lat\": 9359.83033861349,\n      \"max_lon\": 9797.155878369407,\n      \"max_lat\": 7090.505672323307\n    },\n    \"columns\": [\n      {\n        \"id\": \"string\",\n        \"key\": \"string\",\n        \"provenance\": {\n          \"kind\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_table\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_column\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        \"display_name\": \"string\",\n        \"data_type\": \"integer\",\n        \"unit\": \"string\",\n        \"semantic_type\": \"percent\",\n        \"role\": \"other\",\n        \"description\": \"string\"\n      },\n      {\n        \"id\": \"string\",\n        \"key\": \"string\",\n        \"provenance\": {\n          \"kind\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_table\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          \"source_column\": {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        },\n        \"display_name\": \"string\",\n        \"data_type\": \"number\",\n        \"unit\": \"string\",\n        \"semantic_type\": \"zoning\",\n        \"role\": \"other\",\n        \"description\": \"string\"\n      }\n    ],\n    \"data_restricted\": false,\n    \"title_template\": [\n      \"string\",\n      \"string\"\n    ],\n    \"address_template\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3beffc71-2bde-4e30-93a8-bbab0b57c013",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "40a03b49-0e9e-4ad7-9fbd-49e1e1d74b43",
+          "name": "Get Shared Project Enrichments",
+          "request": {
+            "name": "Get Shared Project Enrichments",
+            "description": {
+              "content": "Get enrichment metadata for a shared project (slim, read-only).\n\nReturns only the fields needed for column mapping (id, name, layer_id,\nis_data_source, dtype). Excludes sensitive fields like params, tool,\nand description. Enrichments on share-restricted (parcel) layers are\ndropped — the layer is hidden, so its enrichment metadata must be too.\n\nArgs:\n    share: Validated ProjectShare from token\n    enrichment_repo: Repository for fetching enrichment data\n    layer_service: Service resolving which layers are share-restricted\n\nReturns:\n    Slim enrichment metadata for visible enrichments on non-restricted layers",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "enrichments"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "5a05a054-ccbc-4f97-894b-af5372d88459",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "enrichments"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"enrichments\": [\n    {\n      \"id\": \"99744719-3a80-ffee-1ff3-e2fbbb462734\",\n      \"name\": \"string\",\n      \"layer_id\": \"016c7c19-c4d8-f679-12f2-58f1df27e013\",\n      \"is_data_source\": false,\n      \"is_configured\": true,\n      \"is_configuration_failed\": false,\n      \"dtype\": \"\",\n      \"params\": {\n        \"key_0\": \"string\",\n        \"key_1\": 5022.45901486721,\n        \"key_2\": \"string\"\n      }\n    },\n    {\n      \"id\": \"5e29c269-1ce0-837b-69e4-a017cf2157da\",\n      \"name\": \"string\",\n      \"layer_id\": \"f9441f13-c5a1-a7fe-cf51-13ea9ba01c70\",\n      \"is_data_source\": false,\n      \"is_configured\": true,\n      \"is_configuration_failed\": false,\n      \"dtype\": \"\",\n      \"params\": {\n        \"key_0\": \"string\",\n        \"key_1\": 799\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "52fcb0a2-d1ab-4627-8d6a-d1fa9a0c5b0c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "enrichments"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "89d38a17-dccd-4e1a-9dc6-0ec936b8ec51",
+          "name": "Create Shared Filter Spec",
+          "request": {
+            "name": "Create Shared Filter Spec",
+            "description": {
+              "content": "Share-mode twin of ``POST /filters`` — anonymous viewers create the\nFilterSpec their tile / paginated / count requests will dereference.\n\nWithout this, share-mode clients had no path to a ``filter_id``: the\nauthed ``POST /filters`` blocks on Firebase auth that share viewers don't\nhave, so polygon and column filters never synced to map tiles on shared\ndashboards. ``favoritesOnly`` is rejected up front — share mode has no\nuser identity to resolve favorites against (matches\n``_reject_favorites_in_share_mode``).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "filters"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterModel\": {\n    \"key_0\": {\n      \"filterType\": \"<string>\",\n      \"operator\": \"<string>\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_1\": {\n      \"filterType\": \"<string>\",\n      \"operator\": \"<string>\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_2\": {\n      \"filterType\": \"<string>\",\n      \"operator\": \"<string>\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    }\n  },\n  \"geometry\": {\n    \"key_0\": 1070.4675231759409,\n    \"key_1\": \"string\"\n  },\n  \"searchText\": \"<string>\",\n  \"favoritesOnly\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "e344b191-652a-46ef-bf21-ed51e2535a92",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "filters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"filterModel\": {\n    \"key_0\": {\n      \"filterType\": \"date\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_1\": {\n      \"filterType\": \"text\",\n      \"operator\": \"OR\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_2\": {\n      \"filterType\": \"set\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    }\n  },\n  \"geometry\": {\n    \"key_0\": 880.4574160578671\n  },\n  \"searchText\": \"<string>\",\n  \"favoritesOnly\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"filterId\": \"320f7797-b4b5-e848-196b-614061185b5b\",\n  \"expiresAt\": \"1959-04-28T18:37:37.677Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c6d02f20-0684-4397-86b0-b61cef7cccdb",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "filters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"filterModel\": {\n    \"key_0\": {\n      \"filterType\": \"date\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_1\": {\n      \"filterType\": \"text\",\n      \"operator\": \"OR\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    },\n    \"key_2\": {\n      \"filterType\": \"set\",\n      \"operator\": \"AND\",\n      \"conditions\": [\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        },\n        {\n          \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n        }\n      ],\n      \"condition1\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      },\n      \"condition2\": {\n        \"value\": \"<Circular reference to #/components/schemas/CompoundFilter-Input detected>\"\n      }\n    }\n  },\n  \"geometry\": {\n    \"key_0\": 880.4574160578671\n  },\n  \"searchText\": \"<string>\",\n  \"favoritesOnly\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "88cd6d79-154b-45d1-b515-4e6ea87ae3d1",
+          "name": "Get Shared Layer Mvt Tile",
+          "request": {
+            "name": "Get Shared Layer Mvt Tile",
+            "description": {
+              "content": "Serve an MVT tile for a layer in a shared project (anonymous access).\n\n``filter_id`` references a server-side FilterSpec; when present, the\ntile contains only matching rows. ``viz`` is the share-mode twin of the\nauthed tile endpoint's param — it names a layer column to embed so\nclassed styling has values below the include-all zoom.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "tiles",
+                ":z",
+                ":x",
+                "{{y}}.pbf"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "v",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "key": "filter_id",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "viz",
+                  "value": "<string>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "z",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "x",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d39b7b06-6a2e-4bd5-83c0-117098c6cb39",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "tiles",
+                    ":z",
+                    ":x",
+                    "{{y}}.pbf"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "v",
+                      "value": "0"
+                    },
+                    {
+                      "key": "filter_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "viz",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "z",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "x",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e921b376-2885-4c26-881d-8df0f93dd022",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "tiles",
+                    ":z",
+                    ":x",
+                    "{{y}}.pbf"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "v",
+                      "value": "0"
+                    },
+                    {
+                      "key": "filter_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "viz",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "z",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "x",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0282da5d-ce13-4624-acdb-43eb172c88bf",
+          "name": "Get Shared Layer Mvt Agg Tile",
+          "request": {
+            "name": "Get Shared Layer Mvt Agg Tile",
+            "description": {
+              "content": "Serve an aggregate MVT tile for a layer in a shared project.\n\n``filter_id`` — share-mode twin of the auth-side agg-tile endpoint;\ncounts only matching rows when present.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "agg-tiles",
+                ":z",
+                ":x",
+                "{{y}}.pbf"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "v",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "key": "filter_id",
+                  "value": "<uuid>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "z",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "x",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "35f2e542-68da-419f-a499-61ed3905b6c9",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "agg-tiles",
+                    ":z",
+                    ":x",
+                    "{{y}}.pbf"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "v",
+                      "value": "0"
+                    },
+                    {
+                      "key": "filter_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "z",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "x",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ede66af5-724e-4c42-96bd-401827f43017",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "agg-tiles",
+                    ":z",
+                    ":x",
+                    "{{y}}.pbf"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "v",
+                      "value": "0"
+                    },
+                    {
+                      "key": "filter_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "z",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "x",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c8dcc2a0-e01a-411f-af7f-677af4502e80",
+          "name": "Get Shared Layer Viz Stats",
+          "request": {
+            "name": "Get Shared Layer Viz Stats",
+            "description": {
+              "content": "Share-mode twin of ``GET /map/{layer_id}/viz-stats``.\n\nShared views persist ``layerViz``, so anonymous viewers need the same\nwhole-layer quantile breaks that drive classed styling for the owner.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "viz-stats"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "column",
+                  "value": "<string>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "78f1e721-c090-44d3-aa9c-9280f76361ef",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "viz-stats"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "column",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"breaks\": [\n    1690.6345810133428,\n    1545.131557808711\n  ],\n  \"min\": 9204.752980359051,\n  \"max\": 6548.815084329102,\n  \"count\": 5689,\n  \"geometry_kind\": \"point\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4403badc-f47c-420b-a909-c8388c94b16e",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "viz-stats"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "column",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8fdeff89-1eff-4a95-b44e-64ba995ea912",
+          "name": "Get Shared Layer Extent",
+          "request": {
+            "name": "Get Shared Layer Extent",
+            "description": {
+              "content": "Bounding box of a shared layer's features (anonymous access).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "extent"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "1544646d-ffa0-47a2-9e0d-5075779a6610",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "extent"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "null",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1bb8426e-d5ee-4e27-be0e-4a69826baeca",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "extent"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bf1d3a82-81e0-4b81-84be-d88c236bcd27",
+          "name": "Get Shared Feature Detail",
+          "request": {
+            "name": "Get Shared Feature Detail",
+            "description": {
+              "content": "Full properties + GeoJSON geometry for a single feature in a shared layer.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "feature",
+                ":feature_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "feature_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8c303e1c-b3ad-4eb0-a6c9-1608fba605f2",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "feature",
+                    ":feature_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "feature_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"properties\": {\n    \"key_0\": 5513.496914869493,\n    \"key_1\": 9342,\n    \"key_2\": \"string\"\n  },\n  \"geometry\": {\n    \"key_0\": 3154.9525879206362,\n    \"key_1\": 248\n  },\n  \"enrichments\": {\n    \"key_0\": {\n      \"reasoning\": \"string\",\n      \"value\": \"string\",\n      \"citations\": [\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        },\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        }\n      ],\n      \"state\": \"unenriched\",\n      \"created_at\": \"1959-03-13T23:43:01.404Z\"\n    },\n    \"key_1\": {\n      \"reasoning\": \"string\",\n      \"value\": \"string\",\n      \"citations\": [\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        },\n        {\n          \"url\": \"string\",\n          \"title\": \"string\",\n          \"snippet\": \"string\",\n          \"provider\": \"string\",\n          \"source_type\": \"string\"\n        }\n      ],\n      \"state\": \"unenriched\",\n      \"created_at\": \"1949-01-07T01:45:21.112Z\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a8b28e52-93cf-440e-808a-3c1bdebf326f",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "feature",
+                    ":feature_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "feature_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f621d294-b41a-4304-99dd-9f56d2626387",
+          "name": "Get Shared Layer Features Paginated",
+          "request": {
+            "name": "Get Shared Layer Features Paginated",
+            "description": {
+              "content": "Share-scoped AG Grid SSR paginated features. Mirrors the authenticated\npath in ``table_handlers.get_layer_features_paginated`` but guards with the\nshare token + verifies the layer belongs to the shared project.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "features",
+                "paginated"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "dae3e286-8ca9-4d8f-b43f-95c2068620cd",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "paginated"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"rows\": [\n    {\n      \"key_0\": \"string\",\n      \"key_1\": 5929\n    },\n    {\n      \"key_0\": 4534.457256386914\n    }\n  ],\n  \"last_row\": 3383,\n  \"column_meta\": {\n    \"key_0\": {\n      \"type\": \"string\",\n      \"source\": \"agent\",\n      \"enrichment_id\": \"string\",\n      \"sidecar_column\": \"string\",\n      \"display_name\": \"string\",\n      \"unit\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "625dcea8-0b0e-4a23-9d09-0f739867ef54",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "paginated"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ee214b43-8387-454c-8020-c7113e203f01",
+          "name": "Get Shared Layer Filtered Ids",
+          "request": {
+            "name": "Get Shared Layer Filtered Ids",
+            "description": {
+              "content": "Share-scoped feature ids matching the current filter set.\n\nMirrors ``table_handlers.get_layer_filtered_ids`` but guards with the\nshare token + verifies the layer belongs to the shared project. Powers\nmap-filter sync and spatial polygon filtering on shared dashboards.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "features",
+                "filtered-ids"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "enrichmentState",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentName",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "100000"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "59b3b8dd-1bc3-46ce-b46f-ca2d2dc0f118",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "filtered-ids"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "100000"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"ids\": [\n    \"string\",\n    \"string\"\n  ],\n  \"total\": 7310\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1e592149-6c5c-4b40-8c31-546ebc545315",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "filtered-ids"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "100000"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "233b84f1-5f24-4cf0-b387-f69e8dfa0109",
+          "name": "Get Shared Layer Filtered Count",
+          "request": {
+            "name": "Get Shared Layer Filtered Count",
+            "description": {
+              "content": "Share-scoped total row count matching the current filter set.\n\nMirrors ``table_handlers.get_layer_filtered_count`` but guards with the\nshare token + verifies the layer belongs to the shared project.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "features",
+                "filtered-count"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "enrichmentState",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentName",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "0bdcdfed-8193-4cdb-b14f-5615aaf0d093",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "filtered-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"total\": 408,\n  \"fingerprint\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d4582dd3-fcfb-476b-86cf-14550a86f120",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "filtered-count"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1e1632c0-76b1-4276-83cf-4ad3f3967ff5",
+          "name": "Get Shared Layer Navigate",
+          "request": {
+            "name": "Get Shared Layer Navigate",
+            "description": {
+              "content": "Share-scoped prev/next cursor for shared dashboards. Mirrors\n``table_handlers.navigate_layer_feature`` — single CTE per call,\ncap-free up to whatever the filtered set contains.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "features",
+                "navigate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "currentId",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "wrap",
+                  "value": "true"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentState",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "enrichmentName",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "startRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "endRow",
+                  "value": "<integer>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sortModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterModel",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "filterId",
+                  "value": "<uuid>"
+                },
+                {
+                  "disabled": false,
+                  "key": "groupKeys",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "rowGroupCols",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "searchText",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "geometry",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "favoritesOnly",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "df920102-06cc-4cc6-939d-19c5f1a691ff",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "navigate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "currentId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "wrap",
+                      "value": "true"
+                    },
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"prev_id\": \"string\",\n  \"next_id\": \"string\",\n  \"position\": 563,\n  \"total\": 9528\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "06cdb263-1c80-4b7a-ab46-98692c96552c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "features",
+                    "navigate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "currentId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "wrap",
+                      "value": "true"
+                    },
+                    {
+                      "key": "enrichmentState",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "enrichmentName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "startRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "endRow",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sortModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterModel",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "filterId",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "groupKeys",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "rowGroupCols",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "searchText",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "geometry",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "favoritesOnly",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0c8e882f-a40c-4947-a77a-63cf4e52400f",
+          "name": "Get Shared Layer Columns Metadata",
+          "request": {
+            "name": "Get Shared Layer Columns Metadata",
+            "description": {
+              "content": "Share-scoped column metadata + aggregate stats. Mirrors\n``table_handlers.get_layer_columns_metadata`` with a share-token guard.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "layers",
+                ":layer_id",
+                "columns"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "layer_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "4e1f8c2e-a161-4168-ba06-832f8e6333af",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "columns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"tile_url_template\": \"string\",\n  \"total_rows\": 8461,\n  \"columns\": {\n    \"key_0\": {\n      \"name\": \"string\",\n      \"pg_type\": \"string\",\n      \"type\": \"string\",\n      \"source\": \"base\",\n      \"stats\": {\n        \"total_rows\": 8000,\n        \"enriched_count\": 8638,\n        \"unenriched_count\": 2273\n      },\n      \"display_name\": \"string\",\n      \"description\": \"string\",\n      \"categorical_options\": [\n        {\n          \"key_0\": 436,\n          \"key_1\": 7568.671367355615\n        },\n        {\n          \"key_0\": 7167.454816349195\n        }\n      ],\n      \"enrichment\": {\n        \"enrichment_id\": \"fe5eb758-05b9-7138-3a5f-2bfeb99bec98\",\n        \"dtype\": \"string\",\n        \"tool\": \"string\",\n        \"params\": {\n          \"key_0\": false,\n          \"key_1\": \"string\"\n        },\n        \"sidecar_column\": \"string\"\n      },\n      \"unit\": \"string\"\n    },\n    \"key_1\": {\n      \"name\": \"string\",\n      \"pg_type\": \"string\",\n      \"type\": \"string\",\n      \"source\": \"enrichment\",\n      \"stats\": {\n        \"total_rows\": 4338,\n        \"enriched_count\": 1605,\n        \"unenriched_count\": 3535\n      },\n      \"display_name\": \"string\",\n      \"description\": \"string\",\n      \"categorical_options\": [\n        {\n          \"key_0\": 7901.507225278871,\n          \"key_1\": \"string\"\n        },\n        {\n          \"key_0\": 2371,\n          \"key_1\": \"string\"\n        }\n      ],\n      \"enrichment\": {\n        \"enrichment_id\": \"fb5e2559-3069-2263-1ed7-3c7686726b03\",\n        \"dtype\": \"string\",\n        \"tool\": \"string\",\n        \"params\": {\n          \"key_0\": false,\n          \"key_1\": \"string\",\n          \"key_2\": true\n        },\n        \"sidecar_column\": \"string\"\n      },\n      \"unit\": \"string\"\n    },\n    \"key_2\": {\n      \"name\": \"string\",\n      \"pg_type\": \"string\",\n      \"type\": \"string\",\n      \"source\": \"agent\",\n      \"stats\": {\n        \"total_rows\": 231,\n        \"enriched_count\": 3832,\n        \"unenriched_count\": 532\n      },\n      \"display_name\": \"string\",\n      \"description\": \"string\",\n      \"categorical_options\": [\n        {\n          \"key_0\": 1504.3117418428697,\n          \"key_1\": 7259.23238917748,\n          \"key_2\": \"string\",\n          \"key_3\": 6912.837399351261\n        },\n        {\n          \"key_0\": true\n        }\n      ],\n      \"enrichment\": {\n        \"enrichment_id\": \"4c813b7b-0a0b-2ca2-43ad-390da65347ae\",\n        \"dtype\": \"string\",\n        \"tool\": \"string\",\n        \"params\": {\n          \"key_0\": 7317\n        },\n        \"sidecar_column\": \"string\"\n      },\n      \"unit\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5666c6f7-cfb7-45d2-a323-f62e01276246",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "layers",
+                    ":layer_id",
+                    "columns"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "layer_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9f91f8f3-9275-4e82-a836-e3a8b0d49aee",
+          "name": "Get Shared Project Views",
+          "request": {
+            "name": "Get Shared Project Views",
+            "description": {
+              "content": "Get all views for a shared project.\n\nPer-view state is keyed by layer id (filters, column visibility/order,\nlayer visibility), so state for share-restricted (parcel) layers is\nstripped from each view — otherwise a shared view leaks the parcel\nlayer's column keys and the user's filter values even though the layer\nis omitted from the shared layer list.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for fetching view data\n    layer_service: Service resolving which layers are share-restricted\n\nReturns:\n    List of views with filters converted to client display units\n\nRaises:\n    HTTPException: 404 if project not found",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "views"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ce954232-b872-4ff0-ab4c-49d7c958b46e",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "views"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"views\": [\n    {\n      \"id\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"layerFilters\": {\n        \"key_0\": {\n          \"key_0\": {\n            \"filterType\": \"number\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_1\": {\n            \"filterType\": \"number\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_2\": {\n            \"filterType\": \"boolean\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_3\": {\n            \"filterType\": \"date\",\n            \"operator\": \"AND\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          }\n        },\n        \"key_1\": {\n          \"key_0\": {\n            \"filterType\": \"text\",\n            \"operator\": \"AND\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_1\": {\n            \"filterType\": \"text\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_2\": {\n            \"filterType\": \"text\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          }\n        }\n      },\n      \"mapFilters\": {\n        \"geometries\": [\n          {\n            \"key_0\": \"string\"\n          },\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\"\n          }\n        ],\n        \"type\": \"string\"\n      },\n      \"layerColumnVisibility\": {\n        \"key_0\": {\n          \"key_0\": true\n        },\n        \"key_1\": {\n          \"key_0\": false,\n          \"key_1\": false\n        }\n      },\n      \"layerColumnOrder\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"layerColumnPinned\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"layerColumnSort\": {\n        \"key_0\": [\n          {\n            \"key_0\": \"string\"\n          },\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\",\n            \"key_2\": \"string\"\n          }\n        ],\n        \"key_1\": [\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\",\n            \"key_2\": \"string\"\n          },\n          {\n            \"key_0\": \"string\"\n          }\n        ],\n        \"key_2\": [\n          {\n            \"key_0\": \"string\"\n          },\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\",\n            \"key_2\": \"string\",\n            \"key_3\": \"string\"\n          }\n        ],\n        \"key_3\": [\n          {\n            \"key_0\": \"string\"\n          },\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\"\n          }\n        ]\n      },\n      \"layerColumnWidths\": {\n        \"key_0\": {\n          \"key_0\": 6310\n        },\n        \"key_1\": {\n          \"key_0\": 8635,\n          \"key_1\": 5968\n        }\n      },\n      \"layerGroupByColumn\": {\n        \"key_0\": \"string\"\n      },\n      \"layerVisibility\": {\n        \"key_0\": true,\n        \"key_1\": true\n      },\n      \"layerViz\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\"\n      },\n      \"basemap\": \"string\",\n      \"currentLayerId\": \"string\",\n      \"isEditable\": true,\n      \"showFavoritesOnly\": false,\n      \"version\": 0\n    },\n    {\n      \"id\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"layerFilters\": {\n        \"key_0\": {\n          \"key_0\": {\n            \"filterType\": \"text\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          }\n        },\n        \"key_1\": {\n          \"key_0\": {\n            \"filterType\": \"set\",\n            \"operator\": \"AND\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_1\": {\n            \"filterType\": \"set\",\n            \"operator\": \"AND\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          },\n          \"key_2\": {\n            \"filterType\": \"text\",\n            \"operator\": \"AND\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          }\n        },\n        \"key_2\": {\n          \"key_0\": {\n            \"filterType\": \"number\",\n            \"operator\": \"OR\",\n            \"conditions\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"condition1\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            \"condition2\": {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          }\n        }\n      },\n      \"mapFilters\": {\n        \"geometries\": [\n          {\n            \"key_0\": false,\n            \"key_1\": 1354.688204652902,\n            \"key_2\": 5358.237910631937\n          },\n          {\n            \"key_0\": false,\n            \"key_1\": \"string\"\n          }\n        ],\n        \"type\": \"string\"\n      },\n      \"layerColumnVisibility\": {\n        \"key_0\": {\n          \"key_0\": false,\n          \"key_1\": true,\n          \"key_2\": true\n        },\n        \"key_1\": {\n          \"key_0\": true,\n          \"key_1\": true\n        },\n        \"key_2\": {\n          \"key_0\": false,\n          \"key_1\": false\n        }\n      },\n      \"layerColumnOrder\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"layerColumnPinned\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_2\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"layerColumnSort\": {\n        \"key_0\": [\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\"\n          },\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\"\n          }\n        ],\n        \"key_1\": [\n          {\n            \"key_0\": \"string\",\n            \"key_1\": \"string\",\n            \"key_2\": \"string\"\n          },\n          {\n            \"key_0\": \"string\"\n          }\n        ]\n      },\n      \"layerColumnWidths\": {\n        \"key_0\": {\n          \"key_0\": 3382,\n          \"key_1\": 5510\n        }\n      },\n      \"layerGroupByColumn\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\",\n        \"key_2\": \"string\"\n      },\n      \"layerVisibility\": {\n        \"key_0\": false,\n        \"key_1\": true\n      },\n      \"layerViz\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\"\n      },\n      \"basemap\": \"string\",\n      \"currentLayerId\": \"string\",\n      \"isEditable\": false,\n      \"showFavoritesOnly\": false,\n      \"version\": 0\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "67dbca75-6fbb-49db-8e32-9b5af973b61c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "views"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d80f4f44-cbad-41b7-8c76-1831ea780ac3",
+          "name": "Get Shared Project Chats",
+          "request": {
+            "name": "Get Shared Project Chats",
+            "description": {
+              "content": "Get chat history for a shared project (read-only).\n\nStructured tool data IS stripped: tool-call and tool-return parts (e.g.\nquery_sql parcel rows persisted as ToolReturnParts) are removed before the\npayload reaches the anonymous share wire. Only prose is not stripped —\nassistant natural-language messages are preserved, because scanning free-form\nconversation for incidental parcel mentions would mean parsing LLM text,\nunreliable and out of this restriction's scope.\n\nArgs:\n    share: Validated ProjectShare from token\n    share_service: ProjectShareService for fetching chat data\n\nReturns:\n    Chat history with system instructions stripped, or None if no chat exists",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "share",
+                ":share_token",
+                "chats"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "share_token",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d066bfbd-dc0f-4b9a-ac69-132317a97244",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "chats"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"chat\": {\n    \"project_id\": \"string\",\n    \"chat_history\": [\n      {\n        \"parts\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"timestamp\": \"1973-02-13T00:38:20.885Z\",\n        \"instructions\": \"string\",\n        \"kind\": \"request\",\n        \"run_id\": \"string\",\n        \"conversation_id\": \"string\",\n        \"metadata\": {\n          \"key_0\": 8543\n        }\n      },\n      {\n        \"parts\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"timestamp\": \"1981-12-05T22:20:11.227Z\",\n        \"instructions\": \"string\",\n        \"kind\": \"request\",\n        \"run_id\": \"string\",\n        \"conversation_id\": \"string\",\n        \"metadata\": {\n          \"key_0\": false\n        }\n      }\n    ],\n    \"active_run_id\": \"string\",\n    \"last_turn_continuable\": false,\n    \"selected_model\": \"string\"\n  },\n  \"users\": {\n    \"key_0\": {\n      \"display_name\": \"string\",\n      \"avatar_color\": \"string\"\n    },\n    \"key_1\": {\n      \"display_name\": \"string\",\n      \"avatar_color\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "34083c95-91c9-4ed4-8dd7-6c219b43d3f3",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    ":share_token",
+                    "chats"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "share_token",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    },
+    {
+      "disabled": false,
+      "description": {
+        "content": "(Required) ",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "<integer>",
+      "key": "y"
+    }
+  ],
+  "info": {
+    "_postman_id": "328a44a0-f070-438e-9d51-ef34ffde76e9",
+    "name": "MAIA Ah share API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

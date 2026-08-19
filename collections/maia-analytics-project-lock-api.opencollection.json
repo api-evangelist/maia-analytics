@@ -1,0 +1,78 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah project-lock API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "project-lock",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Lock Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/lock",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get current lock status (who holds it, if anyone). Read access only."
+        },
+        {
+          "info": {
+            "name": "Acquire Lock",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/lock",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Acquire the project editing lock. Refreshes TTL if already held by caller."
+        },
+        {
+          "info": {
+            "name": "Release Lock",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/lock",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Release the project editing lock. Only the holder can release."
+        },
+        {
+          "info": {
+            "name": "Lock Heartbeat",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/lock/heartbeat",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Refresh the lock TTL. Call every ~30s while holding the lock."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

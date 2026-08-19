@@ -1,0 +1,86 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah layer API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "layer",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Project Layers",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/layer/:project_id",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all layers for a specific project.\n\nArgs:\n    project_id: The ID of the project to get layers for (validated for read access)\n    layer_service: Service for handling layer operations"
+        },
+        {
+          "info": {
+            "name": "Upload Layer",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/layer/:project_id/upload",
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Upload a CSV or GeoJSON file as a generic sandbox layer."
+        },
+        {
+          "info": {
+            "name": "Update Layer",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/layer/:layer_id",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a layer with the provided data.\n\nArgs:\n    request: Layer update request containing layer ID and fields to update\n    layer_service: Service for handling layer operations\n    enrichment_service: Service for handling enrichment operations\n\nReturns:\n    Response containing success message and updated layer\n\nRaises:\n    HTTPException: If layer not found or no fields provided for update"
+        },
+        {
+          "info": {
+            "name": "Delete Layer",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/layer/:layer_id",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Soft delete a layer.\n\nArgs:\n    request: Layer delete request containing layer ID and project ID\n    layer_service: Service for handling layer operations\n\nReturns:\n    Response containing success message\n\nRaises:\n    HTTPException: If layer not found"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

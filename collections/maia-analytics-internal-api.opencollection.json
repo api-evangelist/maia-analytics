@@ -1,0 +1,1404 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah internal API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "internal",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Audit Log",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/audit-log/",
+            "params": [
+              {
+                "name": "target_type",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "admin_user_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "target_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "action",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "from_date",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "to_date",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List admin audit log entries with optional filters.\n\nBoth from_date and to_date are inclusive. Because the client sends bare dates\n(parsed by FastAPI as midnight UTC), to_date is shifted to end-of-day so that\nentries logged any time on the selected date are included."
+        },
+        {
+          "info": {
+            "name": "List Example Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all example projects ordered by created_at."
+        },
+        {
+          "info": {
+            "name": "Search Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/search",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List created projects in the admin's workspace for mark-as-example picker."
+        },
+        {
+          "info": {
+            "name": "Search All Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/search-all",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List created projects across all workspaces for the admin duplicate-any picker."
+        },
+        {
+          "info": {
+            "name": "Mark As Example",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/mark-example",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Mark a project as an example project."
+        },
+        {
+          "info": {
+            "name": "Unmark As Example",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/unmark-example",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Unmark a project as an example (sets visibility to private)."
+        },
+        {
+          "info": {
+            "name": "Duplicate Example Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/duplicate",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deliver a curated project to a workspace.\n\nDelivery is a durable cross-Neon-branch workflow: the response carries a\n``workflow_id`` and the client tracks progress via the Recent duplications\npanel (which polls the per-row status)."
+        },
+        {
+          "info": {
+            "name": "Get Duplicate Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/duplicate/:workflow_id/status",
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Poll a cross-branch delivery workflow's terminal state."
+        },
+        {
+          "info": {
+            "name": "List Recent Duplications",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/duplications/recent",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Recent duplications (newest first) for the admin tracker panel."
+        },
+        {
+          "info": {
+            "name": "Get Project Preview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/example-projects/:project_id/preview",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get project preview with metadata and layer summary."
+        },
+        {
+          "info": {
+            "name": "List Feature Flags",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every registered feature toggle with its global default + override count."
+        },
+        {
+          "info": {
+            "name": "List Feature Overrides",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/:key/overrides",
+            "params": [
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List the workspaces that override one feature (deviate from the global\ndefault), with each workspace's current value. Internal admin only."
+        },
+        {
+          "info": {
+            "name": "Reset Feature Overrides",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/:key/overrides",
+            "params": [
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Clear every per-workspace override for one feature. Internal admin only."
+        },
+        {
+          "info": {
+            "name": "Set Global Feature Default",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/:key/default",
+            "params": [
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set the platform-wide default for one feature. Internal admin only.\n\nReturns the refreshed flag list so the client reflects the new default\nwithout a second round-trip."
+        },
+        {
+          "info": {
+            "name": "List Available Geographies",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/geographies/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return US states with parcel coverage."
+        },
+        {
+          "info": {
+            "name": "List Knowledge Entries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge",
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "owner_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List a target owner's entries for a scope (user or workspace).\n\nThe ``require_internal`` injection is redundant with the router-level gate\ntoday, but kept for symmetry with the mutating handlers so the read path\nstays admin-gated even if this router is ever re-mounted standalone."
+        },
+        {
+          "info": {
+            "name": "Create Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create an entry at the requested scope for the target owner."
+        },
+        {
+          "info": {
+            "name": "Apply Knowledge Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/apply-run",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Apply one populate-knowledge run atomically (all-or-nothing).\n\nWrites are confined to the request's workspace; every mutation carries the\nrun's provenance in its audit metadata, and a run-marker audit row advances\nthe refresh cursor. Any invalid item rolls back the whole run."
+        },
+        {
+          "info": {
+            "name": "Get Knowledge Run Cursor",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/run-cursor",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Read a workspace's populate-knowledge refresh cursor (newest run marker)."
+        },
+        {
+          "info": {
+            "name": "Update Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/:entry_id",
+            "params": [
+              {
+                "name": "entry_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace any entry's title + content (admin override)."
+        },
+        {
+          "info": {
+            "name": "Delete Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/:entry_id",
+            "params": [
+              {
+                "name": "entry_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete any entry (admin override)."
+        },
+        {
+          "info": {
+            "name": "Start Edit Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/projects/:project_id/edit-session",
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "force",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Begin an admin write-mode editing session on a user's project.\n\nAcquires the project editing lock for the admin (409 if another user holds\nit) and records one EDIT_PROJECT_AS_ADMIN audit row. With ``force=true``\nthe holder is evicted instead of 409ing and the audit metadata records the\ntakeover. The client then navigates into the project with\n``?admin_mode=write``."
+        },
+        {
+          "info": {
+            "name": "Draft System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/skills/draft",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Draft a system skill from a plain-language prompt (LLM; no persistence).\n\nPowers the admin \"Build with MAIA\" mode: the draft pre-fills the create form,\nwhich staff review and save through the audited create path. ``current_*``\nlet ``prompt`` act as revision feedback on an existing draft."
+        },
+        {
+          "info": {
+            "name": "List System Skills",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/skills",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every MAIA-curated (system) skill with its workspace-availability set."
+        },
+        {
+          "info": {
+            "name": "Create System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/skills",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a curated (system) skill, available globally or to specific\nworkspaces, optionally flagged as a new-project starter."
+        },
+        {
+          "info": {
+            "name": "List Owner Skills",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/skills/for-owner",
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "owner_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List a specific user's or workspace's own skills (admin read-only view).\n\n``scope`` must be ``user`` or ``workspace`` (system skills have no owner → 422)."
+        },
+        {
+          "info": {
+            "name": "Update System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace a curated skill's content, starter flag, and availability.\n\n``workspace_ids`` sets availability: empty makes it global, a set restricts\nit to those workspaces."
+        },
+        {
+          "info": {
+            "name": "Delete System Skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/skills/:skill_id",
+            "params": [
+              {
+                "name": "skill_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a system skill."
+        },
+        {
+          "info": {
+            "name": "Get Stats",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/stats/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return summary statistics for the admin dashboard."
+        },
+        {
+          "info": {
+            "name": "List Users",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/users/",
+            "params": [
+              {
+                "name": "search",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all users with optional search by name or email."
+        },
+        {
+          "info": {
+            "name": "Create User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/users/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new user account with Firebase Auth and DB record."
+        },
+        {
+          "info": {
+            "name": "Get User Detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get detailed user information."
+        },
+        {
+          "info": {
+            "name": "Update User",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update user profile fields."
+        },
+        {
+          "info": {
+            "name": "Move User Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id/move-workspace",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Move a user to a different workspace."
+        },
+        {
+          "info": {
+            "name": "List User Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id/projects",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all created projects owned by a user, annotated with lock status."
+        },
+        {
+          "info": {
+            "name": "Suspend User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id/suspend",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Suspend a user's account, blocking them from logging in."
+        },
+        {
+          "info": {
+            "name": "Unsuspend User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id/unsuspend",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Restore login access for a suspended user."
+        },
+        {
+          "info": {
+            "name": "Send Invite Email",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/users/:user_id/send-invite",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Send an invite email (password setup link or Google SSO invite)."
+        },
+        {
+          "info": {
+            "name": "List Workspaces",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all workspaces with member counts and credit info."
+        },
+        {
+          "info": {
+            "name": "List All Available Counties",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/available-counties",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return every coverage-supported county in GCS (workspace-agnostic).\n\nSource for the create-workspace picker, which runs before a workspace\nexists. The per-workspace `GET /{workspace_id}/available-counties` reuses\nthe same gate minus already-loaded counties."
+        },
+        {
+          "info": {
+            "name": "Provision Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/provision",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Provision a new workspace end-to-end with a Neon sandbox + counties.\n\nReplaces the legacy bare-create `POST /`. A workspace with no loaded\ncounties has zero geographic query access, so provisioning is the only\nsanctioned create path. Seeds the `workspace_counties` rows as `loading`\nand fires the `stand_up_workspace` Dagster job. Returns once the rows\nare persisted (5-15s for Neon create); county data loads asynchronously\nthereafter."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get detailed workspace information including members."
+        },
+        {
+          "info": {
+            "name": "Update Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update workspace fields."
+        },
+        {
+          "info": {
+            "name": "List Workspace Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/projects",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all created projects in a workspace, annotated with lock status."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get credit summary with per-user breakdown."
+        },
+        {
+          "info": {
+            "name": "Add Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/add",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add enrichment credits to a workspace."
+        },
+        {
+          "info": {
+            "name": "Set Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/set",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set available enrichment credits to an exact value."
+        },
+        {
+          "info": {
+            "name": "Reset Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/reset",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Reset used enrichment credits for workspace and all members."
+        },
+        {
+          "info": {
+            "name": "Suspend Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/suspend",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Suspend a workspace, blocking all members from logging in."
+        },
+        {
+          "info": {
+            "name": "Unsuspend Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/unsuspend",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Restore login access for a suspended workspace."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Credits History",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/history",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get credit change history from the audit log."
+        },
+        {
+          "info": {
+            "name": "Get Retell Config",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/retell-config",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Read the workspace's Retell config + auto-dial gate.\n\nSecrets returned masked (last 4 only). Internal admin only — workspace\nadmins do not manage Retell config themselves; MAIA staff onboard a\nworkspace by setting agent IDs/creds + flipping `auto_dial_enabled`."
+        },
+        {
+          "info": {
+            "name": "Update Retell Config",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/retell-config",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update Retell config and/or flip the auto-dial gate. Admin-only,\naudit-logged. Pass an explicit `null` to clear an override; omit a\nfield to leave it untouched."
+        },
+        {
+          "info": {
+            "name": "Get Feature Toggles",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/feature-toggles",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every governable feature toggle with its effective state, override\nflag, and inherited global default for the workspace. Internal admin only."
+        },
+        {
+          "info": {
+            "name": "Update Feature Toggle",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/feature-toggles",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set one per-workspace override. Admin-only, audit-logged.\nAn unregistered key is rejected with 422."
+        },
+        {
+          "info": {
+            "name": "Clear Feature Toggle Override",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/feature-toggles/:key",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Clear one per-workspace override so it inherits the global default.\nAdmin-only, audit-logged. An unregistered key is rejected with 422."
+        },
+        {
+          "info": {
+            "name": "List Workspace Counties",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/counties",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return per-county sandbox load state for the workspace."
+        },
+        {
+          "info": {
+            "name": "Append Workspace County",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/counties",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Insert a single pending `workspace_counties` row.\n\nThe env-matched `workspace_county_pickup_{staging,prod}` Dagster sensor\npicks the row up on its next tick (≤30s typical), registers the\npartition, launches `sandbox_load`, and the run-status callbacks stamp\ncompletion back. `workspace_counties` is the single source of truth for\nworkspace RBAC — `WorkspaceCountyRepository.get_loaded_fips` reads it\ndirectly."
+        },
+        {
+          "info": {
+            "name": "List Available Counties",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/available-counties",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return GCS-known counties not yet loaded for this workspace."
+        },
+        {
+          "info": {
+            "name": "Remove Workspace County",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/counties/:county_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "county_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Revoke RBAC access to a county and remove its tracker row.\n\nDoes NOT drop the loaded sandbox data — the partition stays in the\nworkspace's Neon branch so a re-add is idempotent (re-add still runs\nthe loader from scratch, the sandbox infra just doesn't need to be\nre-provisioned)."
+        },
+        {
+          "info": {
+            "name": "Internal Health",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/health",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Health check endpoint for internal routes.\n\nConfirms the caller is authenticated and has internal staff access."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

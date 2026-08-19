@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah geographies API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "geographies",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Available Geographies",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/geographies/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return US states with parcel coverage."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

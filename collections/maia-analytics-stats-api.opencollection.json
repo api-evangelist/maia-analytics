@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah stats API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "stats",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Stats",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/stats/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return summary statistics for the admin dashboard."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

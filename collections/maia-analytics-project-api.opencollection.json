@@ -1,0 +1,403 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah project API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "project",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get All Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/all",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all projects for the authenticated user.\n\nArgs:\n    project_service: Project service for business logic\n    user_profile: Current user's profile (for workspace role and can_edit)\n\nReturns:\n    List of projects visible to the user with can_edit computed per project"
+        },
+        {
+          "info": {
+            "name": "Create Sandbox Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/sandbox",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a single-click county sandbox project pre-loaded with the\ncounty's boundary layer.\n\nTwo-phase: this handler runs phase 1 (validate FIPS, insert PENDING\nproject row, return ``project_id``) synchronously and enqueues phase 2\n(Neon name resolve, CREATE MATERIALIZED VIEW, register boundary layer,\nflip status to READY) on the Celery `sandbox_boundary` queue. Celery is\nused instead of FastAPI ``BackgroundTasks`` so a Cloud Run instance\nrestart between response and task completion can't strand t"
+        },
+        {
+          "info": {
+            "name": "Create Sandbox Project From Feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/sandbox/from-feature",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a sandbox project from a confirmed resolved feature (address entry).\n\nThe create-flow inversion: unlike ``POST /sandbox`` (county picked first),\nthe county scope is *derived* from the matched feature before the project's\nRLS role is provisioned. Two-phase — this handler derives scope, inserts the\nPENDING project + role synchronously, and enqueues the async layer seed;\n``status`` flips to ``ready`` and the layer arrives via SSE.\n\nNo ``available_geographies`` 403: the matched feature is in-"
+        },
+        {
+          "info": {
+            "name": "Create Sandbox Project From Features",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/sandbox/from-features",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create one sandbox project from several confirmed features (paste flow).\n\nThe multi-feature twin of ``/sandbox/from-feature``: derives one shared county\nfrom every feature's marker before inserting the project, then enqueues a single\nseed for all of them. Unknown ``feature_id`` → 404; a NULL/malformed marker →\n422; features spanning more than one county → 422 (a project is scoped to one\ncounty under RLS, so the paste must be split). ``status`` flips to ``ready`` and\nthe layers arrive via SSE."
+        },
+        {
+          "info": {
+            "name": "Resolve Address",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/address/resolve",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Resolve free text to ranked, label-hydrated candidates for address entry.\n\nPre-project: bounded to ``request.county_fips`` when the caller picked a\ncounty first, otherwise across every county the caller's workspace has\nloaded (the sandbox partition is the access control either way). A read\nfailure surfaces as 503 rather than the raw error, which can carry a\nsandbox connection URI."
+        },
+        {
+          "info": {
+            "name": "Resolve Addresses Batch",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/address/resolve-many",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Resolve a pasted handful of addresses in one batch for the paste review list.\n\nOne typed outcome per input row in input order (matched / ambiguous /\nnot_in_dataset / empty_input), county-bounded like the single resolve. Candidate\nlabels for every row are hydrated in a single read, then re-split per row. A read\nfailure surfaces as 503 rather than the raw error (which can carry a sandbox URI)."
+        },
+        {
+          "info": {
+            "name": "Get Address Feature Geometry",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/address/feature-geometry",
+            "params": [
+              {
+                "name": "source_table",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "feature_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Drawable geometry + bbox for one resolved candidate, pre-project.\n\n404 covers both a malformed/unknown ``feature_id`` and a row with null\ngeometry — either way there is nothing to draw. Read failures map to 503,\nmirroring ``/address/resolve``."
+        },
+        {
+          "info": {
+            "name": "Warm County Boundary",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/sandbox/warm-county",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Pre-warm the boundary MV for a county without creating a project.\n\nCalled from the picker the moment a user soft-selects a county, so\nthe Neon roundtrip (TIGER GEOID lookup + CREATE MATERIALIZED VIEW +\nindex) overlaps with prompt composition instead of blocking the\nsubsequent project-create. Idempotent — the MV is workspace-scoped\nand deterministically named by ``county_fips``; concurrent warms are\nserialized inside ``ensure_county_boundary_mv`` by an advisory lock\nand the second caller fast-pat"
+        },
+        {
+          "info": {
+            "name": "Get Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/:project_id",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get a single project by ID.\n\nRequires read access (ownership, workspace membership, example, or admin\nview/write mode). Admin view mode forces can_edit=False; admin write mode\nforces can_edit=True. Both force is_owner=False."
+        },
+        {
+          "info": {
+            "name": "Update Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/project/:project_id",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a project's basic information (name and/or description).\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    project_data: Project update parameters containing optional name/description\n    project_service: Project service for business logic\n\nReturns:\n    Response with success status, message, and updated project data\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it\n    ValueError: If no fields to update are provided"
+        },
+        {
+          "info": {
+            "name": "Delete Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/project/:project_id",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a project.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    project_service: Project service for business logic\n\nReturns:\n    Dict with success status and message\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it"
+        },
+        {
+          "info": {
+            "name": "Set Project Default View",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/default-view",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set (or clear) the project's durable default view.\n\nThe default view is the view anonymous share-link visitors and first-time\nviewers land on when the URL carries no explicit ``?view=``. Settable by any\neditor (validated by the dependency).\n\nRaises:\n    HTTPException: 404 if project not found or the caller can't write it,\n        400 if ``view_id`` isn't one of the project's views."
+        },
+        {
+          "info": {
+            "name": "Reorder Views",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/views/reorder",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Reorder a project's views to match the supplied id order.\n\nDeclared *before* the ``/{view_id}`` PATCH route: FastAPI matches routes in\ndeclaration order, so the literal ``reorder`` segment must register first or\n``{view_id}`` would capture it (``view_id=\"reorder\"``).\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    request: The full ordered list of view ids\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and the v"
+        },
+        {
+          "info": {
+            "name": "Update View",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/views/:view_id",
+            "params": [
+              {
+                "name": "view_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a single view with partial data and atomic ownership validation.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    view_id: String ID of the view to update\n    request: Request containing the partial view update data\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and updated view data\n\nRaises:\n    HTTPException: 404 if project/view not found or user doesn't own it,\n        409 if ``expected_version`` is sta"
+        },
+        {
+          "info": {
+            "name": "Delete View",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/views/:view_id",
+            "params": [
+              {
+                "name": "view_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a view from a project.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    view_id: String ID of the view to delete\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and message\n\nRaises:\n    HTTPException: 404 if project/view not found or user doesn't own it"
+        },
+        {
+          "info": {
+            "name": "Get Views",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/views",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all views for a project.\n\nArgs:\n    project_id: UUID of the project (validated for read access - owned or example)\n    view_service: View service for business logic\n\nReturns:\n    Response containing list of views\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't have access"
+        },
+        {
+          "info": {
+            "name": "Create View",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/views",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new view for a project.\n\nArgs:\n    project_id: UUID of the project (validated to be owned by current user)\n    request: Request containing the view to create\n    view_service: View service for business logic\n\nReturns:\n    Response with success status and created view data\n\nRaises:\n    HTTPException: 404 if project not found or user doesn't own it"
+        },
+        {
+          "info": {
+            "name": "Get Project Chat",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/chats",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get the chat for a specific project.\n\nArgs:\n    project_id: The ID of the project to get chat for (validated for read access).\n    agent_service: The AgentService instance (dependency).\n    user_repo: User repository for resolving sender display names.\n    project_repo: Project repository for checking project visibility.\n    user_profile: Current user's profile for internal status check.\n\nReturns:\n    The chat history for the project, or None if no chat exists.\n\nRaises:\n    HTTPException: 400 fo"
+        },
+        {
+          "info": {
+            "name": "Get Share Info",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/share",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get share link info for a project.\n\nReturns one of three states:\n- Never shared: is_shared=False, share=None\n- Previously shared (revoked): is_shared=False, share={is_active: False, ...}\n- Currently shared: is_shared=True, share={is_active: True, ...}\n\nAlso includes workspace context (name, member count, project visibility)\nfor the share dialog. Requires write access to the project.\n\nArgs:\n    project_id: UUID of the project (validated for write access)\n    user_profile: Current user's profile ("
+        },
+        {
+          "info": {
+            "name": "Generate Share Link",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/share",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Generate a share link for a project (idempotent).\n\nIf an active share link already exists, returns it. Otherwise creates\na new one with a unique token. Requires write access to the project.\n\nArgs:\n    project_id: UUID of the project (validated for write access)\n    share_service: ProjectShareService for share link operations\n\nReturns:\n    Share link details including full URL, token, and status"
+        },
+        {
+          "info": {
+            "name": "Revoke Share Link",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/project/:project_id/share",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Revoke the active share link for a project.\n\nPermanently invalidates the current share token. Re-enabling sharing\nwill generate a new token (old links stay dead). Requires write access to the project.\n\nArgs:\n    project_id: UUID of the project (validated for write access)\n    share_service: ProjectShareService for share link operations\n\nReturns:\n    Success confirmation\n\nRaises:\n    HTTPException: 404 if no active share link exists"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

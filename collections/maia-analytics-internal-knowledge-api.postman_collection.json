@@ -1,0 +1,1051 @@
+{
+  "item": [
+    {
+      "id": "91d9dc1a-02f4-4d6a-8664-c4d108b8b987",
+      "name": "internal-knowledge",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "4887cd21-6af7-48b6-8b48-801e1c7e0c2b",
+          "name": "List Knowledge Entries",
+          "request": {
+            "name": "List Knowledge Entries",
+            "description": {
+              "content": "List a target owner's entries for a scope (user or workspace).\n\nThe ``require_internal`` injection is redundant with the router-level gate\ntoday, but kept for symmetry with the mutating handlers so the read path\nstays admin-gated even if this router is ever re-mounted standalone.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "knowledge"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "scope",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "owner_id",
+                  "value": "<uuid>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3c3efcee-ec28-44b5-8cd0-a0fdb61eec1a",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "scope",
+                      "value": "user"
+                    },
+                    {
+                      "key": "owner_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"23b17943-2d5b-cc93-7185-8904e74db61b\",\n    \"scope\": \"workspace\",\n    \"title\": \"string\",\n    \"content\": \"string\",\n    \"created_at\": \"1983-10-07T07:25:36.045Z\",\n    \"updated_at\": \"1976-06-22T01:32:28.121Z\",\n    \"is_core\": false,\n    \"user_id\": \"1303e338-c88e-4647-8b08-332934677615\",\n    \"workspace_id\": \"745743e9-17f0-dd11-62d7-768bdf952448\"\n  },\n  {\n    \"id\": \"c06d70e8-23f1-5529-8853-4c24095d899a\",\n    \"scope\": \"workspace\",\n    \"title\": \"string\",\n    \"content\": \"string\",\n    \"created_at\": \"1986-12-17T17:59:31.697Z\",\n    \"updated_at\": \"2013-07-06T09:28:46.391Z\",\n    \"is_core\": true,\n    \"user_id\": \"14bd2e8c-f9b9-f928-3b79-c2bd3fdd7892\",\n    \"workspace_id\": \"16bcc68e-04f9-98ed-3d5d-3a632433fd5b\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "128480bd-1576-429e-aa94-145c2f75b2f2",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "scope",
+                      "value": "user"
+                    },
+                    {
+                      "key": "owner_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2dbfd95a-3ec0-49c8-96e4-044cd5480b76",
+          "name": "Create Knowledge Entry",
+          "request": {
+            "name": "Create Knowledge Entry",
+            "description": {
+              "content": "Create an entry at the requested scope for the target owner.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "knowledge"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"<string>\",\n  \"owner_id\": \"<uuid>\",\n  \"title\": \"<string>\",\n  \"content\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "86c4b5c5-31aa-4381-8655-34ea40d9c311",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"scope\": \"workspace\",\n  \"owner_id\": \"<uuid>\",\n  \"title\": \"<string>\",\n  \"content\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"cc061cc8-f8d7-5a2f-f016-60e0360ecd82\",\n  \"scope\": \"workspace\",\n  \"title\": \"string\",\n  \"content\": \"string\",\n  \"created_at\": \"2017-12-07T13:31:41.091Z\",\n  \"updated_at\": \"1956-07-07T23:21:17.174Z\",\n  \"is_core\": true,\n  \"user_id\": \"120a0b21-224c-14e8-0576-8f23db137d5f\",\n  \"workspace_id\": \"f4872b29-b265-78b6-0f9a-59f0ed11886c\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "30bb50c0-2d73-4a30-99e9-7396d8bc9c69",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"scope\": \"workspace\",\n  \"owner_id\": \"<uuid>\",\n  \"title\": \"<string>\",\n  \"content\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "eef70410-60e2-4d4c-96b6-38c36aeadfdc",
+          "name": "Apply Knowledge Run",
+          "request": {
+            "name": "Apply Knowledge Run",
+            "description": {
+              "content": "Apply one populate-knowledge run atomically (all-or-nothing).\n\nWrites are confined to the request's workspace; every mutation carries the\nrun's provenance in its audit metadata, and a run-marker audit row advances\nthe refresh cursor. Any invalid item rolls back the whole run.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "knowledge",
+                "apply-run"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workspace_id\": \"<uuid>\",\n  \"provenance\": {\n    \"run_at\": \"<dateTime>\",\n    \"meetings_through\": \"<dateTime>\",\n    \"source\": \"populate-knowledge\"\n  },\n  \"creates\": [\n    {\n      \"scope\": \"<string>\",\n      \"owner_id\": \"<uuid>\",\n      \"title\": \"<string>\",\n      \"content\": \"<string>\"\n    },\n    {\n      \"scope\": \"<string>\",\n      \"owner_id\": \"<uuid>\",\n      \"title\": \"<string>\",\n      \"content\": \"<string>\"\n    }\n  ],\n  \"updates\": [\n    {\n      \"entry_id\": \"<uuid>\",\n      \"title\": \"<string>\",\n      \"content\": \"<string>\"\n    },\n    {\n      \"entry_id\": \"<uuid>\",\n      \"title\": \"<string>\",\n      \"content\": \"<string>\"\n    }\n  ],\n  \"deletes\": [\n    {\n      \"entry_id\": \"<uuid>\"\n    },\n    {\n      \"entry_id\": \"<uuid>\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "2af5af58-9203-40d7-bf7f-5c88aa3bddd1",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    "apply-run"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workspace_id\": \"<uuid>\",\n  \"provenance\": {\n    \"run_at\": \"2004-06-18T08:51:20.736Z\",\n    \"meetings_through\": \"1990-07-09T04:39:07.544Z\",\n    \"source\": \"populate-knowledge\"\n  },\n  \"creates\": [\n    {\n      \"scope\": \"user\",\n      \"owner_id\": \"36ed0963-f70d-4486-e9f0-104d2ba813df\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    },\n    {\n      \"scope\": \"workspace\",\n      \"owner_id\": \"ff06bd9a-d4fd-aa32-b434-9630600c15fa\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    }\n  ],\n  \"updates\": [\n    {\n      \"entry_id\": \"167831d8-2a47-8368-0e48-909622397e22\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    },\n    {\n      \"entry_id\": \"97a5429c-7ce4-7cca-fa8e-6cacad4c9526\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    }\n  ],\n  \"deletes\": [\n    {\n      \"entry_id\": \"c3e89484-27ae-6b08-5ec1-a3db734a8350\"\n    },\n    {\n      \"entry_id\": \"e990be69-c6f3-6c6e-d784-276d4f8bd4da\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"created\": [\n    {\n      \"id\": \"e68e64fd-b8d7-f2ba-cc04-26a84b1d850d\",\n      \"scope\": \"user\",\n      \"title\": \"string\",\n      \"content\": \"string\",\n      \"created_at\": \"1955-09-02T02:58:08.174Z\",\n      \"updated_at\": \"1983-04-09T10:02:58.854Z\",\n      \"is_core\": true,\n      \"user_id\": \"2f580331-d331-5b0c-fb3d-1b9cf042ccba\",\n      \"workspace_id\": \"18cde228-34bf-b143-48ff-e6c82c95885d\"\n    },\n    {\n      \"id\": \"9d5dced7-1151-3068-58f3-af6ed9959269\",\n      \"scope\": \"user\",\n      \"title\": \"string\",\n      \"content\": \"string\",\n      \"created_at\": \"2015-02-08T20:05:39.625Z\",\n      \"updated_at\": \"1974-02-20T05:27:24.564Z\",\n      \"is_core\": true,\n      \"user_id\": \"78867ed2-d186-9cb6-0d57-3992a455f1da\",\n      \"workspace_id\": \"686357cf-2d39-9f1e-12b3-0d3ec80527e9\"\n    }\n  ],\n  \"updated\": [\n    {\n      \"id\": \"e08bb0c1-13b4-c74d-e478-42a69d703c37\",\n      \"scope\": \"user\",\n      \"title\": \"string\",\n      \"content\": \"string\",\n      \"created_at\": \"1951-05-10T06:43:38.075Z\",\n      \"updated_at\": \"1965-04-22T01:58:26.122Z\",\n      \"is_core\": true,\n      \"user_id\": \"571eec78-3457-a1e5-fdf8-aa85db50de81\",\n      \"workspace_id\": \"26694ada-7732-4543-0cf6-62e75737d1ef\"\n    },\n    {\n      \"id\": \"8d68045b-91f6-5821-950d-88ec2159b085\",\n      \"scope\": \"user\",\n      \"title\": \"string\",\n      \"content\": \"string\",\n      \"created_at\": \"1970-05-12T00:48:44.659Z\",\n      \"updated_at\": \"1990-10-14T14:16:56.758Z\",\n      \"is_core\": true,\n      \"user_id\": \"9917fdd9-af37-c587-eefd-a8594513d3c6\",\n      \"workspace_id\": \"fa15d765-3021-049a-7551-22d039a4d377\"\n    }\n  ],\n  \"deleted_ids\": [\n    \"1469d66a-2f43-2fd9-50bd-5b9c93456a4a\",\n    \"b8baa6a2-d1b1-8a82-d5c0-72f87db655e0\"\n  ],\n  \"run_marker_id\": \"0e29b8f9-6c6c-90a2-9a12-3b61c76b149c\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "605d5a53-eba3-4d61-b38a-b9a8df82262d",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    "apply-run"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workspace_id\": \"<uuid>\",\n  \"provenance\": {\n    \"run_at\": \"2004-06-18T08:51:20.736Z\",\n    \"meetings_through\": \"1990-07-09T04:39:07.544Z\",\n    \"source\": \"populate-knowledge\"\n  },\n  \"creates\": [\n    {\n      \"scope\": \"user\",\n      \"owner_id\": \"36ed0963-f70d-4486-e9f0-104d2ba813df\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    },\n    {\n      \"scope\": \"workspace\",\n      \"owner_id\": \"ff06bd9a-d4fd-aa32-b434-9630600c15fa\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    }\n  ],\n  \"updates\": [\n    {\n      \"entry_id\": \"167831d8-2a47-8368-0e48-909622397e22\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    },\n    {\n      \"entry_id\": \"97a5429c-7ce4-7cca-fa8e-6cacad4c9526\",\n      \"title\": \"string\",\n      \"content\": \"string\"\n    }\n  ],\n  \"deletes\": [\n    {\n      \"entry_id\": \"c3e89484-27ae-6b08-5ec1-a3db734a8350\"\n    },\n    {\n      \"entry_id\": \"e990be69-c6f3-6c6e-d784-276d4f8bd4da\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "72ece0a4-e2c7-4691-8bfb-4c98a1448214",
+          "name": "Get Knowledge Run Cursor",
+          "request": {
+            "name": "Get Knowledge Run Cursor",
+            "description": {
+              "content": "Read a workspace's populate-knowledge refresh cursor (newest run marker).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "knowledge",
+                "run-cursor"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "workspace_id",
+                  "value": "<uuid>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "8f661b3c-e8e7-4002-80f5-41d1d31f5357",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    "run-cursor"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "workspace_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"meetings_through\": \"string\",\n  \"last_run_at\": \"1999-03-31T09:09:52.752Z\",\n  \"runs\": 8784\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "226ccb7c-32e2-4b74-827a-bbac109003d4",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    "run-cursor"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "workspace_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "89356218-1274-4631-ae75-eee9d37eb484",
+          "name": "Update Knowledge Entry",
+          "request": {
+            "name": "Update Knowledge Entry",
+            "description": {
+              "content": "Replace any entry's title + content (admin override).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "knowledge",
+                ":entry_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "entry_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"<string>\",\n  \"content\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "72133d7c-33de-40b1-97c5-029cb00d83a1",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    ":entry_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "entry_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"<string>\",\n  \"content\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"cc061cc8-f8d7-5a2f-f016-60e0360ecd82\",\n  \"scope\": \"workspace\",\n  \"title\": \"string\",\n  \"content\": \"string\",\n  \"created_at\": \"2017-12-07T13:31:41.091Z\",\n  \"updated_at\": \"1956-07-07T23:21:17.174Z\",\n  \"is_core\": true,\n  \"user_id\": \"120a0b21-224c-14e8-0576-8f23db137d5f\",\n  \"workspace_id\": \"f4872b29-b265-78b6-0f9a-59f0ed11886c\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "12970f35-c8ea-4a0e-a2d6-cf5a24a16482",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    ":entry_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "entry_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"<string>\",\n  \"content\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4cd6ec34-7951-4bbe-a904-d498bb63e6a4",
+          "name": "Delete Knowledge Entry",
+          "request": {
+            "name": "Delete Knowledge Entry",
+            "description": {
+              "content": "Delete any entry (admin override).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "internal",
+                "knowledge",
+                ":entry_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "entry_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "68432bce-c674-4a7d-90f3-55520f17751b",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    ":entry_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "entry_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "755edbf0-92b6-4960-9498-461b918a1b10",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "knowledge",
+                    ":entry_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "entry_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "6b50b1cf-a99f-4bb8-8098-dd9e9d2c2b7d",
+    "name": "MAIA Ah internal-knowledge API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "API for MAIA application (migrated from Firebase)",
+      "type": "text/plain"
+    }
+  }
+}

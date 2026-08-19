@@ -1,0 +1,103 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah feature-flags API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "feature-flags",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Feature Flags",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every registered feature toggle with its global default + override count."
+        },
+        {
+          "info": {
+            "name": "List Feature Overrides",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/:key/overrides",
+            "params": [
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List the workspaces that override one feature (deviate from the global\ndefault), with each workspace's current value. Internal admin only."
+        },
+        {
+          "info": {
+            "name": "Reset Feature Overrides",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/:key/overrides",
+            "params": [
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Clear every per-workspace override for one feature. Internal admin only."
+        },
+        {
+          "info": {
+            "name": "Set Global Feature Default",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/feature-flags/:key/default",
+            "params": [
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set the platform-wide default for one feature. Internal admin only.\n\nReturns the refreshed flag list so the client reflects the new default\nwithout a second round-trip."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

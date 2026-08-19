@@ -1,0 +1,153 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah internal-knowledge API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "internal-knowledge",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Knowledge Entries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge",
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "owner_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List a target owner's entries for a scope (user or workspace).\n\nThe ``require_internal`` injection is redundant with the router-level gate\ntoday, but kept for symmetry with the mutating handlers so the read path\nstays admin-gated even if this router is ever re-mounted standalone."
+        },
+        {
+          "info": {
+            "name": "Create Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create an entry at the requested scope for the target owner."
+        },
+        {
+          "info": {
+            "name": "Apply Knowledge Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/apply-run",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Apply one populate-knowledge run atomically (all-or-nothing).\n\nWrites are confined to the request's workspace; every mutation carries the\nrun's provenance in its audit metadata, and a run-marker audit row advances\nthe refresh cursor. Any invalid item rolls back the whole run."
+        },
+        {
+          "info": {
+            "name": "Get Knowledge Run Cursor",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/run-cursor",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Read a workspace's populate-knowledge refresh cursor (newest run marker)."
+        },
+        {
+          "info": {
+            "name": "Update Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/:entry_id",
+            "params": [
+              {
+                "name": "entry_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace any entry's title + content (admin override)."
+        },
+        {
+          "info": {
+            "name": "Delete Knowledge Entry",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/knowledge/:entry_id",
+            "params": [
+              {
+                "name": "entry_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete any entry (admin override)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

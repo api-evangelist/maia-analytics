@@ -1,0 +1,529 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MAIA Ah workspaces API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "workspaces",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Workspaces",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all workspaces with member counts and credit info."
+        },
+        {
+          "info": {
+            "name": "List All Available Counties",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/available-counties",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return every coverage-supported county in GCS (workspace-agnostic).\n\nSource for the create-workspace picker, which runs before a workspace\nexists. The per-workspace `GET /{workspace_id}/available-counties` reuses\nthe same gate minus already-loaded counties."
+        },
+        {
+          "info": {
+            "name": "Provision Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/provision",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Provision a new workspace end-to-end with a Neon sandbox + counties.\n\nReplaces the legacy bare-create `POST /`. A workspace with no loaded\ncounties has zero geographic query access, so provisioning is the only\nsanctioned create path. Seeds the `workspace_counties` rows as `loading`\nand fires the `stand_up_workspace` Dagster job. Returns once the rows\nare persisted (5-15s for Neon create); county data loads asynchronously\nthereafter."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get detailed workspace information including members."
+        },
+        {
+          "info": {
+            "name": "Update Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update workspace fields."
+        },
+        {
+          "info": {
+            "name": "List Workspace Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/projects",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all created projects in a workspace, annotated with lock status."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get credit summary with per-user breakdown."
+        },
+        {
+          "info": {
+            "name": "Add Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/add",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add enrichment credits to a workspace."
+        },
+        {
+          "info": {
+            "name": "Set Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/set",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set available enrichment credits to an exact value."
+        },
+        {
+          "info": {
+            "name": "Reset Workspace Credits",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/reset",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Reset used enrichment credits for workspace and all members."
+        },
+        {
+          "info": {
+            "name": "Suspend Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/suspend",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Suspend a workspace, blocking all members from logging in."
+        },
+        {
+          "info": {
+            "name": "Unsuspend Workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/unsuspend",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Restore login access for a suspended workspace."
+        },
+        {
+          "info": {
+            "name": "Get Workspace Credits History",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/credits/history",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get credit change history from the audit log."
+        },
+        {
+          "info": {
+            "name": "Get Retell Config",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/retell-config",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Read the workspace's Retell config + auto-dial gate.\n\nSecrets returned masked (last 4 only). Internal admin only — workspace\nadmins do not manage Retell config themselves; MAIA staff onboard a\nworkspace by setting agent IDs/creds + flipping `auto_dial_enabled`."
+        },
+        {
+          "info": {
+            "name": "Update Retell Config",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/retell-config",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update Retell config and/or flip the auto-dial gate. Admin-only,\naudit-logged. Pass an explicit `null` to clear an override; omit a\nfield to leave it untouched."
+        },
+        {
+          "info": {
+            "name": "Get Feature Toggles",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/feature-toggles",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every governable feature toggle with its effective state, override\nflag, and inherited global default for the workspace. Internal admin only."
+        },
+        {
+          "info": {
+            "name": "Update Feature Toggle",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/feature-toggles",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set one per-workspace override. Admin-only, audit-logged.\nAn unregistered key is rejected with 422."
+        },
+        {
+          "info": {
+            "name": "Clear Feature Toggle Override",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/feature-toggles/:key",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Clear one per-workspace override so it inherits the global default.\nAdmin-only, audit-logged. An unregistered key is rejected with 422."
+        },
+        {
+          "info": {
+            "name": "List Workspace Counties",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/counties",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return per-county sandbox load state for the workspace."
+        },
+        {
+          "info": {
+            "name": "Append Workspace County",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/counties",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Insert a single pending `workspace_counties` row.\n\nThe env-matched `workspace_county_pickup_{staging,prod}` Dagster sensor\npicks the row up on its next tick (≤30s typical), registers the\npartition, launches `sandbox_load`, and the run-status callbacks stamp\ncompletion back. `workspace_counties` is the single source of truth for\nworkspace RBAC — `WorkspaceCountyRepository.get_loaded_fips` reads it\ndirectly."
+        },
+        {
+          "info": {
+            "name": "List Available Counties",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/available-counties",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Return GCS-known counties not yet loaded for this workspace."
+        },
+        {
+          "info": {
+            "name": "Remove Workspace County",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/internal/workspaces/:workspace_id/counties/:county_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "county_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Revoke RBAC access to a county and remove its tracker row.\n\nDoes NOT drop the loaded sandbox data — the partition stays in the\nworkspace's Neon branch so a re-add is idempotent (re-add still runs\nthe loader from scratch, the sandbox infra just doesn't need to be\nre-provisioned)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
