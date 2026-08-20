@@ -69,6 +69,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Analytics
+  tags_raw:
   - analytics
   properties:
   - type: OpenAPI
@@ -83,6 +85,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Audit Log
+  tags_raw:
   - audit-log
   properties:
   - type: OpenAPI
@@ -97,6 +101,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Authentication
+  tags_raw:
   - auth
   properties:
   - type: OpenAPI
@@ -111,6 +117,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Chat
+  tags_raw:
   - chat
   properties:
   - type: OpenAPI
@@ -139,6 +147,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Enrichment
+  tags_raw:
   - enrichment
   properties:
   - type: OpenAPI
@@ -181,6 +191,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Feature Flags
+  tags_raw:
   - feature-flags
   properties:
   - type: OpenAPI
@@ -195,6 +207,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Filters
+  tags_raw:
   - filters
   properties:
   - type: OpenAPI
@@ -209,6 +223,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Geographies
+  tags_raw:
   - geographies
   properties:
   - type: OpenAPI
@@ -223,6 +239,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Internal
+  tags_raw:
   - internal
   properties:
   - type: OpenAPI
@@ -279,6 +297,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Knowledge
+  tags_raw:
   - knowledge
   properties:
   - type: OpenAPI
@@ -293,6 +313,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Layer
+  tags_raw:
   - layer
   properties:
   - type: OpenAPI
@@ -321,6 +343,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Map
+  tags_raw:
   - map
   properties:
   - type: OpenAPI
@@ -335,6 +359,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Notes
+  tags_raw:
   - notes
   properties:
   - type: OpenAPI
@@ -349,6 +375,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Project
+  tags_raw:
   - project
   properties:
   - type: OpenAPI
@@ -377,6 +405,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Query
+  tags_raw:
   - query
   properties:
   - type: OpenAPI
@@ -405,6 +435,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Share
+  tags_raw:
   - share
   properties:
   - type: OpenAPI
@@ -419,6 +451,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Skills
+  tags_raw:
   - skills
   properties:
   - type: OpenAPI
@@ -433,6 +467,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Stats
+  tags_raw:
   - stats
   properties:
   - type: OpenAPI
@@ -447,6 +483,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Table
+  tags_raw:
   - table
   properties:
   - type: OpenAPI
@@ -475,6 +513,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - User
+  tags_raw:
   - users
   properties:
   - type: OpenAPI
@@ -489,6 +529,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Workspace
+  tags_raw:
   - workspace
   properties:
   - type: OpenAPI
@@ -503,6 +545,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Workspaces
+  tags_raw:
   - workspaces
   properties:
   - type: OpenAPI
