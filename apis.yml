@@ -97,7 +97,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - audit-log
+  - Audit Log
   tags_raw:
   - audit-log
   properties:
@@ -159,7 +159,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - enrichment
+  - Enrichment
   tags_raw:
   - enrichment
   properties:
@@ -189,6 +189,8 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
+  - Favorite
+  tags_raw:
   - favorite
   properties:
   - type: OpenAPI
@@ -203,7 +205,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - feature-flags
+  - Feature Flags
   tags_raw:
   - feature-flags
   properties:
@@ -219,7 +221,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - filters
+  - Filters
   tags_raw:
   - filters
   properties:
@@ -235,7 +237,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - geographies
+  - Geographies
   tags_raw:
   - geographies
   properties:
@@ -325,7 +327,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - layer
+  - Layer
   tags_raw:
   - layer
   properties:
@@ -355,7 +357,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - map
+  - Map
   tags_raw:
   - map
   properties:
@@ -447,7 +449,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - share
+  - Share
   tags_raw:
   - share
   properties:
@@ -495,7 +497,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - table
+  - Table
   tags_raw:
   - table
   properties:
