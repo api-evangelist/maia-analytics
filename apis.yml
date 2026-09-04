@@ -26,15 +26,16 @@ deliveryModel:
   method: derived
 accessModel:
   pricing: unknown
-  onboarding: self-serve
+  onboarding: unknown
   trial: false
   try_now: false
   public: false
-  label: Self-serve signup
-  confidence: medium
+  label: Unknown
+  confidence: low
   source:
   - authentication
-  generated: '2026-07-22'
+  - security
+  generated: '2026-09-03'
   method: derived
 image: https://maia-analytics.com/MAIA-logo.svg
 x-type: company
@@ -596,8 +597,9 @@ common:
   url: https://www.maia-analytics.com/terms
 - type: Authentication
   url: authentication/maia-analytics-authentication.yml
-- type: MCPServer
+- type: X-MCPServerCandidate
   url: mcp/maia-analytics-mcp.yml
+  note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate — a tool list derived from the published API contracts, not an existing server. The scorer already read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type surfaces with a server that does not exist.'
 - type: ErrorCatalog
   url: errors/maia-analytics-problem-types.yml
 - type: DataModel
