@@ -1,16 +1,13 @@
 aid: maia-analytics
 name: Maia-analytics
-description: >-
-  MAIA Analytics is an AI-powered geospatial analysis platform that lets anyone
-  turn complex location data into actionable insights through natural-language
-  queries, with no GIS degree required. It unifies open and proprietary data to
-  reveal the built environment and supports use cases such as solar-site
-  prospecting, building and parcel analysis, redevelopment and risk screening
-  (flood zones, aging infrastructure), and location intelligence. Every answer is
-  source-linked and verifiable. Founded in 2023 and backed by Homebrew. This
-  profile was enriched from MAIA's public site and its publicly-served backend
-  OpenAPI (the application's own FastAPI backend; MAIA does not publish an
-  external developer program).
+description: MAIA Analytics is an AI-powered geospatial analysis platform that lets anyone turn complex
+  location data into actionable insights through natural-language queries, with no GIS degree required.
+  It unifies open and proprietary data to reveal the built environment and supports use cases such as
+  solar-site prospecting, building and parcel analysis, redevelopment and risk screening (flood zones,
+  aging infrastructure), and location intelligence. Every answer is source-linked and verifiable. Founded
+  in 2023 and backed by Homebrew. This profile was enriched from MAIA's public site and its publicly-served
+  backend OpenAPI (the application's own FastAPI backend; MAIA does not publish an external developer
+  program).
 url: https://raw.githubusercontent.com/api-evangelist/maia-analytics/refs/heads/main/apis.yml
 deliveryModel:
   model: saas
@@ -46,7 +43,7 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.23'
 created: '2026-07-17'
-modified: '2026-07-20'
+modified: '2026-09-16'
 x-enrichment:
   date: '2026-07-20'
   status: enriched
@@ -77,7 +74,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-analytics-api
-  name: Maia-analytics analytics API
+  name: Maia-analytics API
   description: The analytics API from Maia-analytics — 1 operation(s) for analytics.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -339,7 +336,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-maia-api-api
-  name: Maia-analytics MAIA API API
+  name: Maia-analytics MAIA API
   description: The MAIA API API from Maia-analytics — 1 operation(s) for maia api.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -599,7 +596,10 @@ common:
   url: authentication/maia-analytics-authentication.yml
 - type: X-MCPServerCandidate
   url: mcp/maia-analytics-mcp.yml
-  note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate — a tool list derived from the published API contracts, not an existing server. The scorer already read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type surfaces with a server that does not exist.'
+  note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate
+    — a tool list derived from the published API contracts, not an existing server. The scorer already
+    read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type
+    surfaces with a server that does not exist.'
 - type: ErrorCatalog
   url: errors/maia-analytics-problem-types.yml
 - type: DataModel
