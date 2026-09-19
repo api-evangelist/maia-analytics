@@ -95,7 +95,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - Audit Log
+  - Audit Logs
   tags_raw:
   - audit-log
   properties:
@@ -557,7 +557,7 @@ apis:
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - Workspaces
+  - Workspace
   tags_raw:
   - workspaces
   properties:
