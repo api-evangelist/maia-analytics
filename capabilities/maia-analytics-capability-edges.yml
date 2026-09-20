@@ -1,0 +1,48 @@
+slug: maia-analytics
+provider: Maia-analytics
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 3
+edges:
+- tag: feature-flags
+  spec_file: maia-analytics-feature-flags-api-openapi.yml
+  capability_id: BC-4210.50
+  capability_id_l1: BC-4210
+  capability_name: Feature Flag Management
+  confidence: 0.9
+  evidence: GET /api/v1/internal/feature-flags/ list_feature_flags; PATCH /api/v1/internal/feature-flags/{key}/default
+    set_global_feature_default; FeatureOverrideWorkspaceItem
+  reason: Operations list feature flags, manage per-workspace overrides and set global defaults — the
+    lifecycle and runtime control of feature flags, matching Feature Flag Management directly.
+- tag: workspaces
+  spec_file: maia-analytics-workspaces-api-openapi.yml
+  capability_id: BC-4230.10
+  capability_id_l1: BC-4230
+  capability_name: Tenant Provisioning & Lifecycle
+  confidence: 0.8
+  evidence: '''Provision Workspace'', ''Suspend Workspace'', ''Unsuspend Workspace'', schemas ''AdminWorkspaceProvisionRequest'',
+    ''FeatureTogglesResponse'', ''AdminAddCreditsRequest'''
+  reason: Internal admin API that provisions, updates, suspends and decommissions workspaces (tenants)
+    and manages their credits and feature toggles — tenant provisioning and lifecycle in a multi-tenant
+    SaaS.
+- tag: auth
+  spec_file: maia-analytics-auth-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: POST /api/v1/auth/login Local Login; POST /api/v1/auth/password-reset-email Request Password
+    Reset Email; POST /api/v1/auth/session Mint Session; PUT /api/v1/auth/profile Update User Profile
+  reason: Operations perform user authentication, session minting, sign-out, password reset and user profile
+    maintenance — identity and access management for platform users. No federation/SCIM evidence to justify
+    the tenant identity federation sub-capability, and authentication is often treated as plumbing, so
+    confidence is moderate.
