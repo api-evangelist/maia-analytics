@@ -1,0 +1,36 @@
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-09-20'
+method: searched
+source: https://www.maia-analytics.com/pricing
+sources:
+- https://www.maia-analytics.com/pricing
+provenance:
+  tool: planning/api-economics/harvest_pricing.py
+  run: 20260920T124425
+  grounding: every price_text was found verbatim in the fetched page text
+audience: business-product
+pricing_basis: tiered-subscription
+published: true
+note: Tiered plans; Team priced from $499/mo based on usage, Enterprise negotiated.
+plan_count: 3
+currency: USD
+plans:
+- name: Hobby
+  price_text: Free waitlist
+  period: none
+  included_quota: One market, One seat, Limited monthly usage
+- name: Team
+  price_text: Starting at $499/mo
+  price: 499
+  currency: USD
+  period: month
+  included_quota: Unlimited seats, Core data and agents, Live team workspaces, Reusable knowledge and
+    skills, Shareable maps and research, Dedicated Slack channel
+  overage: Pay-as-you-go overages
+- name: Enterprise
+  price_text: Talk to us
+  period: none
+  included_quota: Everything in Team, White-glove onboarding, Custom enrichment tuning, Bring your proprietary
+    data, Dedicated support, Volume pricing
+rate_limit_statements:
+- Limited monthly usage

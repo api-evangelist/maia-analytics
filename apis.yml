@@ -573,6 +573,10 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Pricing
+  url: https://www.maia-analytics.com/pricing
+- type: Plans
+  url: plans/maia-analytics-plans-pricing.yml
 - type: CapabilityMap
   url: capabilities/maia-analytics-capability-edges.yml
   name: Maia-analytics Business Capability Map
