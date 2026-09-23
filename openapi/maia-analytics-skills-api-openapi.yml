@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah skills API
+  title: MAIA Skills API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: skills
+- name: Skills
 paths:
   /api/v1/skills:
     get:
       tags:
-      - skills
+      - Skills
       summary: List Skills
       description: List the skills visible to the caller for a scope (user/workspace/system).
       operationId: list_skills_api_v1_skills_get
@@ -39,7 +39,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - skills
+      - Skills
       summary: Create Skill
       description: Create a user- or workspace-scoped skill (system scope is read-only → 403).
       operationId: create_skill_api_v1_skills_post
@@ -67,7 +67,7 @@ paths:
   /api/v1/skills/{skill_id}:
     get:
       tags:
-      - skills
+      - Skills
       summary: Get Skill
       description: Return a single skill (incl. body); 404 if not visible to the caller.
       operationId: get_skill_api_v1_skills__skill_id__get
@@ -96,7 +96,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     patch:
       tags:
-      - skills
+      - Skills
       summary: Update Skill
       description: Replace a skill's name + description + body (caller must be entitled).
       operationId: update_skill_api_v1_skills__skill_id__patch
@@ -131,7 +131,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - skills
+      - Skills
       summary: Delete Skill
       description: Delete a skill the caller is entitled to edit.
       operationId: delete_skill_api_v1_skills__skill_id__delete
@@ -156,30 +156,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SkillUpdateRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Name
-        description:
-          type: string
-          maxLength: 400
-          minLength: 1
-          title: Description
-        body:
-          type: string
-          maxLength: 32000
-          minLength: 1
-          title: Body
-      type: object
-      required:
-      - name
-      - description
-      - body
-      title: SkillUpdateRequest
-      description: Request body for replacing a skill's name + description + body.
     SkillResponse:
       properties:
         id:
@@ -233,32 +209,30 @@ components:
       - updated_at
       title: SkillResponse
       description: A skill as returned to clients (full record, including body).
-    ValidationError:
+    SkillUpdateRequest:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        name:
           type: string
-          title: Message
-        type:
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - name
+      - description
+      - body
+      title: SkillUpdateRequest
+      description: Request body for replacing a skill's name + description + body.
     SkillScope:
       type: string
       enum:
@@ -280,15 +254,6 @@ components:
         a single user, ``workspace`` skills by a workspace, ``system`` skills by
 
         neither.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     SkillCreateRequest:
       properties:
         scope:
@@ -316,6 +281,41 @@ components:
       - body
       title: SkillCreateRequest
       description: Request body for creating a user- or workspace-scoped skill.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

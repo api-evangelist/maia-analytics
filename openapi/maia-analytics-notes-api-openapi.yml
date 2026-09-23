@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah notes API
+  title: MAIA Notes API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: notes
+- name: Notes
 paths:
   /api/v1/notes/{project_id}/{feature_id}:
     get:
       tags:
-      - notes
+      - Notes
       summary: Get Feature Notes
       description: Get all notes for a feature.
       operationId: get_feature_notes_api_v1_notes__project_id___feature_id__get
@@ -42,7 +42,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - notes
+      - Notes
       summary: Create Feature Note
       description: Create a new note on a feature. One note per user per feature per source.
       operationId: create_feature_note_api_v1_notes__project_id___feature_id__post
@@ -79,7 +79,7 @@ paths:
   /api/v1/notes/{project_id}/{note_id}:
     patch:
       tags:
-      - notes
+      - Notes
       summary: Update Feature Note
       description: Update a note's content. Only the author can update.
       operationId: update_feature_note_api_v1_notes__project_id___note_id__patch
@@ -114,7 +114,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - notes
+      - Notes
       summary: Delete Feature Note
       description: Delete a note. Only the author can delete their own notes.
       operationId: delete_feature_note_api_v1_notes__project_id___note_id__delete
@@ -195,32 +195,6 @@ components:
       - updated_at
       title: FeatureNoteResponse
       description: Response schema for a feature note.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     HTTPValidationError:
       properties:
         detail:
@@ -248,6 +222,32 @@ components:
       - content
       title: FeatureNoteContentRequest
       description: Request schema for creating or updating a feature note.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah internal-knowledge API
+  title: MAIA Internal Knowledge API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
@@ -206,6 +206,17 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    KnowledgeRunDelete:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+      type: object
+      required:
+      - entry_id
+      title: KnowledgeRunDelete
+      description: Delete an existing entry.
     KnowledgeRunUpdate:
       properties:
         entry_id:
@@ -229,17 +240,6 @@ components:
       - content
       title: KnowledgeRunUpdate
       description: Replace an existing entry's title + content.
-    KnowledgeRunDelete:
-      properties:
-        entry_id:
-          type: string
-          format: uuid
-          title: Entry Id
-      type: object
-      required:
-      - entry_id
-      title: KnowledgeRunDelete
-      description: Delete an existing entry.
     KnowledgeRunCreate:
       properties:
         scope:
@@ -266,181 +266,6 @@ components:
       - content
       title: KnowledgeRunCreate
       description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    KnowledgeRunProvenance:
-      properties:
-        source:
-          type: string
-          minLength: 1
-          title: Source
-          default: populate-knowledge
-        run_at:
-          type: string
-          format: date-time
-          title: Run At
-        meetings_through:
-          type: string
-          format: date-time
-          title: Meetings Through
-      type: object
-      required:
-      - run_at
-      - meetings_through
-      title: KnowledgeRunProvenance
-      description: 'Provenance stamped into every audit row a knowledge run writes.
-
-
-        ``meetings_through`` is the refresh cursor: the latest source meeting a run
-
-        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
-
-        only newer material.'
-    AdminKnowledgeApplyRunResponse:
-      properties:
-        created:
-          items:
-            $ref: '#/components/schemas/KnowledgeEntryResponse'
-          type: array
-          title: Created
-        updated:
-          items:
-            $ref: '#/components/schemas/KnowledgeEntryResponse'
-          type: array
-          title: Updated
-        deleted_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Deleted Ids
-        run_marker_id:
-          type: string
-          format: uuid
-          title: Run Marker Id
-      type: object
-      required:
-      - created
-      - updated
-      - deleted_ids
-      - run_marker_id
-      title: AdminKnowledgeApplyRunResponse
-      description: What an applied run changed, plus the run-marker audit row's id.
-    AdminKnowledgeApplyRunRequest:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        provenance:
-          $ref: '#/components/schemas/KnowledgeRunProvenance'
-        creates:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunCreate'
-          type: array
-          title: Creates
-        updates:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunUpdate'
-          type: array
-          title: Updates
-        deletes:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunDelete'
-          type: array
-          title: Deletes
-      type: object
-      required:
-      - workspace_id
-      - provenance
-      title: AdminKnowledgeApplyRunRequest
-      description: 'One populate-knowledge run, applied atomically to a single workspace.
-
-
-        The item shapes (with title/content caps) are the domain run models; the
-
-        audit actor is the authenticated internal caller, so the payload carries no
-
-        admin id.'
-    AdminKnowledgeUpdateRequest:
-      properties:
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - title
-      - content
-      title: AdminKnowledgeUpdateRequest
-      description: Replace an entry's title + content.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AdminKnowledgeRunCursorResponse:
-      properties:
-        meetings_through:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Meetings Through
-        last_run_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Run At
-        runs:
-          type: integer
-          title: Runs
-      type: object
-      required:
-      - meetings_through
-      - last_run_at
-      - runs
-      title: AdminKnowledgeRunCursorResponse
-      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
-
-
-        ``meetings_through`` is the opaque ISO-8601 string from the newest run
-
-        marker''s metadata; ``runs`` counts all markers for the workspace.'
     AdminKnowledgeCreateRequest:
       properties:
         scope:
@@ -522,6 +347,42 @@ components:
       - is_core
       title: KnowledgeEntryResponse
       description: A titled knowledge entry as returned to clients.
+    AdminKnowledgeApplyRunRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        provenance:
+          $ref: '#/components/schemas/KnowledgeRunProvenance'
+        creates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunCreate'
+          type: array
+          title: Creates
+        updates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunUpdate'
+          type: array
+          title: Updates
+        deletes:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunDelete'
+          type: array
+          title: Deletes
+      type: object
+      required:
+      - workspace_id
+      - provenance
+      title: AdminKnowledgeApplyRunRequest
+      description: 'One populate-knowledge run, applied atomically to a single workspace.
+
+
+        The item shapes (with title/content caps) are the domain run models; the
+
+        audit actor is the authenticated internal caller, so the payload carries no
+
+        admin id.'
     KnowledgeScope:
       type: string
       enum:
@@ -538,6 +399,145 @@ components:
         agent''s existing system prompt — a separate, pre-existing mechanism that does
 
         not live in this table — so there is no ``system`` scope here.'
+    AdminKnowledgeRunCursorResponse:
+      properties:
+        meetings_through:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meetings Through
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        runs:
+          type: integer
+          title: Runs
+      type: object
+      required:
+      - meetings_through
+      - last_run_at
+      - runs
+      title: AdminKnowledgeRunCursorResponse
+      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
+
+
+        ``meetings_through`` is the opaque ISO-8601 string from the newest run
+
+        marker''s metadata; ``runs`` counts all markers for the workspace.'
+    AdminKnowledgeUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: AdminKnowledgeUpdateRequest
+      description: Replace an entry's title + content.
+    KnowledgeRunProvenance:
+      properties:
+        source:
+          type: string
+          minLength: 1
+          title: Source
+          default: populate-knowledge
+        run_at:
+          type: string
+          format: date-time
+          title: Run At
+        meetings_through:
+          type: string
+          format: date-time
+          title: Meetings Through
+      type: object
+      required:
+      - run_at
+      - meetings_through
+      title: KnowledgeRunProvenance
+      description: 'Provenance stamped into every audit row a knowledge run writes.
+
+
+        ``meetings_through`` is the refresh cursor: the latest source meeting a run
+
+        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
+
+        only newer material.'
+    AdminKnowledgeApplyRunResponse:
+      properties:
+        created:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Created
+        updated:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Updated
+        deleted_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Deleted Ids
+        run_marker_id:
+          type: string
+          format: uuid
+          title: Run Marker Id
+      type: object
+      required:
+      - created
+      - updated
+      - deleted_ids
+      - run_marker_id
+      title: AdminKnowledgeApplyRunResponse
+      description: What an applied run changed, plus the run-marker audit row's id.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah auth API
+  title: MAIA Auth API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: auth
+- name: Auth
 paths:
   /api/v1/auth/login:
     post:
       tags:
-      - auth
+      - Auth
       summary: Local Login
       description: Return a local mock token when Firebase auth is disabled.
       operationId: local_login_api_v1_auth_login_post
@@ -35,7 +35,7 @@ paths:
   /api/v1/auth/me:
     get:
       tags:
-      - auth
+      - Auth
       summary: Get Current User Info
       description: 'Returns information about the currently authenticated user.
 
@@ -56,7 +56,7 @@ paths:
   /api/v1/auth/check:
     get:
       tags:
-      - auth
+      - Auth
       summary: Check Authentication
       description: 'Checks if the user is authenticated and returns user info if they are.
 
@@ -82,7 +82,7 @@ paths:
   /api/v1/auth/user-exists:
     get:
       tags:
-      - auth
+      - Auth
       summary: Check User Exists
       description: 'Checks if a user with the given email exists in the database.
 
@@ -124,7 +124,7 @@ paths:
   /api/v1/auth/password-reset-email:
     post:
       tags:
-      - auth
+      - Auth
       summary: Request Password Reset Email
       description: 'Send a password reset email through MAIA''s branded transactional channel.
 
@@ -163,14 +163,14 @@ paths:
   /api/v1/auth/session:
     post:
       tags:
-      - auth
+      - Auth
       summary: Mint Session
       description: 'Mint an HttpOnly session cookie from the caller''s Firebase JWT.
 
 
         The client calls this whenever Firebase auth state changes. The cookie
 
-        replaces the `?token=<jwt>` query param on tile URLs (MAIA-1715) — Mapbox
+        replaces the `?token=` query param on tile URLs (MAIA-1715) — Mapbox
 
         caches URLs but always picks up cookies fresh from the jar, so the
 
@@ -190,7 +190,7 @@ paths:
   /api/v1/auth/sign-out:
     post:
       tags:
-      - auth
+      - Auth
       summary: Sign Out
       description: 'Clear the MAIA session cookie. Unauthenticated — clients should be able
 
@@ -208,7 +208,7 @@ paths:
   /api/v1/auth/profile:
     put:
       tags:
-      - auth
+      - Auth
       summary: Update User Profile
       description: 'Update the current user''s profile information.
 
@@ -237,6 +237,44 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
+    PasswordResetEmailRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+      type: object
+      required:
+      - email
+      title: PasswordResetEmailRequest
+      description: Request model for sending a password reset email.
+    Plan:
+      properties:
+        type:
+          $ref: '#/components/schemas/PlanType'
+        max_features_per_layer:
+          type: integer
+          title: Max Features Per Layer
+        max_layers_per_project:
+          type: integer
+          title: Max Layers Per Project
+        default_enrichment_credits:
+          type: integer
+          title: Default Enrichment Credits
+      type: object
+      required:
+      - type
+      - max_features_per_layer
+      - max_layers_per_project
+      - default_enrichment_credits
+      title: Plan
+      description: Plan configuration including type and limits.
+    PlanType:
+      type: string
+      enum:
+      - beta
+      title: PlanType
+      description: Available user plan types with different feature restrictions.
     WorkspaceRole:
       type: string
       enum:
@@ -267,66 +305,6 @@ components:
       - user_id
       title: LocalTokenResponse
       description: Response model for AUTH_DISABLED local mock login.
-    UserExistsResponse:
-      properties:
-        exists:
-          type: boolean
-          title: Exists
-        has_password:
-          type: boolean
-          title: Has Password
-      type: object
-      required:
-      - exists
-      - has_password
-      title: UserExistsResponse
-      description: Response model for checking if a user exists.
-    UserProfileUpdateResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - success
-      - message
-      title: UserProfileUpdateResponse
-      description: Response model for user profile update.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    PlanType:
-      type: string
-      enum:
-      - beta
-      title: PlanType
-      description: Available user plan types with different feature restrictions.
     UserProfile:
       properties:
         id:
@@ -468,32 +446,6 @@ components:
         This represents a user stored in the database with enrichment credits,
 
         distinct from the Firebase User model used for authentication.'
-    PasswordResetEmailRequest:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-      type: object
-      required:
-      - email
-      title: PasswordResetEmailRequest
-      description: Request model for sending a password reset email.
-    LocalLoginRequest:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-        password:
-          type: string
-          title: Password
-      type: object
-      required:
-      - email
-      - password
-      title: LocalLoginRequest
-      description: Request model for AUTH_DISABLED local mock login.
     UserProfileUpdateRequest:
       properties:
         display_name:
@@ -528,6 +480,34 @@ components:
       type: object
       title: UserProfileUpdateRequest
       description: Request model for updating user profile information.
+    UserProfileUpdateResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: UserProfileUpdateResponse
+      description: Response model for user profile update.
+    UserExistsResponse:
+      properties:
+        exists:
+          type: boolean
+          title: Exists
+        has_password:
+          type: boolean
+          title: Has Password
+      type: object
+      required:
+      - exists
+      - has_password
+      title: UserExistsResponse
+      description: Response model for checking if a user exists.
     HTTPValidationError:
       properties:
         detail:
@@ -537,27 +517,47 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    Plan:
+    LocalLoginRequest:
       properties:
-        type:
-          $ref: '#/components/schemas/PlanType'
-        max_features_per_layer:
-          type: integer
-          title: Max Features Per Layer
-        max_layers_per_project:
-          type: integer
-          title: Max Layers Per Project
-        default_enrichment_credits:
-          type: integer
-          title: Default Enrichment Credits
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          title: Password
       type: object
       required:
+      - email
+      - password
+      title: LocalLoginRequest
+      description: Request model for AUTH_DISABLED local mock login.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
       - type
-      - max_features_per_layer
-      - max_layers_per_project
-      - default_enrichment_credits
-      title: Plan
-      description: Plan configuration including type and limits.
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

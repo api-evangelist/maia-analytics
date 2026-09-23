@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah workspace API
+  title: MAIA Workspace API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: workspace
+- name: Workspace
 paths:
   /api/v1/workspace:
     get:
       tags:
-      - workspace
+      - Workspace
       summary: Get Workspace
       description: Get current user's workspace details including credits and member count.
       operationId: get_workspace_api_v1_workspace_get
@@ -24,7 +24,7 @@ paths:
       - FirebaseAuthMiddleware: []
     patch:
       tags:
-      - workspace
+      - Workspace
       summary: Update Workspace
       description: 'Update workspace settings. Requires workspace admin for the name field.
 
@@ -55,7 +55,7 @@ paths:
   /api/v1/workspace/members:
     get:
       tags:
-      - workspace
+      - Workspace
       summary: Get Workspace Members
       description: List all members of the current user's workspace.
       operationId: get_workspace_members_api_v1_workspace_members_get
@@ -90,7 +90,7 @@ paths:
   /api/v1/workspace/members/{user_id}:
     delete:
       tags:
-      - workspace
+      - Workspace
       summary: Remove Workspace Member
       description: 'Remove a member from the workspace. Requires workspace admin.
 
@@ -123,7 +123,7 @@ paths:
   /api/v1/workspace/members/{user_id}/role:
     patch:
       tags:
-      - workspace
+      - Workspace
       summary: Update Member Role
       description: 'Update a workspace member''s role. Requires workspace admin.
 
@@ -162,7 +162,7 @@ paths:
   /api/v1/workspace/dial-template-variables:
     get:
       tags:
-      - workspace
+      - Workspace
       summary: List Dial Template Variables
       description: Return variables usable inside `dial_agent_settings` override fields.
       operationId: list_dial_template_variables_api_v1_workspace_dial_template_variables_get
@@ -178,7 +178,7 @@ paths:
   /api/v1/workspace/dial-agent-settings:
     patch:
       tags:
-      - workspace
+      - Workspace
       summary: Update Dial Agent Settings
       description: 'Replace the workspace''s dial agent prompt overrides.
 
@@ -217,7 +217,7 @@ paths:
   /api/v1/workspace/transfer-destinations:
     get:
       tags:
-      - workspace
+      - Workspace
       summary: List Transfer Destinations
       operationId: list_transfer_destinations_api_v1_workspace_transfer_destinations_get
       responses:
@@ -231,7 +231,7 @@ paths:
       - FirebaseAuthMiddleware: []
     post:
       tags:
-      - workspace
+      - Workspace
       summary: Create Transfer Destination
       description: Create a workspace transfer destination.
       operationId: create_transfer_destination_api_v1_workspace_transfer_destinations_post
@@ -259,7 +259,7 @@ paths:
   /api/v1/workspace/transfer-destinations/{destination_id}:
     patch:
       tags:
-      - workspace
+      - Workspace
       summary: Update Transfer Destination
       description: Update a workspace transfer destination.
       operationId: update_transfer_destination_api_v1_workspace_transfer_destinations__destination_id__patch
@@ -294,7 +294,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - workspace
+      - Workspace
       summary: Delete Transfer Destination
       description: Delete a workspace transfer destination.
       operationId: delete_transfer_destination_api_v1_workspace_transfer_destinations__destination_id__delete
@@ -320,7 +320,7 @@ paths:
   /api/v1/workspace/dial-usage/current:
     get:
       tags:
-      - workspace
+      - Workspace
       summary: Get Dial Usage Current
       description: Current month's auto-dial usage for the user's workspace.
       operationId: get_dial_usage_current_api_v1_workspace_dial_usage_current_get
@@ -347,6 +347,92 @@ components:
         WRITER = can edit workspace_write projects
 
         READER = can only view workspace projects'
+    DialUsageResponse:
+      properties:
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+        total_calls:
+          type: integer
+          title: Total Calls
+        total_minutes:
+          type: integer
+          title: Total Minutes
+        transferred_calls:
+          type: integer
+          title: Transferred Calls
+        monthly_dial_minute_cap:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Monthly Dial Minute Cap
+      type: object
+      required:
+      - period_start
+      - total_calls
+      - total_minutes
+      - transferred_calls
+      title: DialUsageResponse
+      description: Per-period dial usage rollup for billing/cap display.
+    TransferDestinationListResponse:
+      properties:
+        destinations:
+          items:
+            $ref: '#/components/schemas/TransferDestinationResponse'
+          type: array
+          title: Destinations
+      type: object
+      required:
+      - destinations
+      title: TransferDestinationListResponse
+    WorkspaceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        credit_balance:
+          $ref: '#/components/schemas/CreditBalance'
+        member_count:
+          type: integer
+          title: Member Count
+        dial_agent_settings:
+          anyOf:
+          - $ref: '#/components/schemas/DialAgentSettings'
+          - type: 'null'
+        auto_dial_enabled:
+          type: boolean
+          title: Auto Dial Enabled
+          default: false
+        feature_toggles:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Feature Toggles
+          default: {}
+      type: object
+      required:
+      - id
+      - name
+      - credit_balance
+      - member_count
+      title: WorkspaceResponse
+      description: Response model for workspace details.
     DialTemplateVariablesResponse:
       properties:
         variables:
@@ -366,129 +452,6 @@ components:
         autocomplete menu reads this directly so client and server can''t
 
         drift on the supported set.'
-    WorkspaceMembersResponse:
-      properties:
-        members:
-          items:
-            $ref: '#/components/schemas/WorkspaceMemberResponse'
-          type: array
-          title: Members
-      type: object
-      required:
-      - members
-      title: WorkspaceMembersResponse
-      description: Response model for listing workspace members.
-    WorkspaceUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 255
-            minLength: 1
-          - type: 'null'
-          title: Name
-          description: New name for the workspace
-        avatar_color:
-          anyOf:
-          - type: string
-            maxLength: 50
-          - type: 'null'
-          title: Avatar Color
-          description: Avatar color name for the workspace. Set to null to remove.
-      type: object
-      title: WorkspaceUpdateRequest
-      description: 'Request model for updating workspace settings.
-
-
-        All fields are optional -- only provided fields are updated.'
-    CreditBalance:
-      properties:
-        total:
-          type: integer
-          title: Total
-        used:
-          type: integer
-          title: Used
-        remaining:
-          type: integer
-          title: Remaining
-      type: object
-      required:
-      - total
-      - used
-      - remaining
-      title: CreditBalance
-      description: 'Credit balance breakdown for a workspace.
-
-
-        Uses pool accounting: total is the credits ever granted (never decremented),
-
-        used is cumulative consumption, remaining = total - used.'
-    DialAgentSettings:
-      properties:
-        voicemail_message:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Voicemail Message
-        intro_line:
-          anyOf:
-          - type: string
-            maxLength: 300
-          - type: 'null'
-          title: Intro Line
-        transfer_pitch:
-          anyOf:
-          - type: string
-            maxLength: 300
-          - type: 'null'
-          title: Transfer Pitch
-      additionalProperties: false
-      type: object
-      title: DialAgentSettings
-      description: 'Per-workspace overrides for placeholders in the Retell agent flow.
-
-
-        Each field maps to a `{{placeholder}}` in the Retell flow config. Unset
-
-        fields are omitted at dispatch so the flow node''s baked-in default applies.'
-    MemberRoleUpdateRequest:
-      properties:
-        workspace_role:
-          $ref: '#/components/schemas/WorkspaceRole'
-          description: 'New role for the member: ''writer'' or ''reader'''
-      type: object
-      required:
-      - workspace_role
-      title: MemberRoleUpdateRequest
-      description: Request model for updating a member's workspace role.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     TransferDestinationUpdateRequest:
       properties:
         name:
@@ -544,6 +507,67 @@ components:
       - created_at
       - updated_at
       title: TransferDestinationResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WorkspaceUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+          description: New name for the workspace
+        avatar_color:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Avatar Color
+          description: Avatar color name for the workspace. Set to null to remove.
+      type: object
+      title: WorkspaceUpdateRequest
+      description: 'Request model for updating workspace settings.
+
+
+        All fields are optional -- only provided fields are updated.'
+    WorkspaceMembersResponse:
+      properties:
+        members:
+          items:
+            $ref: '#/components/schemas/WorkspaceMemberResponse'
+          type: array
+          title: Members
+      type: object
+      required:
+      - members
+      title: WorkspaceMembersResponse
+      description: Response model for listing workspace members.
     DialTemplateVariable:
       properties:
         name:
@@ -558,7 +582,60 @@ components:
       - description
       title: DialTemplateVariable
       description: Single entry in the dial-prompt template-variable registry.
-    DialAgentSettingsUpdateRequest:
+    CreditBalance:
+      properties:
+        total:
+          type: integer
+          title: Total
+        used:
+          type: integer
+          title: Used
+        remaining:
+          type: integer
+          title: Remaining
+      type: object
+      required:
+      - total
+      - used
+      - remaining
+      title: CreditBalance
+      description: 'Credit balance breakdown for a workspace.
+
+
+        Uses pool accounting: total is the credits ever granted (never decremented),
+
+        used is cumulative consumption, remaining = total - used.'
+    TransferDestinationCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        e164:
+          type: string
+          maxLength: 32
+          minLength: 1
+          title: E164
+        is_default:
+          type: boolean
+          title: Is Default
+          default: false
+      type: object
+      required:
+      - name
+      - e164
+      title: TransferDestinationCreateRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DialAgentSettings:
       properties:
         voicemail_message:
           anyOf:
@@ -578,41 +655,15 @@ components:
             maxLength: 300
           - type: 'null'
           title: Transfer Pitch
+      additionalProperties: false
       type: object
-      title: DialAgentSettingsUpdateRequest
-      description: 'Request model for updating per-workspace dial agent prompt overrides.
+      title: DialAgentSettings
+      description: 'Per-workspace overrides for placeholders in the Retell agent flow.
 
 
-        All fields optional; pass `null` to clear an individual override and let
+        Each field maps to a `{{placeholder}}` in the Retell flow config. Unset
 
-        the Retell flow node''s baked-in default apply.
-
-
-        `{{variable_name}}` placeholders are allowed inside each field; the
-
-        handler validates them against the allowed-variable registry and
-
-        returns 422 with the offending names when an unknown variable is used.'
-    TransferDestinationListResponse:
-      properties:
-        destinations:
-          items:
-            $ref: '#/components/schemas/TransferDestinationResponse'
-          type: array
-          title: Destinations
-      type: object
-      required:
-      - destinations
-      title: TransferDestinationListResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+        fields are omitted at dispatch so the flow node''s baked-in default applies.'
     WorkspaceMemberResponse:
       properties:
         id:
@@ -661,102 +712,51 @@ components:
       - is_workspace_admin
       title: WorkspaceMemberResponse
       description: Response model for a workspace member.
-    DialUsageResponse:
+    DialAgentSettingsUpdateRequest:
       properties:
-        period_start:
-          type: string
-          format: date
-          title: Period Start
-        total_calls:
-          type: integer
-          title: Total Calls
-        total_minutes:
-          type: integer
-          title: Total Minutes
-        transferred_calls:
-          type: integer
-          title: Transferred Calls
-        monthly_dial_minute_cap:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Monthly Dial Minute Cap
-      type: object
-      required:
-      - period_start
-      - total_calls
-      - total_minutes
-      - transferred_calls
-      title: DialUsageResponse
-      description: Per-period dial usage rollup for billing/cap display.
-    WorkspaceResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        avatar_color:
+        voicemail_message:
           anyOf:
           - type: string
+            maxLength: 500
           - type: 'null'
-          title: Avatar Color
-        created_at:
+          title: Voicemail Message
+        intro_line:
           anyOf:
           - type: string
-            format: date-time
+            maxLength: 300
           - type: 'null'
-          title: Created At
-        credit_balance:
-          $ref: '#/components/schemas/CreditBalance'
-        member_count:
-          type: integer
-          title: Member Count
-        dial_agent_settings:
+          title: Intro Line
+        transfer_pitch:
           anyOf:
-          - $ref: '#/components/schemas/DialAgentSettings'
+          - type: string
+            maxLength: 300
           - type: 'null'
-        auto_dial_enabled:
-          type: boolean
-          title: Auto Dial Enabled
-          default: false
-        feature_toggles:
-          additionalProperties:
-            type: boolean
-          type: object
-          title: Feature Toggles
-          default: {}
+          title: Transfer Pitch
       type: object
-      required:
-      - id
-      - name
-      - credit_balance
-      - member_count
-      title: WorkspaceResponse
-      description: Response model for workspace details.
-    TransferDestinationCreateRequest:
+      title: DialAgentSettingsUpdateRequest
+      description: 'Request model for updating per-workspace dial agent prompt overrides.
+
+
+        All fields optional; pass `null` to clear an individual override and let
+
+        the Retell flow node''s baked-in default apply.
+
+
+        `{{variable_name}}` placeholders are allowed inside each field; the
+
+        handler validates them against the allowed-variable registry and
+
+        returns 422 with the offending names when an unknown variable is used.'
+    MemberRoleUpdateRequest:
       properties:
-        name:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Name
-        e164:
-          type: string
-          maxLength: 32
-          minLength: 1
-          title: E164
-        is_default:
-          type: boolean
-          title: Is Default
-          default: false
+        workspace_role:
+          $ref: '#/components/schemas/WorkspaceRole'
+          description: 'New role for the member: ''writer'' or ''reader'''
       type: object
       required:
-      - name
-      - e164
-      title: TransferDestinationCreateRequest
+      - workspace_role
+      title: MemberRoleUpdateRequest
+      description: Request model for updating a member's workspace role.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

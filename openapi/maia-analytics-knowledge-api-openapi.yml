@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah knowledge API
+  title: MAIA Knowledge API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: knowledge
+- name: Knowledge
 paths:
   /api/v1/knowledge:
     get:
       tags:
-      - knowledge
+      - Knowledge
       summary: List Knowledge Entries
       description: List the caller's entries for a scope (user or workspace).
       operationId: list_knowledge_entries_api_v1_knowledge_get
@@ -39,7 +39,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - knowledge
+      - Knowledge
       summary: Create Knowledge Entry
       description: Create a titled user- or workspace-scoped knowledge entry.
       operationId: create_knowledge_entry_api_v1_knowledge_post
@@ -67,7 +67,7 @@ paths:
   /api/v1/knowledge/{entry_id}:
     patch:
       tags:
-      - knowledge
+      - Knowledge
       summary: Update Knowledge Entry
       description: Replace an entry's title + content (caller must be entitled to edit it).
       operationId: update_knowledge_entry_api_v1_knowledge__entry_id__patch
@@ -102,7 +102,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - knowledge
+      - Knowledge
       summary: Delete Knowledge Entry
       description: Delete an entry the caller is entitled to edit.
       operationId: delete_knowledge_entry_api_v1_knowledge__entry_id__delete
@@ -127,50 +127,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    KnowledgeEntryUpdateRequest:
-      properties:
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - title
-      - content
-      title: KnowledgeEntryUpdateRequest
-      description: Request body for replacing an entry's title + content.
     KnowledgeEntryCreateRequest:
       properties:
         scope:
@@ -192,15 +148,6 @@ components:
       - content
       title: KnowledgeEntryCreateRequest
       description: Request body for creating a user- or workspace-scoped entry.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     KnowledgeEntryResponse:
       properties:
         id:
@@ -267,6 +214,59 @@ components:
         agent''s existing system prompt — a separate, pre-existing mechanism that does
 
         not live in this table — so there is no ``system`` scope here.'
+    KnowledgeEntryUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: KnowledgeEntryUpdateRequest
+      description: Request body for replacing an entry's title + content.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

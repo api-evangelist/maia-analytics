@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah audit-log API
+  title: MAIA Audit Log API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: audit-log
+- name: Audit Log
 paths:
   /api/v1/internal/audit-log/:
     get:
       tags:
-      - audit-log
+      - Audit Log
       summary: List Audit Log
       description: 'List admin audit log entries with optional filters.
 
@@ -107,32 +107,39 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
+    HTTPValidationError:
       properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminAuditLogListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminAuditLogResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - items
+      - total
+      - limit
+      - offset
+      title: AdminAuditLogListResponse
+      description: Paginated response for audit log queries.
     AdminAuditLogResponse:
       properties:
         id:
@@ -200,39 +207,32 @@ components:
       - created_at
       title: AdminAuditLogResponse
       description: Response schema for a single audit log entry.
-    HTTPValidationError:
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AdminAuditLogListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminAuditLogResponse'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-        limit:
-          type: integer
-          title: Limit
-        offset:
-          type: integer
-          title: Offset
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - items
-      - total
-      - limit
-      - offset
-      title: AdminAuditLogListResponse
-      description: Paginated response for audit log queries.
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

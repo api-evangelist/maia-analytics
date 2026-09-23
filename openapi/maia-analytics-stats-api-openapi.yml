@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah stats API
+  title: MAIA Stats API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: stats
+- name: Stats
 paths:
   /api/v1/internal/stats/:
     get:
       tags:
-      - stats
+      - Stats
       summary: Get Stats
       description: Return summary statistics for the admin dashboard.
       operationId: get_stats_api_v1_internal_stats__get

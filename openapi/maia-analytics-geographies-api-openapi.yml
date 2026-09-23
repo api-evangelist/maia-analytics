@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah geographies API
+  title: MAIA Geographies API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: geographies
+- name: Geographies
 paths:
   /api/v1/internal/geographies/:
     get:
       tags:
-      - geographies
+      - Geographies
       summary: List Available Geographies
       description: Return US states with parcel coverage.
       operationId: list_available_geographies_api_v1_internal_geographies__get
@@ -24,6 +24,24 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
+    GeographyOptionsResponse:
+      properties:
+        states:
+          items:
+            $ref: '#/components/schemas/StateOption'
+          type: array
+          title: States
+        counties:
+          items:
+            $ref: '#/components/schemas/CountyOption'
+          type: array
+          title: Counties
+      type: object
+      required:
+      - states
+      - counties
+      title: GeographyOptionsResponse
+      description: Available geography options for workspace restriction.
     StateOption:
       properties:
         code:
@@ -56,24 +74,6 @@ components:
       - state
       title: CountyOption
       description: A FIPS county available for geography restriction.
-    GeographyOptionsResponse:
-      properties:
-        states:
-          items:
-            $ref: '#/components/schemas/StateOption'
-          type: array
-          title: States
-        counties:
-          items:
-            $ref: '#/components/schemas/CountyOption'
-          type: array
-          title: Counties
-      type: object
-      required:
-      - states
-      - counties
-      title: GeographyOptionsResponse
-      description: Available geography options for workspace restriction.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

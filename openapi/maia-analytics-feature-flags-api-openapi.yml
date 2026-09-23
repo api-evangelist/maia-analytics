@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah feature-flags API
+  title: MAIA Feature Flags API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: feature-flags
+- name: Feature Flags
 paths:
   /api/v1/internal/feature-flags/:
     get:
       tags:
-      - feature-flags
+      - Feature Flags
       summary: List Feature Flags
       description: List every registered feature toggle with its global default + override count.
       operationId: list_feature_flags_api_v1_internal_feature_flags__get
@@ -25,7 +25,7 @@ paths:
   /api/v1/internal/feature-flags/{key}/overrides:
     get:
       tags:
-      - feature-flags
+      - Feature Flags
       summary: List Feature Overrides
       description: 'List the workspaces that override one feature (deviate from the global
 
@@ -55,7 +55,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - feature-flags
+      - Feature Flags
       summary: Reset Feature Overrides
       description: Clear every per-workspace override for one feature. Internal admin only.
       operationId: reset_feature_overrides_api_v1_internal_feature_flags__key__overrides_delete
@@ -84,7 +84,7 @@ paths:
   /api/v1/internal/feature-flags/{key}/default:
     patch:
       tags:
-      - feature-flags
+      - Feature Flags
       summary: Set Global Feature Default
       description: 'Set the platform-wide default for one feature. Internal admin only.
 
@@ -123,29 +123,25 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    GlobalFeatureFlagsResponse:
+    FeatureOverrideWorkspaceItem:
       properties:
-        flags:
-          items:
-            $ref: '#/components/schemas/GlobalFeatureFlagItem'
-          type: array
-          title: Flags
-      type: object
-      required:
-      - flags
-      title: GlobalFeatureFlagsResponse
-      description: Every registered feature toggle with its global default + override count.
-    SetGlobalFlagDefaultRequest:
-      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          type: string
+          title: Workspace Name
         enabled:
           type: boolean
           title: Enabled
-      additionalProperties: false
       type: object
       required:
+      - workspace_id
+      - workspace_name
       - enabled
-      title: SetGlobalFlagDefaultRequest
-      description: Request to set the platform-wide default for one feature toggle.
+      title: FeatureOverrideWorkspaceItem
+      description: One workspace overriding a feature, with its current stored value.
     ResetFeatureOverridesResponse:
       properties:
         key:
@@ -160,32 +156,6 @@ components:
       - cleared_count
       title: ResetFeatureOverridesResponse
       description: Result from clearing every per-workspace override for one feature.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     FeatureOverridesResponse:
       properties:
         key:
@@ -202,6 +172,38 @@ components:
       - overrides
       title: FeatureOverridesResponse
       description: Workspaces that override one feature (deviate from the global default).
+    SetGlobalFlagDefaultRequest:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+      additionalProperties: false
+      type: object
+      required:
+      - enabled
+      title: SetGlobalFlagDefaultRequest
+      description: Request to set the platform-wide default for one feature toggle.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    GlobalFeatureFlagsResponse:
+      properties:
+        flags:
+          items:
+            $ref: '#/components/schemas/GlobalFeatureFlagItem'
+          type: array
+          title: Flags
+      type: object
+      required:
+      - flags
+      title: GlobalFeatureFlagsResponse
+      description: Every registered feature toggle with its global default + override count.
     GlobalFeatureFlagItem:
       properties:
         key:
@@ -228,34 +230,32 @@ components:
       - override_count
       title: GlobalFeatureFlagItem
       description: One feature toggle's platform-wide default and override count.
-    HTTPValidationError:
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    FeatureOverrideWorkspaceItem:
-      properties:
-        workspace_id:
+          title: Location
+        msg:
           type: string
-          format: uuid
-          title: Workspace Id
-        workspace_name:
+          title: Message
+        type:
           type: string
-          title: Workspace Name
-        enabled:
-          type: boolean
-          title: Enabled
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - workspace_id
-      - workspace_name
-      - enabled
-      title: FeatureOverrideWorkspaceItem
-      description: One workspace overriding a feature, with its current stored value.
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

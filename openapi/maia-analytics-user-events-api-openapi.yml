@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah user-events API
+  title: MAIA User Events API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: user-events
+- name: User Events
 paths:
   /api/v1/users/me/events:
     get:
       tags:
-      - user-events
+      - User Events
       summary: User Events Stream
       description: 'Subscribe to the authenticated user''s live event channel via SSE.
 

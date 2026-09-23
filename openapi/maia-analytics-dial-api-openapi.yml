@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah dial API
+  title: MAIA Dial API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
@@ -288,126 +288,6 @@ components:
       - campaign
       - calls
       title: DialCampaignDetailResponse
-    StartCampaignRequest:
-      properties:
-        contact_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Contact Ids
-        name:
-          anyOf:
-          - type: string
-            maxLength: 120
-            minLength: 1
-          - type: 'null'
-          title: Name
-        transfer_destination_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Transfer Destination Id
-        transfer_destination_override:
-          anyOf:
-          - type: string
-            maxLength: 32
-            minLength: 1
-          - type: 'null'
-          title: Transfer Destination Override
-      type: object
-      required:
-      - contact_ids
-      title: StartCampaignRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DialCampaignResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        project_id:
-          type: string
-          format: uuid
-          title: Project Id
-        started_by:
-          type: string
-          format: uuid
-          title: Started By
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        status:
-          type: string
-          title: Status
-        contact_count:
-          type: integer
-          title: Contact Count
-        transfer_destination:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Transfer Destination
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - project_id
-      - started_by
-      - name
-      - status
-      - contact_count
-      - transfer_destination
-      - completed_at
-      - created_at
-      - updated_at
-      title: DialCampaignResponse
     DialCampaignListResponse:
       properties:
         campaigns:
@@ -602,6 +482,126 @@ components:
       - updated_at
       title: DialCallResponse
       description: API response — inherits DialCall, hides the internal `events_log`.
+    StartCampaignRequest:
+      properties:
+        contact_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Contact Ids
+        name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Name
+        transfer_destination_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Transfer Destination Id
+        transfer_destination_override:
+          anyOf:
+          - type: string
+            maxLength: 32
+            minLength: 1
+          - type: 'null'
+          title: Transfer Destination Override
+      type: object
+      required:
+      - contact_ids
+      title: StartCampaignRequest
+    DialCampaignResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        started_by:
+          type: string
+          format: uuid
+          title: Started By
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          type: string
+          title: Status
+        contact_count:
+          type: integer
+          title: Contact Count
+        transfer_destination:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transfer Destination
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - project_id
+      - started_by
+      - name
+      - status
+      - contact_count
+      - transfer_destination
+      - completed_at
+      - created_at
+      - updated_at
+      title: DialCampaignResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     StartDialRequest:
       properties:
         transfer_destination_id:

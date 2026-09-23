@@ -1,15 +1,15 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah favorite API
+  title: MAIA Favorite API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
-- name: favorite
+- name: Favorite
 paths:
   /api/v1/favorite/{project_id}:
     get:
       tags:
-      - favorite
+      - Favorite
       summary: Get Project Favorites
       description: Get current user's favorited feature IDs for a project.
       operationId: get_project_favorites_api_v1_favorite__project_id__get
@@ -28,7 +28,7 @@ paths:
   /api/v1/favorite/{project_id}/{feature_id}:
     post:
       tags:
-      - favorite
+      - Favorite
       summary: Toggle Favorite
       description: Toggle a row favorite. Returns the new favorited state.
       operationId: toggle_favorite_api_v1_favorite__project_id___feature_id__post
@@ -61,6 +61,15 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -87,15 +96,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

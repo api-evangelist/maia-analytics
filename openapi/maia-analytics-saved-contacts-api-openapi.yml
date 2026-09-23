@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MAIA Ah saved-contacts API
+  title: MAIA Saved Contacts API
   description: API for MAIA application (migrated from Firebase)
   version: 0.1.0
 tags:
@@ -418,36 +418,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SavedContactFeatureLinkResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        saved_contact_id:
-          type: string
-          format: uuid
-          title: Saved Contact Id
-        feature_id:
-          type: string
-          title: Feature Id
-        layer_id:
-          type: string
-          format: uuid
-          title: Layer Id
-        layer_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Layer Name
-      type: object
-      required:
-      - id
-      - saved_contact_id
-      - feature_id
-      - layer_id
-      title: SavedContactFeatureLinkResponse
-    UpdateContactNoteRequest:
+    AddContactNoteRequest:
       properties:
         content:
           type: string
@@ -457,7 +428,41 @@ components:
       type: object
       required:
       - content
-      title: UpdateContactNoteRequest
+      title: AddContactNoteRequest
+    SavedContactNoteResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        saved_contact_id:
+          type: string
+          format: uuid
+          title: Saved Contact Id
+        content:
+          type: string
+          title: Content
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - saved_contact_id
+      - content
+      - created_by
+      - created_at
+      title: SavedContactNoteResponse
     SavedContactIdentity:
       properties:
         id:
@@ -477,58 +482,111 @@ components:
       - id
       - full_name
       title: SavedContactIdentity
-    AddContactNoteRequest:
+    SavedContactResponse:
       properties:
-        content:
+        id:
           type: string
-          maxLength: 5000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - content
-      title: AddContactNoteRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+          format: uuid
+          title: Id
+        project_id:
           type: string
-          title: Message
-        type:
+          format: uuid
+          title: Project Id
+        full_name:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    SavedContactListResponse:
-      properties:
-        contacts:
-          items:
-            $ref: '#/components/schemas/SavedContactResponse'
-          type: array
-          title: Contacts
-        total:
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        job_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Title
+        job_company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Job Company Name
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        mobile_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobile Phone
+        linkedin_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Linkedin Url
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        source_attribution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Attribution
+        status:
+          type: string
+          title: Status
+        is_favorite:
+          type: boolean
+          title: Is Favorite
+          default: false
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        note_count:
           type: integer
-          title: Total
+          title: Note Count
+          default: 0
+        feature_link_count:
+          type: integer
+          title: Feature Link Count
+          default: 0
       type: object
       required:
-      - contacts
-      - total
-      title: SavedContactListResponse
+      - id
+      - project_id
+      - full_name
+      - status
+      - created_by
+      - created_at
+      - updated_at
+      title: SavedContactResponse
     UpdateContactRequest:
       properties:
         full_name:
@@ -603,107 +661,21 @@ components:
           title: Is Favorite
       type: object
       title: UpdateContactRequest
-    SaveContactRequest:
+    SavedContactListResponse:
       properties:
-        full_name:
-          type: string
-          maxLength: 500
-          title: Full Name
-        first_name:
-          anyOf:
-          - type: string
-            maxLength: 255
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-            maxLength: 255
-          - type: 'null'
-          title: Last Name
-        job_title:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Job Title
-        job_company_name:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Job Company Name
-        work_email:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Work Email
-        personal_email:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Personal Email
-        phone:
-          anyOf:
-          - type: string
-            maxLength: 50
-          - type: 'null'
-          title: Phone
-        mobile_phone:
-          anyOf:
-          - type: string
-            maxLength: 50
-          - type: 'null'
-          title: Mobile Phone
-        linkedin_url:
-          anyOf:
-          - type: string
-            maxLength: 1000
-          - type: 'null'
-          title: Linkedin Url
-        location_name:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Location Name
-        source_attribution:
-          anyOf:
-          - type: string
-            maxLength: 255
-          - type: 'null'
-          title: Source Attribution
-        feature_id:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Feature Id
-        layer_id:
-          type: string
-          format: uuid
-          title: Layer Id
+        contacts:
+          items:
+            $ref: '#/components/schemas/SavedContactResponse'
+          type: array
+          title: Contacts
+        total:
+          type: integer
+          title: Total
       type: object
       required:
-      - full_name
-      - feature_id
-      - layer_id
-      title: SaveContactRequest
-    ContactCheckResponse:
-      properties:
-        saved_feature_contacts:
-          additionalProperties:
-            items:
-              $ref: '#/components/schemas/SavedContactIdentity'
-            type: array
-          type: object
-          title: Saved Feature Contacts
-      type: object
-      required:
-      - saved_feature_contacts
-      title: ContactCheckResponse
-      description: Maps feature_id -> list of saved contact identities (id + full_name + work_email).
+      - contacts
+      - total
+      title: SavedContactListResponse
     SavedContactDetailResponse:
       properties:
         id:
@@ -821,7 +793,128 @@ components:
       - created_at
       - updated_at
       title: SavedContactDetailResponse
-    SavedContactNoteResponse:
+    ContactCheckResponse:
+      properties:
+        saved_feature_contacts:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/SavedContactIdentity'
+            type: array
+          type: object
+          title: Saved Feature Contacts
+      type: object
+      required:
+      - saved_feature_contacts
+      title: ContactCheckResponse
+      description: Maps feature_id -> list of saved contact identities (id + full_name + work_email).
+    SaveContactRequest:
+      properties:
+        full_name:
+          type: string
+          maxLength: 500
+          title: Full Name
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Last Name
+        job_title:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Job Title
+        job_company_name:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Job Company Name
+        work_email:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Work Email
+        personal_email:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Personal Email
+        phone:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Phone
+        mobile_phone:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Mobile Phone
+        linkedin_url:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Linkedin Url
+        location_name:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Location Name
+        source_attribution:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Source Attribution
+        feature_id:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Feature Id
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+      type: object
+      required:
+      - full_name
+      - feature_id
+      - layer_id
+      title: SaveContactRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    UpdateContactNoteRequest:
+      properties:
+        content:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - content
+      title: UpdateContactNoteRequest
+    SavedContactFeatureLinkResponse:
       properties:
         id:
           type: string
@@ -831,30 +924,25 @@ components:
           type: string
           format: uuid
           title: Saved Contact Id
-        content:
+        feature_id:
           type: string
-          title: Content
-        created_by:
+          title: Feature Id
+        layer_id:
           type: string
           format: uuid
-          title: Created By
-        created_by_name:
+          title: Layer Id
+        layer_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Created By Name
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
+          title: Layer Name
       type: object
       required:
       - id
       - saved_contact_id
-      - content
-      - created_by
-      - created_at
-      title: SavedContactNoteResponse
+      - feature_id
+      - layer_id
+      title: SavedContactFeatureLinkResponse
     UpdateContactStatusRequest:
       properties:
         status:
@@ -868,120 +956,32 @@ components:
       required:
       - status
       title: UpdateContactStatusRequest
-    HTTPValidationError:
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SavedContactResponse:
-      properties:
-        id:
+          title: Location
+        msg:
           type: string
-          format: uuid
-          title: Id
-        project_id:
+          title: Message
+        type:
           type: string
-          format: uuid
-          title: Project Id
-        full_name:
-          type: string
-          title: Full Name
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
-        job_title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Job Title
-        job_company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Job Company Name
-        work_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Work Email
-        personal_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Personal Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        mobile_phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mobile Phone
-        linkedin_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Linkedin Url
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Name
-        source_attribution:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Attribution
-        status:
-          type: string
-          title: Status
-        is_favorite:
-          type: boolean
-          title: Is Favorite
-          default: false
-        created_by:
-          type: string
-          format: uuid
-          title: Created By
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        note_count:
-          type: integer
-          title: Note Count
-          default: 0
-        feature_link_count:
-          type: integer
-          title: Feature Link Count
-          default: 0
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - id
-      - project_id
-      - full_name
-      - status
-      - created_by
-      - created_at
-      - updated_at
-      title: SavedContactResponse
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http
