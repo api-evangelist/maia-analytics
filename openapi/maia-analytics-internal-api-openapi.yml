@@ -2029,145 +2029,102 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
-    AdminSendInviteResponse:
+    AdminWorkspaceProvisionRequest:
       properties:
-        success:
-          type: boolean
-          title: Success
-        message:
+        name:
           type: string
-          title: Message
-      type: object
-      required:
-      - success
-      - message
-      title: AdminSendInviteResponse
-      description: Response schema for send invite email endpoint.
-    AdminAuditLogResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        admin_user_id:
-          type: string
-          format: uuid
-          title: Admin User Id
-        admin_email:
+          maxLength: 255
+          minLength: 1
+          title: Name
+        counties:
+          items:
+            $ref: '#/components/schemas/WorkspaceCountySelection'
+          type: array
+          title: Counties
+        initial_credits:
+          type: integer
+          minimum: 0.0
+          title: Initial Credits
+          default: 5000
+        region_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Admin Email
-        action:
-          type: string
-          title: Action
-        target_type:
-          type: string
-          title: Target Type
-        target_id:
-          type: string
-          format: uuid
-          title: Target Id
-        target_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Target Display Name
-        before_value:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Before Value
-        after_value:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: After Value
-        metadata:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Metadata
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - admin_user_id
-      - admin_email
-      - action
-      - target_type
-      - target_id
-      - target_display_name
-      - before_value
-      - after_value
-      - metadata
-      - created_at
-      title: AdminAuditLogResponse
-      description: Response schema for a single audit log entry.
-    AdminCreateUserRequest:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-        display_name:
-          type: string
-          title: Display Name
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        plan_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Plan Type
-        is_internal:
-          type: boolean
-          title: Is Internal
-          default: false
-        auth_method:
-          type: string
-          enum:
-          - google
-          - password
-          title: Auth Method
-          default: google
-        password:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Password
-        send_invite:
-          type: boolean
-          title: Send Invite
-          default: false
+          title: Region Id
       additionalProperties: false
       type: object
       required:
-      - email
-      - display_name
-      - workspace_id
-      title: AdminCreateUserRequest
-      description: 'Request schema for creating a new user account.
+      - name
+      - counties
+      title: AdminWorkspaceProvisionRequest
+      description: 'Request body for provisioning a new workspace end-to-end.
 
 
-        Rejects unknown fields with 422 — legacy callers sending the removed
+        Wraps `AdminWorkspaceService.provision_workspace_with_counties`: creates
 
-        `create_workspace_allowed_geographies` key should fail loud rather than
+        the Neon sandbox and seeds `workspace_counties` rows. At least one county
 
-        silently no-op (see MAIA-1562).'
+        is mandatory — a workspace with no loaded counties has zero geographic
+
+        query access. Rejects unknown fields with 422.
+
+
+        `counties` non-emptiness and in-list duplicates are validated in the
+
+        service (400) rather than here, so the same guard covers the script caller
+
+        (`scripts/provision_prod_admin_workspace.py`) and the error is a 400, not a
+
+        422, matching the rest of the provisioning contract.'
+    AdminKnowledgeCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: AdminKnowledgeCreateRequest
+      description: 'Create a titled entry at ``scope`` for the target ``owner_id``.
+
+
+        ``owner_id`` is the target user id (user scope) or workspace id (workspace
+
+        scope).'
+    AdminKnowledgeUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: AdminKnowledgeUpdateRequest
+      description: Replace an entry's title + content.
     AdminWorkspaceDetailResponse:
       properties:
         id:
@@ -2233,23 +2190,379 @@ components:
       - updated_at
       title: AdminWorkspaceDetailResponse
       description: Full workspace detail response for admin view.
-    MissingCountyCoverageDetail:
+    GlobalFeatureFlagsResponse:
       properties:
-        code:
-          type: string
-          title: Code
-          default: missing_county_coverage
-        missing_counties:
+        flags:
           items:
-            $ref: '#/components/schemas/MissingCounty'
+            $ref: '#/components/schemas/GlobalFeatureFlagItem'
           type: array
-          title: Missing Counties
+          title: Flags
       type: object
       required:
-      - missing_counties
-      title: MissingCountyCoverageDetail
-      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
-    AppendCountyRequest:
+      - flags
+      title: GlobalFeatureFlagsResponse
+      description: Every registered feature toggle with its global default + override count.
+    ResetFeatureOverridesResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+        cleared_count:
+          type: integer
+          title: Cleared Count
+      type: object
+      required:
+      - key
+      - cleared_count
+      title: ResetFeatureOverridesResponse
+      description: Result from clearing every per-workspace override for one feature.
+    AdminProjectSearchResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectSearchResult'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminProjectSearchResponse
+      description: Response schema for project search endpoint.
+    AdminExampleProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      title: AdminExampleProjectListItem
+      description: Summary schema for example project list items.
+    AdminUserListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminUserListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminUserListResponse
+      description: Response schema for user list endpoint.
+    MissingCountyCoverageResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/MissingCountyCoverageDetail'
+      type: object
+      required:
+      - detail
+      title: MissingCountyCoverageResponse
+      description: 'Wire shape of the county-coverage 409.
+
+
+        FastAPI serializes ``HTTPException(detail=...)`` as ``{"detail": ...}``, so
+
+        the documented response body must carry the wrapper — clients read
+
+        ``data.detail.missing_counties``.'
+    MissingCounty:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - fips
+      - name
+      title: MissingCounty
+      description: A county the source project covers but the target workspace lacks.
+    AdminKnowledgeRunCursorResponse:
+      properties:
+        meetings_through:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meetings Through
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        runs:
+          type: integer
+          title: Runs
+      type: object
+      required:
+      - meetings_through
+      - last_run_at
+      - runs
+      title: AdminKnowledgeRunCursorResponse
+      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
+
+
+        ``meetings_through`` is the opaque ISO-8601 string from the newest run
+
+        marker''s metadata; ``runs`` counts all markers for the workspace.'
+    AdminSkillWriteRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
+        is_starter:
+          type: boolean
+          title: Is Starter
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillWriteRequest
+      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
+
+
+        ``workspace_ids`` sets availability on both create and update: empty is a
+
+        global skill (visible to every workspace); a set restricts it to those
+
+        workspaces. ``is_starter`` is independent of availability.
+
+
+        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
+
+        caller from before the multi-workspace cutover would otherwise have it
+
+        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
+
+        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
+    AdminDuplicateProjectRequest:
+      properties:
+        target_workspace_id:
+          type: string
+          format: uuid
+          title: Target Workspace Id
+        acknowledge_missing_counties:
+          type: boolean
+          title: Acknowledge Missing Counties
+          default: false
+      type: object
+      required:
+      - target_workspace_id
+      title: AdminDuplicateProjectRequest
+      description: Request schema for delivering a curated project to a workspace.
+    AdminDuplicateProjectResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+      type: object
+      required:
+      - workflow_id
+      title: AdminDuplicateProjectResponse
+      description: 'Response schema for the duplicate (workspace delivery) endpoint.
+
+
+        Delivery is a durable cross-Neon-branch workflow that returns only a
+
+        ``workflow_id``; the delivered project id isn''t known until the workflow''s
+
+        clone step runs, so the UI tracks progress via the Recent duplications panel.'
+    AvailableCountyResponse:
+      properties:
+        state:
+          type: string
+          title: State
+        county_name:
+          type: string
+          title: County Name
+        state_fips:
+          type: string
+          title: State Fips
+        county_fips:
+          type: string
+          title: County Fips
+      type: object
+      required:
+      - state
+      - county_name
+      - state_fips
+      - county_fips
+      title: AvailableCountyResponse
+      description: 'A county available to load (not yet in this workspace).
+
+
+        ``county_name`` is the TIGER LSAD form (e.g. ``"Los Angeles County"``)
+
+        populated from the picker''s ``AvailableCounty`` named tuple.'
+    AdminSkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_starter:
+          type: boolean
+          title: Is Starter
+          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+          description: The workspaces this curated (system) skill is available in. Empty means global (every workspace).
+      type: object
+      required:
+      - id
+      - scope
+      - name
+      - description
+      - body
+      - created_at
+      - updated_at
+      title: AdminSkillResponse
+      description: 'A curated skill as returned to the internal admin catalog.
+
+
+        Adds the ``workspace_ids`` availability set, which the public
+
+        ``SkillResponse`` deliberately omits: for a skill restricted to a set of
+
+        workspaces, that set contains *other* tenants'' workspace ids, so exposing it
+
+        on the public read paths (picker / gallery) would leak cross-tenant data to
+
+        any workspace the skill is visible in. Only the internal admin surface
+
+        (``require_internal``) sees the availability set.'
+    AdminLayerSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        feature_count:
+          type: integer
+          title: Feature Count
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - feature_count
+      title: AdminLayerSummary
+      description: Layer summary for project preview.
+    GeographyOptionsResponse:
+      properties:
+        states:
+          items:
+            $ref: '#/components/schemas/StateOption'
+          type: array
+          title: States
+        counties:
+          items:
+            $ref: '#/components/schemas/CountyOption'
+          type: array
+          title: Counties
+      type: object
+      required:
+      - states
+      - counties
+      title: GeographyOptionsResponse
+      description: Available geography options for workspace restriction.
+    WorkspaceCountySelection:
       properties:
         state_fips:
           type: string
@@ -2268,64 +2581,89 @@ components:
       required:
       - state_fips
       - county_fips
-      title: AppendCountyRequest
-      description: Request body for appending one county to an existing workspace sandbox.
-    AdminDuplicateProjectResponse:
+      title: WorkspaceCountySelection
+      description: 'One county selection — FIPS-shape only.
+
+
+        Used by the append-county and workspace-provisioning request bodies.
+
+        Callers supply ``state_fips`` (2-digit) + ``county_fips`` (3-digit) only.
+
+        ``extra="forbid"`` rejects callers still constructing slug-shape kwargs
+
+        with 422 rather than silently dropping the slug pair.
+
+
+        The handler resolves the FIPS pair to a USPS state code before calling
+
+        the service (the ``workspace_counties.state`` column is USPS, not
+
+        numeric FIPS).'
+    AdminUserUpdateRequest:
       properties:
-        workflow_id:
-          type: string
-          title: Workflow Id
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
       type: object
-      required:
-      - workflow_id
-      title: AdminDuplicateProjectResponse
-      description: 'Response schema for the duplicate (workspace delivery) endpoint.
+      title: AdminUserUpdateRequest
+      description: Request schema for updating user fields.
+    KnowledgeScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      title: KnowledgeScope
+      description: 'Tier a knowledge entry applies to.
 
 
-        Delivery is a durable cross-Neon-branch workflow that returns only a
+        Resolution is additive and ordered ``user -> workspace`` — precedence is
 
-        ``workflow_id``; the delivered project id isn''t known until the workflow''s
+        ordering only, not override (no shadowing in v1). "System" knowledge is the
 
-        clone step runs, so the UI tracks progress via the Recent duplications panel.'
-    MissingCounty:
-      properties:
-        fips:
-          type: string
-          title: Fips
-        name:
-          type: string
-          title: Name
-      type: object
-      required:
-      - fips
-      - name
-      title: MissingCounty
-      description: A county the source project covers but the target workspace lacks.
-    SetGlobalFlagDefaultRequest:
-      properties:
-        enabled:
-          type: boolean
-          title: Enabled
-      additionalProperties: false
-      type: object
-      required:
-      - enabled
-      title: SetGlobalFlagDefaultRequest
-      description: Request to set the platform-wide default for one feature toggle.
-    AdminProjectListItem:
+        agent''s existing system prompt — a separate, pre-existing mechanism that does
+
+        not live in this table — so there is no ``system`` scope here.'
+    AdminProjectSearchResult:
       properties:
         id:
           type: string
           format: uuid
           title: Id
         name:
+          type: string
+          title: Name
+        owner_display_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Name
-        status:
-          type: string
-          title: Status
+          title: Owner Display Name
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
         created_at:
           anyOf:
           - type: string
@@ -2338,88 +2676,87 @@ components:
             format: date-time
           - type: 'null'
           title: Updated At
-        owner_display_name:
+        visibility:
           anyOf:
           - type: string
           - type: 'null'
-          title: Owner Display Name
-        is_locked:
-          type: boolean
-          title: Is Locked
-          default: false
-        locked_by_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Locked By Display Name
+          title: Visibility
       type: object
       required:
       - id
       - name
-      - status
+      - owner_display_name
+      - workspace_name
       - created_at
       - updated_at
-      title: AdminProjectListItem
-      description: Summary schema for project list items in admin views.
-    AdminDuplicationLogResponse:
+      - visibility
+      title: AdminProjectSearchResult
+      description: Search result item for project search.
+    AdminMoveWorkspaceRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      type: object
+      required:
+      - workspace_id
+      title: AdminMoveWorkspaceRequest
+      description: Request schema for moving a user to a different workspace.
+    StateOption:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - code
+      - name
+      title: StateOption
+      description: A US state available for geography restriction.
+    AdminCreditsSummaryResponse:
+      properties:
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        users:
+          items:
+            $ref: '#/components/schemas/AdminCreditUserUsageItem'
+          type: array
+          title: Users
+      type: object
+      required:
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - users
+      title: AdminCreditsSummaryResponse
+      description: Response schema for workspace credit summary with per-user breakdown.
+    AdminWorkspaceListResponse:
       properties:
         items:
           items:
-            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+            $ref: '#/components/schemas/AdminWorkspaceListItem'
           type: array
           title: Items
+        total:
+          type: integer
+          title: Total
       type: object
       required:
       - items
-      title: AdminDuplicationLogResponse
-      description: Recent duplications, newest first, for the admin tracker panel.
-    AdminWorkspaceProvisionRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          minLength: 1
-          title: Name
-        counties:
-          items:
-            $ref: '#/components/schemas/WorkspaceCountySelection'
-          type: array
-          title: Counties
-        initial_credits:
-          type: integer
-          minimum: 0.0
-          title: Initial Credits
-          default: 5000
-        region_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Region Id
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - counties
-      title: AdminWorkspaceProvisionRequest
-      description: 'Request body for provisioning a new workspace end-to-end.
-
-
-        Wraps `AdminWorkspaceService.provision_workspace_with_counties`: creates
-
-        the Neon sandbox and seeds `workspace_counties` rows. At least one county
-
-        is mandatory — a workspace with no loaded counties has zero geographic
-
-        query access. Rejects unknown fields with 422.
-
-
-        `counties` non-emptiness and in-list duplicates are validated in the
-
-        service (400) rather than here, so the same guard covers the script caller
-
-        (`scripts/provision_prod_admin_workspace.py`) and the error is a 400, not a
-
-        422, matching the rest of the provisioning contract.'
+      - total
+      title: AdminWorkspaceListResponse
+      description: Response schema for workspace list endpoint.
     FeatureOverrideWorkspaceItem:
       properties:
         workspace_id:
@@ -2439,32 +2776,217 @@ components:
       - enabled
       title: FeatureOverrideWorkspaceItem
       description: One workspace overriding a feature, with its current stored value.
-    KnowledgeRunCreate:
+    FeatureToggleItem:
       properties:
-        scope:
-          $ref: '#/components/schemas/KnowledgeScope'
-        owner_id:
+        key:
           type: string
-          format: uuid
-          title: Owner Id
-        title:
+          title: Key
+        label:
           type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
+          title: Label
+        description:
           type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
+          title: Description
+        enabled:
+          type: boolean
+          title: Enabled
+        is_override:
+          type: boolean
+          title: Is Override
+        global_default:
+          type: boolean
+          title: Global Default
       type: object
       required:
-      - scope
-      - owner_id
-      - title
-      - content
-      title: KnowledgeRunCreate
-      description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
+      - key
+      - label
+      - description
+      - enabled
+      - is_override
+      - global_default
+      title: FeatureToggleItem
+      description: 'One governable feature toggle and its effective state for a workspace.
+
+
+        `enabled` is the resolved on/off (override ?? global ?? seed). `is_override`
+
+        flags whether the workspace has an explicit stored value versus inheriting
+
+        the global default; `global_default` is what it inherits when not overridden.'
+    AdminDuplicationLogEntry:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        source_project_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Project Name
+        target_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Name
+        duplicate_type:
+          type: string
+          title: Duplicate Type
+        status:
+          type: string
+          title: Status
+        delivered_project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Delivered Project Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - source_project_name
+      - target_name
+      - duplicate_type
+      - status
+      - delivered_project_id
+      - created_at
+      title: AdminDuplicationLogEntry
+      description: 'One recent duplication for the admin tracker.
+
+
+        ``status`` is PENDING | SUCCESS | FAILURE. Synchronous user duplications are
+
+        always SUCCESS (logged after the copy committed); workspace deliveries
+
+        resolve their durable workflow''s live status. ``delivered_project_id`` is the
+
+        resulting project once it exists (immediately for the user path, on SUCCESS
+
+        for the workspace path), used to link straight to the copy.'
+    AdminWorkspaceListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        member_count:
+          type: integer
+          title: Member Count
+        project_count:
+          type: integer
+          title: Project Count
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - name
+      - member_count
+      - project_count
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - is_suspended
+      - created_at
+      - last_active_at
+      title: AdminWorkspaceListItem
+      description: Summary schema for workspace list items.
+    AdminKnowledgeApplyRunResponse:
+      properties:
+        created:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Created
+        updated:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Updated
+        deleted_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Deleted Ids
+        run_marker_id:
+          type: string
+          format: uuid
+          title: Run Marker Id
+      type: object
+      required:
+      - created
+      - updated
+      - deleted_ids
+      - run_marker_id
+      title: AdminKnowledgeApplyRunResponse
+      description: What an applied run changed, plus the run-marker audit row's id.
+    SkillScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      - system
+      title: SkillScope
+      description: 'Tier a skill applies to.
+
+
+        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
+
+        scope: globally-available skills that are read-only through the public
+
+        service/API and writable only via the internal admin override,
+
+        plus the in-code create-skill playbook registry. ``user`` skills are owned by
+
+        a single user, ``workspace`` skills by a workspace, ``system`` skills by
+
+        neither.'
+    AdminExampleProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminExampleProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminExampleProjectListResponse
+      description: Response schema for example project list endpoint.
     RetellConfigResponse:
       properties:
         retell_agent_id:
@@ -2506,275 +3028,36 @@ components:
       description: 'Per-workspace Retell account config. Secrets returned as last-4
 
         masked hints only — never the decrypted value.'
-    AdminUserUpdateRequest:
+    AdminSendInviteResponse:
       properties:
-        is_internal:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Internal
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        plan_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Plan Type
-        has_completed_onboarding:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Has Completed Onboarding
-      type: object
-      title: AdminUserUpdateRequest
-      description: Request schema for updating user fields.
-    KnowledgeEntryResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        scope:
-          $ref: '#/components/schemas/KnowledgeScope'
-        user_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: User Id
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Workspace Id
-        title:
-          type: string
-          title: Title
-        content:
-          type: string
-          title: Content
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        is_core:
+        success:
           type: boolean
-          title: Is Core
-          description: Whether this is the reserved always-injected core entry (MAIA-2833).
-          readOnly: true
+          title: Success
+        message:
+          type: string
+          title: Message
       type: object
       required:
-      - id
-      - scope
-      - title
-      - content
-      - created_at
-      - updated_at
-      - is_core
-      title: KnowledgeEntryResponse
-      description: A titled knowledge entry as returned to clients.
-    AdminWorkspaceMemberItem:
+      - success
+      - message
+      title: AdminSendInviteResponse
+      description: Response schema for send invite email endpoint.
+    AdminProjectListResponse:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        email:
-          type: string
-          title: Email
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        workspace_role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workspace Role
-        is_internal:
-          type: boolean
-          title: Is Internal
-        is_suspended:
-          type: boolean
-          title: Is Suspended
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-        last_active_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Active At
-      type: object
-      required:
-      - id
-      - email
-      - display_name
-      - workspace_role
-      - is_internal
-      - is_suspended
-      - created_at
-      - used_enrichment_credits
-      - last_active_at
-      title: AdminWorkspaceMemberItem
-      description: Member summary for workspace detail view.
-    AdminExampleProjectListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - owner_display_name
-      - created_at
-      title: AdminExampleProjectListItem
-      description: Summary schema for example project list items.
-    AdminProjectPreviewResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        layers:
+        items:
           items:
-            $ref: '#/components/schemas/AdminLayerSummary'
+            $ref: '#/components/schemas/AdminProjectListItem'
           type: array
-          title: Layers
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - owner_display_name
-      - created_at
-      - layers
-      title: AdminProjectPreviewResponse
-      description: Response schema for project preview endpoint.
-    WorkspaceCountySelection:
-      properties:
-        state_fips:
-          type: string
-          maxLength: 2
-          minLength: 2
-          pattern: ^\d{2}$
-          title: State Fips
-        county_fips:
-          type: string
-          maxLength: 3
-          minLength: 3
-          pattern: ^\d{3}$
-          title: County Fips
-      additionalProperties: false
-      type: object
-      required:
-      - state_fips
-      - county_fips
-      title: WorkspaceCountySelection
-      description: 'One county selection — FIPS-shape only.
-
-
-        Used by the append-county and workspace-provisioning request bodies.
-
-        Callers supply ``state_fips`` (2-digit) + ``county_fips`` (3-digit) only.
-
-        ``extra="forbid"`` rejects callers still constructing slug-shape kwargs
-
-        with 422 rather than silently dropping the slug pair.
-
-
-        The handler resolves the FIPS pair to a USPS state code before calling
-
-        the service (the ``workspace_counties.state`` column is USPS, not
-
-        numeric FIPS).'
-    AdminCreditUserUsageItem:
-      properties:
-        user_id:
-          type: string
-          format: uuid
-          title: User Id
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        email:
-          type: string
-          title: Email
-        used_enrichment_credits:
+          title: Items
+        total:
           type: integer
-          title: Used Enrichment Credits
+          title: Total
       type: object
       required:
-      - user_id
-      - display_name
-      - email
-      - used_enrichment_credits
-      title: AdminCreditUserUsageItem
-      description: Per-user credit usage in a workspace.
+      - items
+      - total
+      title: AdminProjectListResponse
+      description: Response schema for admin project list endpoints.
     AdminUserDetailResponse:
       properties:
         id:
@@ -2866,108 +3149,74 @@ components:
       - last_active_at
       title: AdminUserDetailResponse
       description: Full user detail response for admin view.
-    AdminKnowledgeRunCursorResponse:
+    CountyOption:
       properties:
-        meetings_through:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+        state:
+          type: string
+          title: State
+      type: object
+      required:
+      - fips
+      - name
+      - state
+      title: CountyOption
+      description: A FIPS county available for geography restriction.
+    MissingCountyCoverageDetail:
+      properties:
+        code:
+          type: string
+          title: Code
+          default: missing_county_coverage
+        missing_counties:
+          items:
+            $ref: '#/components/schemas/MissingCounty'
+          type: array
+          title: Missing Counties
+      type: object
+      required:
+      - missing_counties
+      title: MissingCountyCoverageDetail
+      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
+    AdminWorkspaceUpdateRequest:
+      properties:
+        name:
           anyOf:
           - type: string
+            maxLength: 255
+            minLength: 1
           - type: 'null'
-          title: Meetings Through
-        last_run_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Run At
-        runs:
-          type: integer
-          title: Runs
+          title: Name
+      additionalProperties: false
       type: object
-      required:
-      - meetings_through
-      - last_run_at
-      - runs
-      title: AdminKnowledgeRunCursorResponse
-      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
+      title: AdminWorkspaceUpdateRequest
+      description: 'Request schema for updating workspace fields.
 
 
-        ``meetings_through`` is the opaque ISO-8601 string from the newest run
+        All fields optional; uses exclude_unset semantics. Rejects unknown fields
 
-        marker''s metadata; ``runs`` counts all markers for the workspace.'
-    AdminKnowledgeUpdateRequest:
-      properties:
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - title
-      - content
-      title: AdminKnowledgeUpdateRequest
-      description: Replace an entry's title + content.
-    FeatureToggleItem:
-      properties:
-        key:
-          type: string
-          title: Key
-        label:
-          type: string
-          title: Label
-        description:
-          type: string
-          title: Description
-        enabled:
-          type: boolean
-          title: Enabled
-        is_override:
-          type: boolean
-          title: Is Override
-        global_default:
-          type: boolean
-          title: Global Default
-      type: object
-      required:
-      - key
-      - label
-      - description
-      - enabled
-      - is_override
-      - global_default
-      title: FeatureToggleItem
-      description: 'One governable feature toggle and its effective state for a workspace.
+        with 422 — legacy callers sending the removed `allowed_geographies` key
 
-
-        `enabled` is the resolved on/off (override ?? global ?? seed). `is_override`
-
-        flags whether the workspace has an explicit stored value versus inheriting
-
-        the global default; `global_default` is what it inherits when not overridden.'
-    AdminProjectSearchResult:
+        should fail loud rather than silently no-op.'
+    AdminProjectListItem:
       properties:
         id:
           type: string
           format: uuid
           title: Id
         name:
-          type: string
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        workspace_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workspace Name
+        status:
+          type: string
+          title: Status
         created_at:
           anyOf:
           - type: string
@@ -2980,38 +3229,205 @@ components:
             format: date-time
           - type: 'null'
           title: Updated At
-        visibility:
+        owner_display_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Visibility
+          title: Owner Display Name
+        is_locked:
+          type: boolean
+          title: Is Locked
+          default: false
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
       type: object
       required:
       - id
       - name
-      - owner_display_name
-      - workspace_name
+      - status
       - created_at
       - updated_at
-      - visibility
-      title: AdminProjectSearchResult
-      description: Search result item for project search.
-    FeatureToggleUpdateRequest:
+      title: AdminProjectListItem
+      description: Summary schema for project list items in admin views.
+    KnowledgeRunCreate:
       properties:
-        key:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
           type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
           minLength: 1
-          title: Key
-        enabled:
-          type: boolean
-          title: Enabled
-      additionalProperties: false
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
       type: object
       required:
-      - key
-      - enabled
-      title: FeatureToggleUpdateRequest
-      description: Request to flip a single feature toggle for a workspace.
+      - scope
+      - owner_id
+      - title
+      - content
+      title: KnowledgeRunCreate
+      description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
+    AdminUserListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+        plan_type:
+          type: string
+          title: Plan Type
+        project_count:
+          type: integer
+          title: Project Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - workspace_id
+      - workspace_name
+      - is_internal
+      - is_suspended
+      - has_completed_onboarding
+      - plan_type
+      - project_count
+      - created_at
+      - last_active_at
+      title: AdminUserListItem
+      description: Summary schema for user list items.
+    KnowledgeRunDelete:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+      type: object
+      required:
+      - entry_id
+      title: KnowledgeRunDelete
+      description: Delete an existing entry.
+    AdminStatsResponse:
+      properties:
+        workspace_count:
+          type: integer
+          title: Workspace Count
+        user_count:
+          type: integer
+          title: User Count
+        project_count:
+          type: integer
+          title: Project Count
+        example_project_count:
+          type: integer
+          title: Example Project Count
+      type: object
+      required:
+      - workspace_count
+      - user_count
+      - project_count
+      - example_project_count
+      title: AdminStatsResponse
+      description: Summary statistics for the admin dashboard.
+    WorkspaceCountyLoadStatus:
+      type: string
+      enum:
+      - provisioning
+      - pending
+      - loading
+      - succeeded
+      - failed
+      title: WorkspaceCountyLoadStatus
+      description: 'Load status for a workspace-county pair.
+
+
+        Lifecycle: ``provisioning`` (initial — set by workspace standup before the
+
+        Neon project is ready) → ``pending`` (set by ``provision_workspace_op``
+
+        after schema apply succeeds; the pickup sensor''s gate value) →
+
+        ``loading`` (set by ``sandbox_load`` when it starts writing for one
+
+        county) → ``succeeded`` | ``failed`` (terminal, set by the asset''s
+
+        try/finally). ``provisioning`` and the mid-load ``loading`` were
+
+        previously the same value; MAIA-2309 split them so the lifecycle reads
+
+        literally instead of overloading ``loading`` across two phases.'
+    AdminAuditLogListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminAuditLogResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: AdminAuditLogListResponse
+      description: Paginated response for audit log queries.
     ValidationError:
       properties:
         loc:
@@ -3038,17 +3454,578 @@ components:
       - msg
       - type
       title: ValidationError
-    KnowledgeRunDelete:
+    AdminProjectPreviewResponse:
       properties:
-        entry_id:
+        id:
           type: string
           format: uuid
-          title: Entry Id
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        layers:
+          items:
+            $ref: '#/components/schemas/AdminLayerSummary'
+          type: array
+          title: Layers
       type: object
       required:
-      - entry_id
-      title: KnowledgeRunDelete
-      description: Delete an existing entry.
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      - layers
+      title: AdminProjectPreviewResponse
+      description: Response schema for project preview endpoint.
+    ProjectLockStatus:
+      properties:
+        is_locked:
+          type: boolean
+          title: Is Locked
+          description: Whether the project is currently locked.
+        locked_by_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By User Id
+          description: User ID of the lock holder, if locked.
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+          description: Display name of the lock holder for UI.
+        locked_by_avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Avatar Color
+          description: Avatar color name of the lock holder for UI.
+        is_current_user:
+          type: boolean
+          title: Is Current User
+          description: True when the current user holds the lock.
+          default: false
+        ttl_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ttl Seconds
+          description: Remaining TTL of the lock in seconds, if locked.
+      type: object
+      required:
+      - is_locked
+      title: ProjectLockStatus
+      description: Status of the project editing lock.
+    AdminAuditLogResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        admin_user_id:
+          type: string
+          format: uuid
+          title: Admin User Id
+        admin_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Admin Email
+        action:
+          type: string
+          title: Action
+        target_type:
+          type: string
+          title: Target Type
+        target_id:
+          type: string
+          format: uuid
+          title: Target Id
+        target_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Display Name
+        before_value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Before Value
+        after_value:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: After Value
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - admin_user_id
+      - admin_email
+      - action
+      - target_type
+      - target_id
+      - target_display_name
+      - before_value
+      - after_value
+      - metadata
+      - created_at
+      title: AdminAuditLogResponse
+      description: Response schema for a single audit log entry.
+    SetGlobalFlagDefaultRequest:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+      additionalProperties: false
+      type: object
+      required:
+      - enabled
+      title: SetGlobalFlagDefaultRequest
+      description: Request to set the platform-wide default for one feature toggle.
+    AdminSkillDraftResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillDraftResponse
+      description: A drafted skill's three authored fields, for pre-filling the editor.
+    AdminSetCreditsRequest:
+      properties:
+        available_credits:
+          type: integer
+          minimum: 0.0
+          title: Available Credits
+      type: object
+      required:
+      - available_credits
+      title: AdminSetCreditsRequest
+      description: Request schema for setting available credits to an exact value.
+    AdminCreditUserUsageItem:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        email:
+          type: string
+          title: Email
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+      type: object
+      required:
+      - user_id
+      - display_name
+      - email
+      - used_enrichment_credits
+      title: AdminCreditUserUsageItem
+      description: Per-user credit usage in a workspace.
+    AdminWorkspaceMemberItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Role
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - workspace_role
+      - is_internal
+      - is_suspended
+      - created_at
+      - used_enrichment_credits
+      - last_active_at
+      title: AdminWorkspaceMemberItem
+      description: Member summary for workspace detail view.
+    FeatureToggleUpdateRequest:
+      properties:
+        key:
+          type: string
+          minLength: 1
+          title: Key
+        enabled:
+          type: boolean
+          title: Enabled
+      additionalProperties: false
+      type: object
+      required:
+      - key
+      - enabled
+      title: FeatureToggleUpdateRequest
+      description: Request to flip a single feature toggle for a workspace.
+    FeatureTogglesResponse:
+      properties:
+        toggles:
+          items:
+            $ref: '#/components/schemas/FeatureToggleItem'
+          type: array
+          title: Toggles
+      type: object
+      required:
+      - toggles
+      title: FeatureTogglesResponse
+      description: All governable feature toggles for a workspace (registry + overrides).
+    AdminSkillDraftRequest:
+      properties:
+        prompt:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Prompt
+        current_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Name
+        current_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Description
+        current_body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Body
+      type: object
+      required:
+      - prompt
+      title: AdminSkillDraftRequest
+      description: 'Draft a system skill from a plain-language description (no persistence).
+
+
+        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
+
+        feedback rather than a fresh request; omit them for a first draft. The draft
+
+        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
+
+        uncapped beyond the prompt length.'
+    KnowledgeRunProvenance:
+      properties:
+        source:
+          type: string
+          minLength: 1
+          title: Source
+          default: populate-knowledge
+        run_at:
+          type: string
+          format: date-time
+          title: Run At
+        meetings_through:
+          type: string
+          format: date-time
+          title: Meetings Through
+      type: object
+      required:
+      - run_at
+      - meetings_through
+      title: KnowledgeRunProvenance
+      description: 'Provenance stamped into every audit row a knowledge run writes.
+
+
+        ``meetings_through`` is the refresh cursor: the latest source meeting a run
+
+        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
+
+        only newer material.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminDeliveryStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - status
+      title: AdminDeliveryStatusResponse
+      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
+    AdminDuplicationLogResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminDuplicationLogResponse
+      description: Recent duplications, newest first, for the admin tracker panel.
+    AdminKnowledgeApplyRunRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        provenance:
+          $ref: '#/components/schemas/KnowledgeRunProvenance'
+        creates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunCreate'
+          type: array
+          title: Creates
+        updates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunUpdate'
+          type: array
+          title: Updates
+        deletes:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunDelete'
+          type: array
+          title: Deletes
+      type: object
+      required:
+      - workspace_id
+      - provenance
+      title: AdminKnowledgeApplyRunRequest
+      description: 'One populate-knowledge run, applied atomically to a single workspace.
+
+
+        The item shapes (with title/content caps) are the domain run models; the
+
+        audit actor is the authenticated internal caller, so the payload carries no
+
+        admin id.'
+    AppendCountyRequest:
+      properties:
+        state_fips:
+          type: string
+          maxLength: 2
+          minLength: 2
+          pattern: ^\d{2}$
+          title: State Fips
+        county_fips:
+          type: string
+          maxLength: 3
+          minLength: 3
+          pattern: ^\d{3}$
+          title: County Fips
+      additionalProperties: false
+      type: object
+      required:
+      - state_fips
+      - county_fips
+      title: AppendCountyRequest
+      description: Request body for appending one county to an existing workspace sandbox.
+    FeatureOverridesResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+        overrides:
+          items:
+            $ref: '#/components/schemas/FeatureOverrideWorkspaceItem'
+          type: array
+          title: Overrides
+      type: object
+      required:
+      - key
+      - overrides
+      title: FeatureOverridesResponse
+      description: Workspaces that override one feature (deviate from the global default).
+    AdminCreateUserRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        display_name:
+          type: string
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        is_internal:
+          type: boolean
+          title: Is Internal
+          default: false
+        auth_method:
+          type: string
+          enum:
+          - google
+          - password
+          title: Auth Method
+          default: google
+        password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Password
+        send_invite:
+          type: boolean
+          title: Send Invite
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - email
+      - display_name
+      - workspace_id
+      title: AdminCreateUserRequest
+      description: 'Request schema for creating a new user account.
+
+
+        Rejects unknown fields with 422 — legacy callers sending the removed
+
+        `create_workspace_allowed_geographies` key should fail loud rather than
+
+        silently no-op (see MAIA-1562).'
+    SkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        body:
+          type: string
+          title: Body
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_starter:
+          type: boolean
+          title: Is Starter
+          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
+          default: false
+      type: object
+      required:
+      - id
+      - scope
+      - name
+      - description
+      - body
+      - created_at
+      - updated_at
+      title: SkillResponse
+      description: A skill as returned to clients (full record, including body).
     KnowledgeRunUpdate:
       properties:
         entry_id:
@@ -3072,6 +4049,82 @@ components:
       - content
       title: KnowledgeRunUpdate
       description: Replace an existing entry's title + content.
+    GlobalFeatureFlagItem:
+      properties:
+        key:
+          type: string
+          title: Key
+        label:
+          type: string
+          title: Label
+        description:
+          type: string
+          title: Description
+        global_default:
+          type: boolean
+          title: Global Default
+        override_count:
+          type: integer
+          title: Override Count
+      type: object
+      required:
+      - key
+      - label
+      - description
+      - global_default
+      - override_count
+      title: GlobalFeatureFlagItem
+      description: One feature toggle's platform-wide default and override count.
+    KnowledgeEntryResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        is_core:
+          type: boolean
+          title: Is Core
+          description: Whether this is the reserved always-injected core entry (MAIA-2833).
+          readOnly: true
+      type: object
+      required:
+      - id
+      - scope
+      - title
+      - content
+      - created_at
+      - updated_at
+      - is_core
+      title: KnowledgeEntryResponse
+      description: A titled knowledge entry as returned to clients.
     WorkspaceCountyResponse:
       properties:
         id:
@@ -3194,1059 +4247,6 @@ components:
         workspace — there is no PostHog flag layered on top, so flipping this
 
         to true makes the feature visible to workspace users immediately.'
-    ResetFeatureOverridesResponse:
-      properties:
-        key:
-          type: string
-          title: Key
-        cleared_count:
-          type: integer
-          title: Cleared Count
-      type: object
-      required:
-      - key
-      - cleared_count
-      title: ResetFeatureOverridesResponse
-      description: Result from clearing every per-workspace override for one feature.
-    AdminUserListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminUserListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminUserListResponse
-      description: Response schema for user list endpoint.
-    AdminSkillDraftRequest:
-      properties:
-        prompt:
-          type: string
-          maxLength: 4000
-          minLength: 1
-          title: Prompt
-        current_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Name
-        current_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Description
-        current_body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Body
-      type: object
-      required:
-      - prompt
-      title: AdminSkillDraftRequest
-      description: 'Draft a system skill from a plain-language description (no persistence).
-
-
-        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
-
-        feedback rather than a fresh request; omit them for a first draft. The draft
-
-        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
-
-        uncapped beyond the prompt length.'
-    MissingCountyCoverageResponse:
-      properties:
-        detail:
-          $ref: '#/components/schemas/MissingCountyCoverageDetail'
-      type: object
-      required:
-      - detail
-      title: MissingCountyCoverageResponse
-      description: 'Wire shape of the county-coverage 409.
-
-
-        FastAPI serializes ``HTTPException(detail=...)`` as ``{"detail": ...}``, so
-
-        the documented response body must carry the wrapper — clients read
-
-        ``data.detail.missing_counties``.'
-    SkillResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        scope:
-          $ref: '#/components/schemas/SkillScope'
-        user_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: User Id
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        body:
-          type: string
-          title: Body
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        is_starter:
-          type: boolean
-          title: Is Starter
-          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
-          default: false
-      type: object
-      required:
-      - id
-      - scope
-      - name
-      - description
-      - body
-      - created_at
-      - updated_at
-      title: SkillResponse
-      description: A skill as returned to clients (full record, including body).
-    AdminWorkspaceUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 255
-            minLength: 1
-          - type: 'null'
-          title: Name
-      additionalProperties: false
-      type: object
-      title: AdminWorkspaceUpdateRequest
-      description: 'Request schema for updating workspace fields.
-
-
-        All fields optional; uses exclude_unset semantics. Rejects unknown fields
-
-        with 422 — legacy callers sending the removed `allowed_geographies` key
-
-        should fail loud rather than silently no-op.'
-    StateOption:
-      properties:
-        code:
-          type: string
-          title: Code
-        name:
-          type: string
-          title: Name
-      type: object
-      required:
-      - code
-      - name
-      title: StateOption
-      description: A US state available for geography restriction.
-    AdminAuditLogListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminAuditLogResponse'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-        limit:
-          type: integer
-          title: Limit
-        offset:
-          type: integer
-          title: Offset
-      type: object
-      required:
-      - items
-      - total
-      - limit
-      - offset
-      title: AdminAuditLogListResponse
-      description: Paginated response for audit log queries.
-    KnowledgeScope:
-      type: string
-      enum:
-      - user
-      - workspace
-      title: KnowledgeScope
-      description: 'Tier a knowledge entry applies to.
-
-
-        Resolution is additive and ordered ``user -> workspace`` — precedence is
-
-        ordering only, not override (no shadowing in v1). "System" knowledge is the
-
-        agent''s existing system prompt — a separate, pre-existing mechanism that does
-
-        not live in this table — so there is no ``system`` scope here.'
-    AdminSkillDraftResponse:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        body:
-          type: string
-          title: Body
-      type: object
-      required:
-      - name
-      - description
-      - body
-      title: AdminSkillDraftResponse
-      description: A drafted skill's three authored fields, for pre-filling the editor.
-    AdminLayerSummary:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        feature_count:
-          type: integer
-          title: Feature Count
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - feature_count
-      title: AdminLayerSummary
-      description: Layer summary for project preview.
-    AdminProjectListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminProjectListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminProjectListResponse
-      description: Response schema for admin project list endpoints.
-    AdminStatsResponse:
-      properties:
-        workspace_count:
-          type: integer
-          title: Workspace Count
-        user_count:
-          type: integer
-          title: User Count
-        project_count:
-          type: integer
-          title: Project Count
-        example_project_count:
-          type: integer
-          title: Example Project Count
-      type: object
-      required:
-      - workspace_count
-      - user_count
-      - project_count
-      - example_project_count
-      title: AdminStatsResponse
-      description: Summary statistics for the admin dashboard.
-    CountyOption:
-      properties:
-        fips:
-          type: string
-          title: Fips
-        name:
-          type: string
-          title: Name
-        state:
-          type: string
-          title: State
-      type: object
-      required:
-      - fips
-      - name
-      - state
-      title: CountyOption
-      description: A FIPS county available for geography restriction.
-    AdminWorkspaceListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        member_count:
-          type: integer
-          title: Member Count
-        project_count:
-          type: integer
-          title: Project Count
-        available_enrichment_credits:
-          type: integer
-          title: Available Enrichment Credits
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-        remaining_credits:
-          type: integer
-          title: Remaining Credits
-        is_suspended:
-          type: boolean
-          title: Is Suspended
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        last_active_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Active At
-      type: object
-      required:
-      - id
-      - name
-      - member_count
-      - project_count
-      - available_enrichment_credits
-      - used_enrichment_credits
-      - remaining_credits
-      - is_suspended
-      - created_at
-      - last_active_at
-      title: AdminWorkspaceListItem
-      description: Summary schema for workspace list items.
-    AdminKnowledgeApplyRunRequest:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        provenance:
-          $ref: '#/components/schemas/KnowledgeRunProvenance'
-        creates:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunCreate'
-          type: array
-          title: Creates
-        updates:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunUpdate'
-          type: array
-          title: Updates
-        deletes:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunDelete'
-          type: array
-          title: Deletes
-      type: object
-      required:
-      - workspace_id
-      - provenance
-      title: AdminKnowledgeApplyRunRequest
-      description: 'One populate-knowledge run, applied atomically to a single workspace.
-
-
-        The item shapes (with title/content caps) are the domain run models; the
-
-        audit actor is the authenticated internal caller, so the payload carries no
-
-        admin id.'
-    GlobalFeatureFlagsResponse:
-      properties:
-        flags:
-          items:
-            $ref: '#/components/schemas/GlobalFeatureFlagItem'
-          type: array
-          title: Flags
-      type: object
-      required:
-      - flags
-      title: GlobalFeatureFlagsResponse
-      description: Every registered feature toggle with its global default + override count.
-    AdminCreditsSummaryResponse:
-      properties:
-        available_enrichment_credits:
-          type: integer
-          title: Available Enrichment Credits
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-        remaining_credits:
-          type: integer
-          title: Remaining Credits
-        users:
-          items:
-            $ref: '#/components/schemas/AdminCreditUserUsageItem'
-          type: array
-          title: Users
-      type: object
-      required:
-      - available_enrichment_credits
-      - used_enrichment_credits
-      - remaining_credits
-      - users
-      title: AdminCreditsSummaryResponse
-      description: Response schema for workspace credit summary with per-user breakdown.
-    GlobalFeatureFlagItem:
-      properties:
-        key:
-          type: string
-          title: Key
-        label:
-          type: string
-          title: Label
-        description:
-          type: string
-          title: Description
-        global_default:
-          type: boolean
-          title: Global Default
-        override_count:
-          type: integer
-          title: Override Count
-      type: object
-      required:
-      - key
-      - label
-      - description
-      - global_default
-      - override_count
-      title: GlobalFeatureFlagItem
-      description: One feature toggle's platform-wide default and override count.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AdminSkillResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        scope:
-          $ref: '#/components/schemas/SkillScope'
-        user_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: User Id
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        body:
-          type: string
-          title: Body
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        is_starter:
-          type: boolean
-          title: Is Starter
-          description: Whether this skill surfaces as a first-run starter in the new-project gallery. System (Ready-made by MAIA) and workspace-scoped skills may be starters; user-scoped skills are never starters.
-          default: false
-        workspace_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Workspace Ids
-          description: The workspaces this curated (system) skill is available in. Empty means global (every workspace).
-      type: object
-      required:
-      - id
-      - scope
-      - name
-      - description
-      - body
-      - created_at
-      - updated_at
-      title: AdminSkillResponse
-      description: 'A curated skill as returned to the internal admin catalog.
-
-
-        Adds the ``workspace_ids`` availability set, which the public
-
-        ``SkillResponse`` deliberately omits: for a skill restricted to a set of
-
-        workspaces, that set contains *other* tenants'' workspace ids, so exposing it
-
-        on the public read paths (picker / gallery) would leak cross-tenant data to
-
-        any workspace the skill is visible in. Only the internal admin surface
-
-        (``require_internal``) sees the availability set.'
-    AdminKnowledgeCreateRequest:
-      properties:
-        scope:
-          $ref: '#/components/schemas/KnowledgeScope'
-        owner_id:
-          type: string
-          format: uuid
-          title: Owner Id
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - scope
-      - owner_id
-      - title
-      - content
-      title: AdminKnowledgeCreateRequest
-      description: 'Create a titled entry at ``scope`` for the target ``owner_id``.
-
-
-        ``owner_id`` is the target user id (user scope) or workspace id (workspace
-
-        scope).'
-    GeographyOptionsResponse:
-      properties:
-        states:
-          items:
-            $ref: '#/components/schemas/StateOption'
-          type: array
-          title: States
-        counties:
-          items:
-            $ref: '#/components/schemas/CountyOption'
-          type: array
-          title: Counties
-      type: object
-      required:
-      - states
-      - counties
-      title: GeographyOptionsResponse
-      description: Available geography options for workspace restriction.
-    FeatureTogglesResponse:
-      properties:
-        toggles:
-          items:
-            $ref: '#/components/schemas/FeatureToggleItem'
-          type: array
-          title: Toggles
-      type: object
-      required:
-      - toggles
-      title: FeatureTogglesResponse
-      description: All governable feature toggles for a workspace (registry + overrides).
-    ProjectLockStatus:
-      properties:
-        is_locked:
-          type: boolean
-          title: Is Locked
-          description: Whether the project is currently locked.
-        locked_by_user_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Locked By User Id
-          description: User ID of the lock holder, if locked.
-        locked_by_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Locked By Display Name
-          description: Display name of the lock holder for UI.
-        locked_by_avatar_color:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Locked By Avatar Color
-          description: Avatar color name of the lock holder for UI.
-        is_current_user:
-          type: boolean
-          title: Is Current User
-          description: True when the current user holds the lock.
-          default: false
-        ttl_seconds:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Ttl Seconds
-          description: Remaining TTL of the lock in seconds, if locked.
-      type: object
-      required:
-      - is_locked
-      title: ProjectLockStatus
-      description: Status of the project editing lock.
-    AdminSkillWriteRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Name
-        description:
-          type: string
-          maxLength: 400
-          minLength: 1
-          title: Description
-        body:
-          type: string
-          maxLength: 32000
-          minLength: 1
-          title: Body
-        is_starter:
-          type: boolean
-          title: Is Starter
-          default: false
-        workspace_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Workspace Ids
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - description
-      - body
-      title: AdminSkillWriteRequest
-      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
-
-
-        ``workspace_ids`` sets availability on both create and update: empty is a
-
-        global skill (visible to every workspace); a set restricts it to those
-
-        workspaces. ``is_starter`` is independent of availability.
-
-
-        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
-
-        caller from before the multi-workspace cutover would otherwise have it
-
-        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
-
-        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
-    AdminDeliveryStatusResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-      type: object
-      required:
-      - status
-      title: AdminDeliveryStatusResponse
-      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
-    AdminProjectSearchResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminProjectSearchResult'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: AdminProjectSearchResponse
-      description: Response schema for project search endpoint.
-    AdminWorkspaceListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminWorkspaceListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminWorkspaceListResponse
-      description: Response schema for workspace list endpoint.
-    AvailableCountyResponse:
-      properties:
-        state:
-          type: string
-          title: State
-        county_name:
-          type: string
-          title: County Name
-        state_fips:
-          type: string
-          title: State Fips
-        county_fips:
-          type: string
-          title: County Fips
-      type: object
-      required:
-      - state
-      - county_name
-      - state_fips
-      - county_fips
-      title: AvailableCountyResponse
-      description: 'A county available to load (not yet in this workspace).
-
-
-        ``county_name`` is the TIGER LSAD form (e.g. ``"Los Angeles County"``)
-
-        populated from the picker''s ``AvailableCounty`` named tuple.'
-    WorkspaceCountyLoadStatus:
-      type: string
-      enum:
-      - provisioning
-      - pending
-      - loading
-      - succeeded
-      - failed
-      title: WorkspaceCountyLoadStatus
-      description: 'Load status for a workspace-county pair.
-
-
-        Lifecycle: ``provisioning`` (initial — set by workspace standup before the
-
-        Neon project is ready) → ``pending`` (set by ``provision_workspace_op``
-
-        after schema apply succeeds; the pickup sensor''s gate value) →
-
-        ``loading`` (set by ``sandbox_load`` when it starts writing for one
-
-        county) → ``succeeded`` | ``failed`` (terminal, set by the asset''s
-
-        try/finally). ``provisioning`` and the mid-load ``loading`` were
-
-        previously the same value; MAIA-2309 split them so the lifecycle reads
-
-        literally instead of overloading ``loading`` across two phases.'
-    AdminSetCreditsRequest:
-      properties:
-        available_credits:
-          type: integer
-          minimum: 0.0
-          title: Available Credits
-      type: object
-      required:
-      - available_credits
-      title: AdminSetCreditsRequest
-      description: Request schema for setting available credits to an exact value.
-    FeatureOverridesResponse:
-      properties:
-        key:
-          type: string
-          title: Key
-        overrides:
-          items:
-            $ref: '#/components/schemas/FeatureOverrideWorkspaceItem'
-          type: array
-          title: Overrides
-      type: object
-      required:
-      - key
-      - overrides
-      title: FeatureOverridesResponse
-      description: Workspaces that override one feature (deviate from the global default).
-    AdminMoveWorkspaceRequest:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-      type: object
-      required:
-      - workspace_id
-      title: AdminMoveWorkspaceRequest
-      description: Request schema for moving a user to a different workspace.
-    AdminDuplicateProjectRequest:
-      properties:
-        target_workspace_id:
-          type: string
-          format: uuid
-          title: Target Workspace Id
-        acknowledge_missing_counties:
-          type: boolean
-          title: Acknowledge Missing Counties
-          default: false
-      type: object
-      required:
-      - target_workspace_id
-      title: AdminDuplicateProjectRequest
-      description: Request schema for delivering a curated project to a workspace.
-    AdminDuplicationLogEntry:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        source_project_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Project Name
-        target_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Target Name
-        duplicate_type:
-          type: string
-          title: Duplicate Type
-        status:
-          type: string
-          title: Status
-        delivered_project_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Delivered Project Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - source_project_name
-      - target_name
-      - duplicate_type
-      - status
-      - delivered_project_id
-      - created_at
-      title: AdminDuplicationLogEntry
-      description: 'One recent duplication for the admin tracker.
-
-
-        ``status`` is PENDING | SUCCESS | FAILURE. Synchronous user duplications are
-
-        always SUCCESS (logged after the copy committed); workspace deliveries
-
-        resolve their durable workflow''s live status. ``delivered_project_id`` is the
-
-        resulting project once it exists (immediately for the user path, on SUCCESS
-
-        for the workspace path), used to link straight to the copy.'
-    SkillScope:
-      type: string
-      enum:
-      - user
-      - workspace
-      - system
-      title: SkillScope
-      description: 'Tier a skill applies to.
-
-
-        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
-
-        scope: globally-available skills that are read-only through the public
-
-        service/API and writable only via the internal admin override,
-
-        plus the in-code create-skill playbook registry. ``user`` skills are owned by
-
-        a single user, ``workspace`` skills by a workspace, ``system`` skills by
-
-        neither.'
-    AdminExampleProjectListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminExampleProjectListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminExampleProjectListResponse
-      description: Response schema for example project list endpoint.
-    AdminUserListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        email:
-          type: string
-          title: Email
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        workspace_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workspace Name
-        is_internal:
-          type: boolean
-          title: Is Internal
-        is_suspended:
-          type: boolean
-          title: Is Suspended
-        has_completed_onboarding:
-          type: boolean
-          title: Has Completed Onboarding
-        plan_type:
-          type: string
-          title: Plan Type
-        project_count:
-          type: integer
-          title: Project Count
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        last_active_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Active At
-      type: object
-      required:
-      - id
-      - email
-      - display_name
-      - workspace_id
-      - workspace_name
-      - is_internal
-      - is_suspended
-      - has_completed_onboarding
-      - plan_type
-      - project_count
-      - created_at
-      - last_active_at
-      title: AdminUserListItem
-      description: Summary schema for user list items.
-    KnowledgeRunProvenance:
-      properties:
-        source:
-          type: string
-          minLength: 1
-          title: Source
-          default: populate-knowledge
-        run_at:
-          type: string
-          format: date-time
-          title: Run At
-        meetings_through:
-          type: string
-          format: date-time
-          title: Meetings Through
-      type: object
-      required:
-      - run_at
-      - meetings_through
-      title: KnowledgeRunProvenance
-      description: 'Provenance stamped into every audit row a knowledge run writes.
-
-
-        ``meetings_through`` is the refresh cursor: the latest source meeting a run
-
-        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
-
-        only newer material.'
-    AdminKnowledgeApplyRunResponse:
-      properties:
-        created:
-          items:
-            $ref: '#/components/schemas/KnowledgeEntryResponse'
-          type: array
-          title: Created
-        updated:
-          items:
-            $ref: '#/components/schemas/KnowledgeEntryResponse'
-          type: array
-          title: Updated
-        deleted_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Deleted Ids
-        run_marker_id:
-          type: string
-          format: uuid
-          title: Run Marker Id
-      type: object
-      required:
-      - created
-      - updated
-      - deleted_ids
-      - run_marker_id
-      title: AdminKnowledgeApplyRunResponse
-      description: What an applied run changed, plus the run-marker audit row's id.
     AdminAddCreditsRequest:
       properties:
         amount:

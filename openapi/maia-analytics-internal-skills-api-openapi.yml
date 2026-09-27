@@ -198,57 +198,32 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AdminSkillWriteRequest:
+    ValidationError:
       properties:
-        name:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Name
-        description:
-          type: string
-          maxLength: 400
-          minLength: 1
-          title: Description
-        body:
-          type: string
-          maxLength: 32000
-          minLength: 1
-          title: Body
-        is_starter:
-          type: boolean
-          title: Is Starter
-          default: false
-        workspace_ids:
+        loc:
           items:
-            type: string
-            format: uuid
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Workspace Ids
-      additionalProperties: false
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - name
-      - description
-      - body
-      title: AdminSkillWriteRequest
-      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
-
-
-        ``workspace_ids`` sets availability on both create and update: empty is a
-
-        global skill (visible to every workspace); a set restricts it to those
-
-        workspaces. ``is_starter`` is independent of availability.
-
-
-        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
-
-        caller from before the multi-workspace cutover would otherwise have it
-
-        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
-
-        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
+      - loc
+      - msg
+      - type
+      title: ValidationError
     SkillResponse:
       properties:
         id:
@@ -302,6 +277,57 @@ components:
       - updated_at
       title: SkillResponse
       description: A skill as returned to clients (full record, including body).
+    AdminSkillWriteRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
+        is_starter:
+          type: boolean
+          title: Is Starter
+          default: false
+        workspace_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Workspace Ids
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillWriteRequest
+      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
+
+
+        ``workspace_ids`` sets availability on both create and update: empty is a
+
+        global skill (visible to every workspace); a set restricts it to those
+
+        workspaces. ``is_starter`` is independent of availability.
+
+
+        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
+
+        caller from before the multi-workspace cutover would otherwise have it
+
+        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
+
+        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
     AdminSkillDraftResponse:
       properties:
         name:
@@ -341,6 +367,42 @@ components:
         a single user, ``workspace`` skills by a workspace, ``system`` skills by
 
         neither.'
+    AdminSkillDraftRequest:
+      properties:
+        prompt:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Prompt
+        current_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Name
+        current_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Description
+        current_body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Body
+      type: object
+      required:
+      - prompt
+      title: AdminSkillDraftRequest
+      description: 'Draft a system skill from a plain-language description (no persistence).
+
+
+        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
+
+        feedback rather than a fresh request; omit them for a first draft. The draft
+
+        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
+
+        uncapped beyond the prompt length.'
     AdminSkillResponse:
       properties:
         id:
@@ -423,68 +485,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    AdminSkillDraftRequest:
-      properties:
-        prompt:
-          type: string
-          maxLength: 4000
-          minLength: 1
-          title: Prompt
-        current_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Name
-        current_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Description
-        current_body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Body
-      type: object
-      required:
-      - prompt
-      title: AdminSkillDraftRequest
-      description: 'Draft a system skill from a plain-language description (no persistence).
-
-
-        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
-
-        feedback rather than a fresh request; omit them for a first draft. The draft
-
-        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
-
-        uncapped beyond the prompt length.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

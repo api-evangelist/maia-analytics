@@ -288,6 +288,43 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AdminDuplicationLogResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminDuplicationLogResponse
+      description: Recent duplications, newest first, for the admin tracker panel.
+    AdminLayerSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        feature_count:
+          type: integer
+          title: Feature Count
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - feature_count
+      title: AdminLayerSummary
+      description: Layer summary for project preview.
     AdminProjectSearchResponse:
       properties:
         items:
@@ -300,16 +337,15 @@ components:
       - items
       title: AdminProjectSearchResponse
       description: Response schema for project search endpoint.
-    AdminDeliveryStatusResponse:
+    HTTPValidationError:
       properties:
-        status:
-          type: string
-          title: Status
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - status
-      title: AdminDeliveryStatusResponse
-      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
+      title: HTTPValidationError
     MissingCountyCoverageResponse:
       properties:
         detail:
@@ -326,7 +362,21 @@ components:
         the documented response body must carry the wrapper — clients read
 
         ``data.detail.missing_counties``.'
-    AdminExampleProjectListItem:
+    MissingCounty:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - fips
+      - name
+      title: MissingCounty
+      description: A county the source project covers but the target workspace lacks.
+    AdminProjectSearchResult:
       properties:
         id:
           type: string
@@ -335,31 +385,44 @@ components:
         name:
           type: string
           title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
         owner_display_name:
           anyOf:
           - type: string
           - type: 'null'
           title: Owner Display Name
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
         created_at:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
           title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        visibility:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visibility
       type: object
       required:
       - id
       - name
-      - description
       - owner_display_name
+      - workspace_name
       - created_at
-      title: AdminExampleProjectListItem
-      description: Summary schema for example project list items.
+      - updated_at
+      - visibility
+      title: AdminProjectSearchResult
+      description: Search result item for project search.
     AdminProjectPreviewResponse:
       properties:
         id:
@@ -400,6 +463,32 @@ components:
       - layers
       title: AdminProjectPreviewResponse
       description: Response schema for project preview endpoint.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     AdminDuplicateProjectResponse:
       properties:
         workflow_id:
@@ -417,22 +506,21 @@ components:
         ``workflow_id``; the delivered project id isn''t known until the workflow''s
 
         clone step runs, so the UI tracks progress via the Recent duplications panel.'
-    MissingCountyCoverageDetail:
+    AdminDuplicateProjectRequest:
       properties:
-        code:
+        target_workspace_id:
           type: string
-          title: Code
-          default: missing_county_coverage
-        missing_counties:
-          items:
-            $ref: '#/components/schemas/MissingCounty'
-          type: array
-          title: Missing Counties
+          format: uuid
+          title: Target Workspace Id
+        acknowledge_missing_counties:
+          type: boolean
+          title: Acknowledge Missing Counties
+          default: false
       type: object
       required:
-      - missing_counties
-      title: MissingCountyCoverageDetail
-      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
+      - target_workspace_id
+      title: AdminDuplicateProjectRequest
+      description: Request schema for delivering a curated project to a workspace.
     AdminDuplicationLogEntry:
       properties:
         id:
@@ -487,22 +575,7 @@ components:
         resulting project once it exists (immediately for the user path, on SUCCESS
 
         for the workspace path), used to link straight to the copy.'
-    AdminDuplicateProjectRequest:
-      properties:
-        target_workspace_id:
-          type: string
-          format: uuid
-          title: Target Workspace Id
-        acknowledge_missing_counties:
-          type: boolean
-          title: Acknowledge Missing Counties
-          default: false
-      type: object
-      required:
-      - target_workspace_id
-      title: AdminDuplicateProjectRequest
-      description: Request schema for delivering a curated project to a workspace.
-    AdminLayerSummary:
+    AdminExampleProjectListItem:
       properties:
         id:
           type: string
@@ -516,17 +589,26 @@ components:
           - type: string
           - type: 'null'
           title: Description
-        feature_count:
-          type: integer
-          title: Feature Count
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
       type: object
       required:
       - id
       - name
       - description
-      - feature_count
-      title: AdminLayerSummary
-      description: Layer summary for project preview.
+      - owner_display_name
+      - created_at
+      title: AdminExampleProjectListItem
+      description: Summary schema for example project list items.
     AdminExampleProjectListResponse:
       properties:
         items:
@@ -543,114 +625,32 @@ components:
       - total
       title: AdminExampleProjectListResponse
       description: Response schema for example project list endpoint.
-    MissingCounty:
+    MissingCountyCoverageDetail:
       properties:
-        fips:
+        code:
           type: string
-          title: Fips
-        name:
-          type: string
-          title: Name
-      type: object
-      required:
-      - fips
-      - name
-      title: MissingCounty
-      description: A county the source project covers but the target workspace lacks.
-    AdminDuplicationLogResponse:
-      properties:
-        items:
+          title: Code
+          default: missing_county_coverage
+        missing_counties:
           items:
-            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+            $ref: '#/components/schemas/MissingCounty'
           type: array
-          title: Items
+          title: Missing Counties
       type: object
       required:
-      - items
-      title: AdminDuplicationLogResponse
-      description: Recent duplications, newest first, for the admin tracker panel.
-    HTTPValidationError:
+      - missing_counties
+      title: MissingCountyCoverageDetail
+      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
+    AdminDeliveryStatusResponse:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AdminProjectSearchResult:
-      properties:
-        id:
+        status:
           type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        workspace_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workspace Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-        visibility:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Visibility
+          title: Status
       type: object
       required:
-      - id
-      - name
-      - owner_display_name
-      - workspace_name
-      - created_at
-      - updated_at
-      - visibility
-      title: AdminProjectSearchResult
-      description: Search result item for project search.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - status
+      title: AdminDeliveryStatusResponse
+      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

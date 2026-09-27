@@ -90,7 +90,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-audit-log-api
-  name: Maia-analytics audit-log API
+  name: Maia-analytics Audit Log API
   description: The audit-log API from Maia-analytics — 1 operation(s) for audit-log.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -106,7 +106,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-auth-api
-  name: Maia-analytics auth API
+  name: Maia-analytics Auth API
   description: The auth API from Maia-analytics — 8 operation(s) for auth.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -122,7 +122,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-chat-api
-  name: Maia-analytics chat API
+  name: Maia-analytics Chat API
   description: The chat API from Maia-analytics — 8 operation(s) for chat.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -138,7 +138,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-dial-api
-  name: Maia-analytics dial API
+  name: Maia-analytics Dial API
   description: The dial API from Maia-analytics — 8 operation(s) for dial.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -152,7 +152,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-enrichment-api
-  name: Maia-analytics enrichment API
+  name: Maia-analytics Enrichment API
   description: The enrichment API from Maia-analytics — 17 operation(s) for enrichment.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -168,7 +168,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-example-projects-api
-  name: Maia-analytics example-projects API
+  name: Maia-analytics Example Projects API
   description: The example-projects API from Maia-analytics — 9 operation(s) for example-projects.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -182,7 +182,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-favorite-api
-  name: Maia-analytics favorite API
+  name: Maia-analytics Favorite API
   description: The favorite API from Maia-analytics — 2 operation(s) for favorite.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -198,7 +198,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-feature-flags-api
-  name: Maia-analytics feature-flags API
+  name: Maia-analytics Feature Flags API
   description: The feature-flags API from Maia-analytics — 3 operation(s) for feature-flags.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -214,7 +214,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-filters-api
-  name: Maia-analytics filters API
+  name: Maia-analytics Filters API
   description: The filters API from Maia-analytics — 1 operation(s) for filters.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -230,7 +230,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-geographies-api
-  name: Maia-analytics geographies API
+  name: Maia-analytics Geographies API
   description: The geographies API from Maia-analytics — 1 operation(s) for geographies.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -246,7 +246,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-internal-api
-  name: Maia-analytics internal API
+  name: Maia-analytics Internal API
   description: The internal API from Maia-analytics — 50 operation(s) for internal.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -262,7 +262,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-internal-knowledge-api
-  name: Maia-analytics internal-knowledge API
+  name: Maia-analytics Internal Knowledge API
   description: The internal-knowledge API from Maia-analytics — 4 operation(s) for internal-knowledge.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -276,7 +276,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-internal-projects-api
-  name: Maia-analytics internal-projects API
+  name: Maia-analytics Internal Projects API
   description: The internal-projects API from Maia-analytics — 1 operation(s) for internal-projects.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -290,7 +290,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-internal-skills-api
-  name: Maia-analytics internal-skills API
+  name: Maia-analytics Internal Skills API
   description: The internal-skills API from Maia-analytics — 4 operation(s) for internal-skills.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -304,7 +304,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-knowledge-api
-  name: Maia-analytics knowledge API
+  name: Maia-analytics Knowledge API
   description: The knowledge API from Maia-analytics — 2 operation(s) for knowledge.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -320,7 +320,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-layer-api
-  name: Maia-analytics layer API
+  name: Maia-analytics Layer API
   description: The layer API from Maia-analytics — 3 operation(s) for layer.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -350,14 +350,15 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-map-api
-  name: Maia-analytics map API
+  name: Maia-analytics Map API
   description: The map API from Maia-analytics — 4 operation(s) for map.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
   tags:
-  - Map
+  - Maps
   tags_raw:
   - map
+  - Map
   properties:
   - type: OpenAPI
     url: openapi/maia-analytics-map-api-openapi.yml
@@ -366,7 +367,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-notes-api
-  name: Maia-analytics notes API
+  name: Maia-analytics Notes API
   description: The notes API from Maia-analytics — 2 operation(s) for notes.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -382,7 +383,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-project-api
-  name: Maia-analytics project API
+  name: Maia-analytics Project API
   description: The project API from Maia-analytics — 15 operation(s) for project.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -398,7 +399,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-project-lock-api
-  name: Maia-analytics project-lock API
+  name: Maia-analytics Project Lock API
   description: The project-lock API from Maia-analytics — 2 operation(s) for project-lock.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -412,7 +413,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-query-api
-  name: Maia-analytics query API
+  name: Maia-analytics Query API
   description: The query API from Maia-analytics — 1 operation(s) for query.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -428,7 +429,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-saved-contacts-api
-  name: Maia-analytics saved-contacts API
+  name: Maia-analytics Saved Contacts API
   description: The saved-contacts API from Maia-analytics — 7 operation(s) for saved-contacts.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -442,7 +443,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-share-api
-  name: Maia-analytics share API
+  name: Maia-analytics Share API
   description: The share API from Maia-analytics — 17 operation(s) for share.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -458,7 +459,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-skills-api
-  name: Maia-analytics skills API
+  name: Maia-analytics Skills API
   description: The skills API from Maia-analytics — 2 operation(s) for skills.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -474,7 +475,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-stats-api
-  name: Maia-analytics stats API
+  name: Maia-analytics Stats API
   description: The stats API from Maia-analytics — 1 operation(s) for stats.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -490,7 +491,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-table-api
-  name: Maia-analytics table API
+  name: Maia-analytics Table API
   description: The table API from Maia-analytics — 12 operation(s) for table.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -506,7 +507,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-user-events-api
-  name: Maia-analytics user-events API
+  name: Maia-analytics User Events API
   description: The user-events API from Maia-analytics — 1 operation(s) for user-events.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -520,7 +521,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-users-api
-  name: Maia-analytics users API
+  name: Maia-analytics Users API
   description: The users API from Maia-analytics — 7 operation(s) for users.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -536,7 +537,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-workspace-api
-  name: Maia-analytics workspace API
+  name: Maia-analytics Workspace API
   description: The workspace API from Maia-analytics — 9 operation(s) for workspace.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com
@@ -552,7 +553,7 @@ apis:
   - type: APIReference
     url: https://api.maia-analytics.com/docs
 - aid: maia-analytics:maia-analytics-workspaces-api
-  name: Maia-analytics workspaces API
+  name: Maia-analytics Workspaces API
   description: The workspaces API from Maia-analytics — 18 operation(s) for workspaces.
   humanURL: https://api.maia-analytics.com/docs
   baseURL: https://api.maia-analytics.com

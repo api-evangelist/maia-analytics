@@ -41,31 +41,62 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
-    BooleanCondition:
+    FilterSpecResponse:
+      properties:
+        filterId:
+          type: string
+          format: uuid
+          title: Filterid
+        expiresAt:
+          type: string
+          format: date-time
+          title: Expiresat
+      type: object
+      required:
+      - filterId
+      - expiresAt
+      title: FilterSpecResponse
+      description: 'Response returned by ``POST /filters`` and the share-mode twin.
+
+
+        ``expires_at`` reflects the current sliding TTL window. Every subsequent
+
+        consumer read (tile request / paginated fetch / etc.) refreshes the window,
+
+        so an active session never sees the spec expire mid-flight.'
+    DateCondition:
       properties:
         filterType:
           type: string
-          const: boolean
+          const: date
           title: Filtertype
-          default: boolean
+          default: date
         type:
           type: string
           enum:
           - blank
           - notBlank
+          - inRange
           - equals
           - notEqual
+          - lessThan
+          - greaterThan
           - unavailable
           title: Type
-        filter:
+        dateFrom:
           anyOf:
-          - type: boolean
+          - type: string
           - type: 'null'
-          title: Filter
+          title: Datefrom
+        dateTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dateto
       type: object
       required:
       - type
-      title: BooleanCondition
+      title: DateCondition
     CompoundFilter-Input:
       properties:
         filterType:
@@ -148,35 +179,57 @@ components:
       - filterType
       - operator
       title: CompoundFilter
-    TextCondition:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    BooleanCondition:
       properties:
         filterType:
           type: string
-          const: text
+          const: boolean
           title: Filtertype
-          default: text
+          default: boolean
         type:
           type: string
           enum:
-          - contains
-          - notContains
-          - equals
-          - notEqual
-          - startsWith
-          - endsWith
           - blank
           - notBlank
+          - equals
+          - notEqual
           - unavailable
           title: Type
         filter:
           anyOf:
-          - type: string
+          - type: boolean
           - type: 'null'
           title: Filter
       type: object
       required:
       - type
-      title: TextCondition
+      title: BooleanCondition
     FilterSpecRequest:
       properties:
         filterModel:
@@ -229,62 +282,6 @@ components:
         ``filter_id`` — same shape produces the same ID, idempotent under repeat
 
         POST.'
-    SetCondition:
-      properties:
-        filterType:
-          type: string
-          const: set
-          title: Filtertype
-          default: set
-        values:
-          items:
-            anyOf:
-            - type: string
-            - type: 'null'
-          type: array
-          maxItems: 10000
-          title: Values
-        type:
-          anyOf:
-          - type: string
-            const: unavailable
-          - type: 'null'
-          title: Type
-      type: object
-      title: SetCondition
-    DateCondition:
-      properties:
-        filterType:
-          type: string
-          const: date
-          title: Filtertype
-          default: date
-        type:
-          type: string
-          enum:
-          - blank
-          - notBlank
-          - inRange
-          - equals
-          - notEqual
-          - lessThan
-          - greaterThan
-          - unavailable
-          title: Type
-        dateFrom:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Datefrom
-        dateTo:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dateto
-      type: object
-      required:
-      - type
-      title: DateCondition
     NumberCondition:
       properties:
         filterType:
@@ -325,29 +322,29 @@ components:
       required:
       - type
       title: NumberCondition
-    FilterSpecResponse:
+    SetCondition:
       properties:
-        filterId:
+        filterType:
           type: string
-          format: uuid
-          title: Filterid
-        expiresAt:
-          type: string
-          format: date-time
-          title: Expiresat
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
       type: object
-      required:
-      - filterId
-      - expiresAt
-      title: FilterSpecResponse
-      description: 'Response returned by ``POST /filters`` and the share-mode twin.
-
-
-        ``expires_at`` reflects the current sliding TTL window. Every subsequent
-
-        consumer read (tile request / paginated fetch / etc.) refreshes the window,
-
-        so an active session never sees the spec expire mid-flight.'
+      title: SetCondition
     HTTPValidationError:
       properties:
         detail:
@@ -357,32 +354,35 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    ValidationError:
+    TextCondition:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        filterType:
           type: string
-          title: Message
+          const: text
+          title: Filtertype
+          default: text
         type:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          enum:
+          - contains
+          - notContains
+          - equals
+          - notEqual
+          - startsWith
+          - endsWith
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
       type: object
       required:
-      - loc
-      - msg
       - type
-      title: ValidationError
+      title: TextCondition
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

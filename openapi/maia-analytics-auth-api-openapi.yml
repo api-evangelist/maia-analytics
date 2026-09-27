@@ -237,6 +237,115 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
+    PlanType:
+      type: string
+      enum:
+      - beta
+      title: PlanType
+      description: Available user plan types with different feature restrictions.
+    UserProfileUpdateResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: UserProfileUpdateResponse
+      description: Response model for user profile update.
+    UserProfileUpdateRequest:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
+        column_preferences:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: boolean
+              type: object
+            type: object
+          - type: 'null'
+          title: Column Preferences
+      type: object
+      title: UserProfileUpdateRequest
+      description: Request model for updating user profile information.
+    LocalLoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: LocalLoginRequest
+      description: Request model for AUTH_DISABLED local mock login.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UserExistsResponse:
+      properties:
+        exists:
+          type: boolean
+          title: Exists
+        has_password:
+          type: boolean
+          title: Has Password
+      type: object
+      required:
+      - exists
+      - has_password
+      title: UserExistsResponse
+      description: Response model for checking if a user exists.
     PasswordResetEmailRequest:
       properties:
         email:
@@ -269,42 +378,6 @@ components:
       - default_enrichment_credits
       title: Plan
       description: Plan configuration including type and limits.
-    PlanType:
-      type: string
-      enum:
-      - beta
-      title: PlanType
-      description: Available user plan types with different feature restrictions.
-    WorkspaceRole:
-      type: string
-      enum:
-      - writer
-      - reader
-      title: WorkspaceRole
-      description: 'Role within a workspace determining permission level.
-
-
-        WRITER = can edit workspace_write projects
-
-        READER = can only view workspace projects'
-    LocalTokenResponse:
-      properties:
-        access_token:
-          type: string
-          title: Access Token
-        token_type:
-          type: string
-          title: Token Type
-          default: bearer
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - access_token
-      - user_id
-      title: LocalTokenResponse
-      description: Response model for AUTH_DISABLED local mock login.
     UserProfile:
       properties:
         id:
@@ -446,68 +519,6 @@ components:
         This represents a user stored in the database with enrichment credits,
 
         distinct from the Firebase User model used for authentication.'
-    UserProfileUpdateRequest:
-      properties:
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        avatar_color:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Color
-        has_completed_onboarding:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Has Completed Onboarding
-        column_preferences:
-          anyOf:
-          - additionalProperties:
-              additionalProperties:
-                type: boolean
-              type: object
-            type: object
-          - type: 'null'
-          title: Column Preferences
-      type: object
-      title: UserProfileUpdateRequest
-      description: Request model for updating user profile information.
-    UserProfileUpdateResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - success
-      - message
-      title: UserProfileUpdateResponse
-      description: Response model for user profile update.
-    UserExistsResponse:
-      properties:
-        exists:
-          type: boolean
-          title: Exists
-        has_password:
-          type: boolean
-          title: Has Password
-      type: object
-      required:
-      - exists
-      - has_password
-      title: UserExistsResponse
-      description: Response model for checking if a user exists.
     HTTPValidationError:
       properties:
         detail:
@@ -517,47 +528,36 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    LocalLoginRequest:
+    WorkspaceRole:
+      type: string
+      enum:
+      - writer
+      - reader
+      title: WorkspaceRole
+      description: 'Role within a workspace determining permission level.
+
+
+        WRITER = can edit workspace_write projects
+
+        READER = can only view workspace projects'
+    LocalTokenResponse:
       properties:
-        email:
+        access_token:
           type: string
-          format: email
-          title: Email
-        password:
+          title: Access Token
+        token_type:
           type: string
-          title: Password
+          title: Token Type
+          default: bearer
+        user_id:
+          type: string
+          title: User Id
       type: object
       required:
-      - email
-      - password
-      title: LocalLoginRequest
-      description: Request model for AUTH_DISABLED local mock login.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - access_token
+      - user_id
+      title: LocalTokenResponse
+      description: Response model for AUTH_DISABLED local mock login.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

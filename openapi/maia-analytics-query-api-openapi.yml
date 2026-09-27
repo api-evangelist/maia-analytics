@@ -41,60 +41,6 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
-    RequirementsCheck:
-      properties:
-        location:
-          type: boolean
-          title: Location
-          description: Whether the query specifies a geographic location
-        size_range:
-          type: boolean
-          title: Size Range
-          description: Whether any size/area criteria can be satisfied (building roof area, parcel lot size, etc.)
-        use_type:
-          type: boolean
-          title: Use Type
-          description: Whether property type, use type, or zoning criteria can be satisfied (from buildings, parcels, or places)
-        contextual_data:
-          type: boolean
-          title: Contextual Data
-          description: Whether contextual data needs (enrichments, POIs) can be satisfied
-      type: object
-      required:
-      - location
-      - size_range
-      - use_type
-      - contextual_data
-      title: RequirementsCheck
-      description: Tracks which key requirements from the query are satisfiable.
-    QueryParseItemKind:
-      type: string
-      enum:
-      - layer
-      - enrichment
-      title: QueryParseItemKind
-      description: Whether a parsed item is a layer (from core dataset) or an enrichment.
-    QueryParseRequest:
-      properties:
-        query_text:
-          type: string
-          minLength: 1
-          title: Query Text
-          description: The user's natural language query to parse
-      type: object
-      required:
-      - query_text
-      title: QueryParseRequest
-      description: Request body for the real-time query parse endpoint.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     QueryParseResponse:
       properties:
         items:
@@ -123,32 +69,13 @@ components:
       - requirements_met
       title: QueryParseResponse
       description: Lightweight real-time parse of a user query, used for live preview chips.
-    QueryParseItem:
-      properties:
-        kind:
-          $ref: '#/components/schemas/QueryParseItemKind'
-          description: '''layer'' for data from core dataset, ''enrichment'' for external/derived data'
-        type:
-          type: string
-          title: Type
-          description: 'For layers: Overture Maps table name (e.g., ''division_area'', ''building'', ''place'', ''segment'', ''parcel''). For enrichments: enrichment tool name (e.g., ''General'', ''Contacts'', ''OwnerOccupied'', ''TenantInfo'').'
-        name:
-          type: string
-          title: Name
-          description: Human-readable name (e.g., 'Adams County Boundary', 'Commercial Buildings', 'Solar Potential')
-        source_text:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Text
-          description: The exact substring from the user's query that this item was identified from
-      type: object
-      required:
-      - kind
-      - type
-      - name
-      title: QueryParseItem
-      description: A single item identified from a user query — either a layer or an enrichment.
+    QueryParseItemKind:
+      type: string
+      enum:
+      - layer
+      - enrichment
+      title: QueryParseItemKind
+      description: Whether a parsed item is a layer (from core dataset) or an enrichment.
     ValidationError:
       properties:
         loc:
@@ -175,6 +102,79 @@ components:
       - msg
       - type
       title: ValidationError
+    QueryParseItem:
+      properties:
+        kind:
+          $ref: '#/components/schemas/QueryParseItemKind'
+          description: '''layer'' for data from core dataset, ''enrichment'' for external/derived data'
+        type:
+          type: string
+          title: Type
+          description: 'For layers: Overture Maps table name (e.g., ''division_area'', ''building'', ''place'', ''segment'', ''parcel''). For enrichments: enrichment tool name (e.g., ''General'', ''Contacts'', ''OwnerOccupied'', ''TenantInfo'').'
+        name:
+          type: string
+          title: Name
+          description: Human-readable name (e.g., 'Adams County Boundary', 'Commercial Buildings', 'Solar Potential')
+        source_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Text
+          description: The exact substring from the user's query that this item was identified from
+      type: object
+      required:
+      - kind
+      - type
+      - name
+      title: QueryParseItem
+      description: A single item identified from a user query — either a layer or an enrichment.
+    RequirementsCheck:
+      properties:
+        location:
+          type: boolean
+          title: Location
+          description: Whether the query specifies a geographic location
+        size_range:
+          type: boolean
+          title: Size Range
+          description: Whether any size/area criteria can be satisfied (building roof area, parcel lot size, etc.)
+        use_type:
+          type: boolean
+          title: Use Type
+          description: Whether property type, use type, or zoning criteria can be satisfied (from buildings, parcels, or places)
+        contextual_data:
+          type: boolean
+          title: Contextual Data
+          description: Whether contextual data needs (enrichments, POIs) can be satisfied
+      type: object
+      required:
+      - location
+      - size_range
+      - use_type
+      - contextual_data
+      title: RequirementsCheck
+      description: Tracks which key requirements from the query are satisfiable.
+    QueryParseRequest:
+      properties:
+        query_text:
+          type: string
+          minLength: 1
+          title: Query Text
+          description: The user's natural language query to parse
+      type: object
+      required:
+      - query_text
+      title: QueryParseRequest
+      description: Request body for the real-time query parse endpoint.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

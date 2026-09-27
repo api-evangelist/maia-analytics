@@ -764,6 +764,515 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AdminWorkspaceProvisionRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        counties:
+          items:
+            $ref: '#/components/schemas/WorkspaceCountySelection'
+          type: array
+          title: Counties
+        initial_credits:
+          type: integer
+          minimum: 0.0
+          title: Initial Credits
+          default: 5000
+        region_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region Id
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - counties
+      title: AdminWorkspaceProvisionRequest
+      description: 'Request body for provisioning a new workspace end-to-end.
+
+
+        Wraps `AdminWorkspaceService.provision_workspace_with_counties`: creates
+
+        the Neon sandbox and seeds `workspace_counties` rows. At least one county
+
+        is mandatory — a workspace with no loaded counties has zero geographic
+
+        query access. Rejects unknown fields with 422.
+
+
+        `counties` non-emptiness and in-list duplicates are validated in the
+
+        service (400) rather than here, so the same guard covers the script caller
+
+        (`scripts/provision_prod_admin_workspace.py`) and the error is a 400, not a
+
+        422, matching the rest of the provisioning contract.'
+    AdminWorkspaceDetailResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        member_count:
+          type: integer
+          title: Member Count
+        project_count:
+          type: integer
+          title: Project Count
+        members:
+          items:
+            $ref: '#/components/schemas/AdminWorkspaceMemberItem'
+          type: array
+          title: Members
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - avatar_color
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - is_suspended
+      - member_count
+      - project_count
+      - members
+      - created_at
+      - updated_at
+      title: AdminWorkspaceDetailResponse
+      description: Full workspace detail response for admin view.
+    AvailableCountyResponse:
+      properties:
+        state:
+          type: string
+          title: State
+        county_name:
+          type: string
+          title: County Name
+        state_fips:
+          type: string
+          title: State Fips
+        county_fips:
+          type: string
+          title: County Fips
+      type: object
+      required:
+      - state
+      - county_name
+      - state_fips
+      - county_fips
+      title: AvailableCountyResponse
+      description: 'A county available to load (not yet in this workspace).
+
+
+        ``county_name`` is the TIGER LSAD form (e.g. ``"Los Angeles County"``)
+
+        populated from the picker''s ``AvailableCounty`` named tuple.'
+    WorkspaceCountySelection:
+      properties:
+        state_fips:
+          type: string
+          maxLength: 2
+          minLength: 2
+          pattern: ^\d{2}$
+          title: State Fips
+        county_fips:
+          type: string
+          maxLength: 3
+          minLength: 3
+          pattern: ^\d{3}$
+          title: County Fips
+      additionalProperties: false
+      type: object
+      required:
+      - state_fips
+      - county_fips
+      title: WorkspaceCountySelection
+      description: 'One county selection — FIPS-shape only.
+
+
+        Used by the append-county and workspace-provisioning request bodies.
+
+        Callers supply ``state_fips`` (2-digit) + ``county_fips`` (3-digit) only.
+
+        ``extra="forbid"`` rejects callers still constructing slug-shape kwargs
+
+        with 422 rather than silently dropping the slug pair.
+
+
+        The handler resolves the FIPS pair to a USPS state code before calling
+
+        the service (the ``workspace_counties.state`` column is USPS, not
+
+        numeric FIPS).'
+    AdminCreditsSummaryResponse:
+      properties:
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        users:
+          items:
+            $ref: '#/components/schemas/AdminCreditUserUsageItem'
+          type: array
+          title: Users
+      type: object
+      required:
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - users
+      title: AdminCreditsSummaryResponse
+      description: Response schema for workspace credit summary with per-user breakdown.
+    AdminWorkspaceListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminWorkspaceListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminWorkspaceListResponse
+      description: Response schema for workspace list endpoint.
+    FeatureToggleItem:
+      properties:
+        key:
+          type: string
+          title: Key
+        label:
+          type: string
+          title: Label
+        description:
+          type: string
+          title: Description
+        enabled:
+          type: boolean
+          title: Enabled
+        is_override:
+          type: boolean
+          title: Is Override
+        global_default:
+          type: boolean
+          title: Global Default
+      type: object
+      required:
+      - key
+      - label
+      - description
+      - enabled
+      - is_override
+      - global_default
+      title: FeatureToggleItem
+      description: 'One governable feature toggle and its effective state for a workspace.
+
+
+        `enabled` is the resolved on/off (override ?? global ?? seed). `is_override`
+
+        flags whether the workspace has an explicit stored value versus inheriting
+
+        the global default; `global_default` is what it inherits when not overridden.'
+    AdminWorkspaceListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        member_count:
+          type: integer
+          title: Member Count
+        project_count:
+          type: integer
+          title: Project Count
+        available_enrichment_credits:
+          type: integer
+          title: Available Enrichment Credits
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+        remaining_credits:
+          type: integer
+          title: Remaining Credits
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - name
+      - member_count
+      - project_count
+      - available_enrichment_credits
+      - used_enrichment_credits
+      - remaining_credits
+      - is_suspended
+      - created_at
+      - last_active_at
+      title: AdminWorkspaceListItem
+      description: Summary schema for workspace list items.
+    RetellConfigResponse:
+      properties:
+        retell_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Agent Id
+        retell_qualify_agent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Qualify Agent Id
+        retell_from_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell From Number
+        retell_api_key_masked:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Api Key Masked
+        retell_signing_secret_masked:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Retell Signing Secret Masked
+        auto_dial_enabled:
+          type: boolean
+          title: Auto Dial Enabled
+          default: false
+        monthly_dial_minute_cap:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Monthly Dial Minute Cap
+      type: object
+      title: RetellConfigResponse
+      description: 'Per-workspace Retell account config. Secrets returned as last-4
+
+        masked hints only — never the decrypted value.'
+    AdminProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminProjectListResponse
+      description: Response schema for admin project list endpoints.
+    AdminProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        is_locked:
+          type: boolean
+          title: Is Locked
+          default: false
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+      type: object
+      required:
+      - id
+      - name
+      - status
+      - created_at
+      - updated_at
+      title: AdminProjectListItem
+      description: Summary schema for project list items in admin views.
+    AdminWorkspaceUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+      additionalProperties: false
+      type: object
+      title: AdminWorkspaceUpdateRequest
+      description: 'Request schema for updating workspace fields.
+
+
+        All fields optional; uses exclude_unset semantics. Rejects unknown fields
+
+        with 422 — legacy callers sending the removed `allowed_geographies` key
+
+        should fail loud rather than silently no-op.'
+    WorkspaceCountyLoadStatus:
+      type: string
+      enum:
+      - provisioning
+      - pending
+      - loading
+      - succeeded
+      - failed
+      title: WorkspaceCountyLoadStatus
+      description: 'Load status for a workspace-county pair.
+
+
+        Lifecycle: ``provisioning`` (initial — set by workspace standup before the
+
+        Neon project is ready) → ``pending`` (set by ``provision_workspace_op``
+
+        after schema apply succeeds; the pickup sensor''s gate value) →
+
+        ``loading`` (set by ``sandbox_load`` when it starts writing for one
+
+        county) → ``succeeded`` | ``failed`` (terminal, set by the asset''s
+
+        try/finally). ``provisioning`` and the mid-load ``loading`` were
+
+        previously the same value; MAIA-2309 split them so the lifecycle reads
+
+        literally instead of overloading ``loading`` across two phases.'
+    AdminAuditLogListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminAuditLogResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+      type: object
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: AdminAuditLogListResponse
+      description: Paginated response for audit log queries.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     AdminAuditLogResponse:
       properties:
         id:
@@ -831,229 +1340,6 @@ components:
       - created_at
       title: AdminAuditLogResponse
       description: Response schema for a single audit log entry.
-    AdminWorkspaceDetailResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        avatar_color:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Color
-        available_enrichment_credits:
-          type: integer
-          title: Available Enrichment Credits
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-        remaining_credits:
-          type: integer
-          title: Remaining Credits
-        is_suspended:
-          type: boolean
-          title: Is Suspended
-        member_count:
-          type: integer
-          title: Member Count
-        project_count:
-          type: integer
-          title: Project Count
-        members:
-          items:
-            $ref: '#/components/schemas/AdminWorkspaceMemberItem'
-          type: array
-          title: Members
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-      type: object
-      required:
-      - id
-      - name
-      - avatar_color
-      - available_enrichment_credits
-      - used_enrichment_credits
-      - remaining_credits
-      - is_suspended
-      - member_count
-      - project_count
-      - members
-      - created_at
-      - updated_at
-      title: AdminWorkspaceDetailResponse
-      description: Full workspace detail response for admin view.
-    AppendCountyRequest:
-      properties:
-        state_fips:
-          type: string
-          maxLength: 2
-          minLength: 2
-          pattern: ^\d{2}$
-          title: State Fips
-        county_fips:
-          type: string
-          maxLength: 3
-          minLength: 3
-          pattern: ^\d{3}$
-          title: County Fips
-      additionalProperties: false
-      type: object
-      required:
-      - state_fips
-      - county_fips
-      title: AppendCountyRequest
-      description: Request body for appending one county to an existing workspace sandbox.
-    AdminProjectListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        status:
-          type: string
-          title: Status
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        is_locked:
-          type: boolean
-          title: Is Locked
-          default: false
-        locked_by_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Locked By Display Name
-      type: object
-      required:
-      - id
-      - name
-      - status
-      - created_at
-      - updated_at
-      title: AdminProjectListItem
-      description: Summary schema for project list items in admin views.
-    AdminWorkspaceProvisionRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          minLength: 1
-          title: Name
-        counties:
-          items:
-            $ref: '#/components/schemas/WorkspaceCountySelection'
-          type: array
-          title: Counties
-        initial_credits:
-          type: integer
-          minimum: 0.0
-          title: Initial Credits
-          default: 5000
-        region_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Region Id
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - counties
-      title: AdminWorkspaceProvisionRequest
-      description: 'Request body for provisioning a new workspace end-to-end.
-
-
-        Wraps `AdminWorkspaceService.provision_workspace_with_counties`: creates
-
-        the Neon sandbox and seeds `workspace_counties` rows. At least one county
-
-        is mandatory — a workspace with no loaded counties has zero geographic
-
-        query access. Rejects unknown fields with 422.
-
-
-        `counties` non-emptiness and in-list duplicates are validated in the
-
-        service (400) rather than here, so the same guard covers the script caller
-
-        (`scripts/provision_prod_admin_workspace.py`) and the error is a 400, not a
-
-        422, matching the rest of the provisioning contract.'
-    RetellConfigResponse:
-      properties:
-        retell_agent_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Retell Agent Id
-        retell_qualify_agent_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Retell Qualify Agent Id
-        retell_from_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Retell From Number
-        retell_api_key_masked:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Retell Api Key Masked
-        retell_signing_secret_masked:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Retell Signing Secret Masked
-        auto_dial_enabled:
-          type: boolean
-          title: Auto Dial Enabled
-          default: false
-        monthly_dial_minute_cap:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Monthly Dial Minute Cap
-      type: object
-      title: RetellConfigResponse
-      description: 'Per-workspace Retell account config. Secrets returned as last-4
-
-        masked hints only — never the decrypted value.'
     AdminWorkspaceMemberItem:
       properties:
         id:
@@ -1107,43 +1393,17 @@ components:
       - last_active_at
       title: AdminWorkspaceMemberItem
       description: Member summary for workspace detail view.
-    WorkspaceCountySelection:
+    AdminSetCreditsRequest:
       properties:
-        state_fips:
-          type: string
-          maxLength: 2
-          minLength: 2
-          pattern: ^\d{2}$
-          title: State Fips
-        county_fips:
-          type: string
-          maxLength: 3
-          minLength: 3
-          pattern: ^\d{3}$
-          title: County Fips
-      additionalProperties: false
+        available_credits:
+          type: integer
+          minimum: 0.0
+          title: Available Credits
       type: object
       required:
-      - state_fips
-      - county_fips
-      title: WorkspaceCountySelection
-      description: 'One county selection — FIPS-shape only.
-
-
-        Used by the append-county and workspace-provisioning request bodies.
-
-        Callers supply ``state_fips`` (2-digit) + ``county_fips`` (3-digit) only.
-
-        ``extra="forbid"`` rejects callers still constructing slug-shape kwargs
-
-        with 422 rather than silently dropping the slug pair.
-
-
-        The handler resolves the FIPS pair to a USPS state code before calling
-
-        the service (the ``workspace_counties.state`` column is USPS, not
-
-        numeric FIPS).'
+      - available_credits
+      title: AdminSetCreditsRequest
+      description: Request schema for setting available credits to an exact value.
     AdminCreditUserUsageItem:
       properties:
         user_id:
@@ -1169,43 +1429,6 @@ components:
       - used_enrichment_credits
       title: AdminCreditUserUsageItem
       description: Per-user credit usage in a workspace.
-    FeatureToggleItem:
-      properties:
-        key:
-          type: string
-          title: Key
-        label:
-          type: string
-          title: Label
-        description:
-          type: string
-          title: Description
-        enabled:
-          type: boolean
-          title: Enabled
-        is_override:
-          type: boolean
-          title: Is Override
-        global_default:
-          type: boolean
-          title: Global Default
-      type: object
-      required:
-      - key
-      - label
-      - description
-      - enabled
-      - is_override
-      - global_default
-      title: FeatureToggleItem
-      description: 'One governable feature toggle and its effective state for a workspace.
-
-
-        `enabled` is the resolved on/off (override ?? global ?? seed). `is_override`
-
-        flags whether the workspace has an explicit stored value versus inheriting
-
-        the global default; `global_default` is what it inherits when not overridden.'
     FeatureToggleUpdateRequest:
       properties:
         key:
@@ -1222,90 +1445,48 @@ components:
       - enabled
       title: FeatureToggleUpdateRequest
       description: Request to flip a single feature toggle for a workspace.
-    ValidationError:
+    FeatureTogglesResponse:
       properties:
-        loc:
+        toggles:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/FeatureToggleItem'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Toggles
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    RetellConfigUpdateRequest:
+      - toggles
+      title: FeatureTogglesResponse
+      description: All governable feature toggles for a workspace (registry + overrides).
+    HTTPValidationError:
       properties:
-        retell_agent_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Retell Agent Id
-        retell_qualify_agent_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Retell Qualify Agent Id
-        retell_from_number:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Retell From Number
-        retell_api_key:
-          anyOf:
-          - type: string
-            maxLength: 512
-          - type: 'null'
-          title: Retell Api Key
-        retell_signing_secret:
-          anyOf:
-          - type: string
-            maxLength: 512
-          - type: 'null'
-          title: Retell Signing Secret
-        auto_dial_enabled:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Auto Dial Enabled
-        monthly_dial_minute_cap:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Monthly Dial Minute Cap
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      title: RetellConfigUpdateRequest
-      description: 'Partial update for per-workspace Retell config (internal admin only).
-
-
-        Pass an explicit `null` to clear an override (the dispatch path then
-
-        falls back to env defaults). Omit a field to leave it untouched.
-
-
-        `auto_dial_enabled` is the single gate that turns auto-dial on for the
-
-        workspace — there is no PostHog flag layered on top, so flipping this
-
-        to true makes the feature visible to workspace users immediately.'
+      title: HTTPValidationError
+    AppendCountyRequest:
+      properties:
+        state_fips:
+          type: string
+          maxLength: 2
+          minLength: 2
+          pattern: ^\d{2}$
+          title: State Fips
+        county_fips:
+          type: string
+          maxLength: 3
+          minLength: 3
+          pattern: ^\d{3}$
+          title: County Fips
+      additionalProperties: false
+      type: object
+      required:
+      - state_fips
+      - county_fips
+      title: AppendCountyRequest
+      description: Request body for appending one county to an existing workspace sandbox.
     WorkspaceCountyResponse:
       properties:
         id:
@@ -1370,245 +1551,64 @@ components:
         ``WorkspaceCountyRepository.get_loaded_fips_to_name_map`` at the endpoint
 
         layer (the domain ``WorkspaceCounty`` doesn''t carry the name).'
-    AdminWorkspaceUpdateRequest:
+    RetellConfigUpdateRequest:
       properties:
-        name:
+        retell_agent_id:
           anyOf:
           - type: string
-            maxLength: 255
-            minLength: 1
+            maxLength: 64
           - type: 'null'
-          title: Name
-      additionalProperties: false
-      type: object
-      title: AdminWorkspaceUpdateRequest
-      description: 'Request schema for updating workspace fields.
-
-
-        All fields optional; uses exclude_unset semantics. Rejects unknown fields
-
-        with 422 — legacy callers sending the removed `allowed_geographies` key
-
-        should fail loud rather than silently no-op.'
-    AdminAuditLogListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminAuditLogResponse'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-        limit:
-          type: integer
-          title: Limit
-        offset:
-          type: integer
-          title: Offset
-      type: object
-      required:
-      - items
-      - total
-      - limit
-      - offset
-      title: AdminAuditLogListResponse
-      description: Paginated response for audit log queries.
-    AdminProjectListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminProjectListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminProjectListResponse
-      description: Response schema for admin project list endpoints.
-    AdminWorkspaceListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        member_count:
-          type: integer
-          title: Member Count
-        project_count:
-          type: integer
-          title: Project Count
-        available_enrichment_credits:
-          type: integer
-          title: Available Enrichment Credits
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-        remaining_credits:
-          type: integer
-          title: Remaining Credits
-        is_suspended:
-          type: boolean
-          title: Is Suspended
-        created_at:
+          title: Retell Agent Id
+        retell_qualify_agent_id:
           anyOf:
           - type: string
-            format: date-time
+            maxLength: 64
           - type: 'null'
-          title: Created At
-        last_active_at:
+          title: Retell Qualify Agent Id
+        retell_from_number:
           anyOf:
           - type: string
-            format: date-time
+            maxLength: 32
           - type: 'null'
-          title: Last Active At
+          title: Retell From Number
+        retell_api_key:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Retell Api Key
+        retell_signing_secret:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Retell Signing Secret
+        auto_dial_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Auto Dial Enabled
+        monthly_dial_minute_cap:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Monthly Dial Minute Cap
       type: object
-      required:
-      - id
-      - name
-      - member_count
-      - project_count
-      - available_enrichment_credits
-      - used_enrichment_credits
-      - remaining_credits
-      - is_suspended
-      - created_at
-      - last_active_at
-      title: AdminWorkspaceListItem
-      description: Summary schema for workspace list items.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AdminCreditsSummaryResponse:
-      properties:
-        available_enrichment_credits:
-          type: integer
-          title: Available Enrichment Credits
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-        remaining_credits:
-          type: integer
-          title: Remaining Credits
-        users:
-          items:
-            $ref: '#/components/schemas/AdminCreditUserUsageItem'
-          type: array
-          title: Users
-      type: object
-      required:
-      - available_enrichment_credits
-      - used_enrichment_credits
-      - remaining_credits
-      - users
-      title: AdminCreditsSummaryResponse
-      description: Response schema for workspace credit summary with per-user breakdown.
-    FeatureTogglesResponse:
-      properties:
-        toggles:
-          items:
-            $ref: '#/components/schemas/FeatureToggleItem'
-          type: array
-          title: Toggles
-      type: object
-      required:
-      - toggles
-      title: FeatureTogglesResponse
-      description: All governable feature toggles for a workspace (registry + overrides).
-    AdminWorkspaceListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminWorkspaceListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminWorkspaceListResponse
-      description: Response schema for workspace list endpoint.
-    AvailableCountyResponse:
-      properties:
-        state:
-          type: string
-          title: State
-        county_name:
-          type: string
-          title: County Name
-        state_fips:
-          type: string
-          title: State Fips
-        county_fips:
-          type: string
-          title: County Fips
-      type: object
-      required:
-      - state
-      - county_name
-      - state_fips
-      - county_fips
-      title: AvailableCountyResponse
-      description: 'A county available to load (not yet in this workspace).
+      title: RetellConfigUpdateRequest
+      description: 'Partial update for per-workspace Retell config (internal admin only).
 
 
-        ``county_name`` is the TIGER LSAD form (e.g. ``"Los Angeles County"``)
+        Pass an explicit `null` to clear an override (the dispatch path then
 
-        populated from the picker''s ``AvailableCounty`` named tuple.'
-    WorkspaceCountyLoadStatus:
-      type: string
-      enum:
-      - provisioning
-      - pending
-      - loading
-      - succeeded
-      - failed
-      title: WorkspaceCountyLoadStatus
-      description: 'Load status for a workspace-county pair.
+        falls back to env defaults). Omit a field to leave it untouched.
 
 
-        Lifecycle: ``provisioning`` (initial — set by workspace standup before the
+        `auto_dial_enabled` is the single gate that turns auto-dial on for the
 
-        Neon project is ready) → ``pending`` (set by ``provision_workspace_op``
+        workspace — there is no PostHog flag layered on top, so flipping this
 
-        after schema apply succeeds; the pickup sensor''s gate value) →
-
-        ``loading`` (set by ``sandbox_load`` when it starts writing for one
-
-        county) → ``succeeded`` | ``failed`` (terminal, set by the asset''s
-
-        try/finally). ``provisioning`` and the mid-load ``loading`` were
-
-        previously the same value; MAIA-2309 split them so the lifecycle reads
-
-        literally instead of overloading ``loading`` across two phases.'
-    AdminSetCreditsRequest:
-      properties:
-        available_credits:
-          type: integer
-          minimum: 0.0
-          title: Available Credits
-      type: object
-      required:
-      - available_credits
-      title: AdminSetCreditsRequest
-      description: Request schema for setting available credits to an exact value.
+        to true makes the feature visible to workspace users immediately.'
     AdminAddCreditsRequest:
       properties:
         amount:
