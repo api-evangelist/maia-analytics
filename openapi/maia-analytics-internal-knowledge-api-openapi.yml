@@ -206,172 +206,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AdminKnowledgeCreateRequest:
-      properties:
-        scope:
-          $ref: '#/components/schemas/KnowledgeScope'
-        owner_id:
-          type: string
-          format: uuid
-          title: Owner Id
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - scope
-      - owner_id
-      - title
-      - content
-      title: AdminKnowledgeCreateRequest
-      description: 'Create a titled entry at ``scope`` for the target ``owner_id``.
-
-
-        ``owner_id`` is the target user id (user scope) or workspace id (workspace
-
-        scope).'
-    AdminKnowledgeUpdateRequest:
-      properties:
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - title
-      - content
-      title: AdminKnowledgeUpdateRequest
-      description: Replace an entry's title + content.
-    KnowledgeRunCreate:
-      properties:
-        scope:
-          $ref: '#/components/schemas/KnowledgeScope'
-        owner_id:
-          type: string
-          format: uuid
-          title: Owner Id
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - scope
-      - owner_id
-      - title
-      - content
-      title: KnowledgeRunCreate
-      description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
-    KnowledgeScope:
-      type: string
-      enum:
-      - user
-      - workspace
-      title: KnowledgeScope
-      description: 'Tier a knowledge entry applies to.
-
-
-        Resolution is additive and ordered ``user -> workspace`` — precedence is
-
-        ordering only, not override (no shadowing in v1). "System" knowledge is the
-
-        agent''s existing system prompt — a separate, pre-existing mechanism that does
-
-        not live in this table — so there is no ``system`` scope here.'
-    AdminKnowledgeApplyRunRequest:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        provenance:
-          $ref: '#/components/schemas/KnowledgeRunProvenance'
-        creates:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunCreate'
-          type: array
-          title: Creates
-        updates:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunUpdate'
-          type: array
-          title: Updates
-        deletes:
-          items:
-            $ref: '#/components/schemas/KnowledgeRunDelete'
-          type: array
-          title: Deletes
-      type: object
-      required:
-      - workspace_id
-      - provenance
-      title: AdminKnowledgeApplyRunRequest
-      description: 'One populate-knowledge run, applied atomically to a single workspace.
-
-
-        The item shapes (with title/content caps) are the domain run models; the
-
-        audit actor is the authenticated internal caller, so the payload carries no
-
-        admin id.'
-    KnowledgeRunDelete:
-      properties:
-        entry_id:
-          type: string
-          format: uuid
-          title: Entry Id
-      type: object
-      required:
-      - entry_id
-      title: KnowledgeRunDelete
-      description: Delete an existing entry.
-    KnowledgeRunProvenance:
-      properties:
-        source:
-          type: string
-          minLength: 1
-          title: Source
-          default: populate-knowledge
-        run_at:
-          type: string
-          format: date-time
-          title: Run At
-        meetings_through:
-          type: string
-          format: date-time
-          title: Meetings Through
-      type: object
-      required:
-      - run_at
-      - meetings_through
-      title: KnowledgeRunProvenance
-      description: 'Provenance stamped into every audit row a knowledge run writes.
-
-
-        ``meetings_through`` is the refresh cursor: the latest source meeting a run
-
-        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
-
-        only newer material.'
     ValidationError:
       properties:
         loc:
@@ -398,87 +232,6 @@ components:
       - msg
       - type
       title: ValidationError
-    KnowledgeRunUpdate:
-      properties:
-        entry_id:
-          type: string
-          format: uuid
-          title: Entry Id
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - entry_id
-      - title
-      - content
-      title: KnowledgeRunUpdate
-      description: Replace an existing entry's title + content.
-    AdminKnowledgeApplyRunResponse:
-      properties:
-        created:
-          items:
-            $ref: '#/components/schemas/KnowledgeEntryResponse'
-          type: array
-          title: Created
-        updated:
-          items:
-            $ref: '#/components/schemas/KnowledgeEntryResponse'
-          type: array
-          title: Updated
-        deleted_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Deleted Ids
-        run_marker_id:
-          type: string
-          format: uuid
-          title: Run Marker Id
-      type: object
-      required:
-      - created
-      - updated
-      - deleted_ids
-      - run_marker_id
-      title: AdminKnowledgeApplyRunResponse
-      description: What an applied run changed, plus the run-marker audit row's id.
-    AdminKnowledgeRunCursorResponse:
-      properties:
-        meetings_through:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Meetings Through
-        last_run_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Run At
-        runs:
-          type: integer
-          title: Runs
-      type: object
-      required:
-      - meetings_through
-      - last_run_at
-      - runs
-      title: AdminKnowledgeRunCursorResponse
-      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
-
-
-        ``meetings_through`` is the opaque ISO-8601 string from the newest run
-
-        marker''s metadata; ``runs`` counts all markers for the workspace.'
     KnowledgeEntryResponse:
       properties:
         id:
@@ -529,6 +282,147 @@ components:
       - is_core
       title: KnowledgeEntryResponse
       description: A titled knowledge entry as returned to clients.
+    AdminKnowledgeCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: AdminKnowledgeCreateRequest
+      description: 'Create a titled entry at ``scope`` for the target ``owner_id``.
+
+
+        ``owner_id`` is the target user id (user scope) or workspace id (workspace
+
+        scope).'
+    KnowledgeRunCreate:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - owner_id
+      - title
+      - content
+      title: KnowledgeRunCreate
+      description: 'One entry to create: ``owner_id`` is a user id or workspace id per scope.'
+    AdminKnowledgeUpdateRequest:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: AdminKnowledgeUpdateRequest
+      description: Replace an entry's title + content.
+    AdminKnowledgeApplyRunResponse:
+      properties:
+        created:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Created
+        updated:
+          items:
+            $ref: '#/components/schemas/KnowledgeEntryResponse'
+          type: array
+          title: Updated
+        deleted_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Deleted Ids
+        run_marker_id:
+          type: string
+          format: uuid
+          title: Run Marker Id
+      type: object
+      required:
+      - created
+      - updated
+      - deleted_ids
+      - run_marker_id
+      title: AdminKnowledgeApplyRunResponse
+      description: What an applied run changed, plus the run-marker audit row's id.
+    AdminKnowledgeApplyRunRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        provenance:
+          $ref: '#/components/schemas/KnowledgeRunProvenance'
+        creates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunCreate'
+          type: array
+          title: Creates
+        updates:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunUpdate'
+          type: array
+          title: Updates
+        deletes:
+          items:
+            $ref: '#/components/schemas/KnowledgeRunDelete'
+          type: array
+          title: Deletes
+      type: object
+      required:
+      - workspace_id
+      - provenance
+      title: AdminKnowledgeApplyRunRequest
+      description: 'One populate-knowledge run, applied atomically to a single workspace.
+
+
+        The item shapes (with title/content caps) are the domain run models; the
+
+        audit actor is the authenticated internal caller, so the payload carries no
+
+        admin id.'
     HTTPValidationError:
       properties:
         detail:
@@ -538,6 +432,112 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    KnowledgeRunUpdate:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - entry_id
+      - title
+      - content
+      title: KnowledgeRunUpdate
+      description: Replace an existing entry's title + content.
+    AdminKnowledgeRunCursorResponse:
+      properties:
+        meetings_through:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meetings Through
+        last_run_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Run At
+        runs:
+          type: integer
+          title: Runs
+      type: object
+      required:
+      - meetings_through
+      - last_run_at
+      - runs
+      title: AdminKnowledgeRunCursorResponse
+      description: 'Refresh cursor for a workspace''s populate-knowledge runs.
+
+
+        ``meetings_through`` is the opaque ISO-8601 string from the newest run
+
+        marker''s metadata; ``runs`` counts all markers for the workspace.'
+    KnowledgeRunProvenance:
+      properties:
+        source:
+          type: string
+          minLength: 1
+          title: Source
+          default: populate-knowledge
+        run_at:
+          type: string
+          format: date-time
+          title: Run At
+        meetings_through:
+          type: string
+          format: date-time
+          title: Meetings Through
+      type: object
+      required:
+      - run_at
+      - meetings_through
+      title: KnowledgeRunProvenance
+      description: 'Provenance stamped into every audit row a knowledge run writes.
+
+
+        ``meetings_through`` is the refresh cursor: the latest source meeting a run
+
+        ingested. A later run reads it back (``KnowledgeRunCursor``) to research
+
+        only newer material.'
+    KnowledgeRunDelete:
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+          title: Entry Id
+      type: object
+      required:
+      - entry_id
+      title: KnowledgeRunDelete
+      description: Delete an existing entry.
+    KnowledgeScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      title: KnowledgeScope
+      description: 'Tier a knowledge entry applies to.
+
+
+        Resolution is additive and ordered ``user -> workspace`` — precedence is
+
+        ordering only, not override (no shadowing in v1). "System" knowledge is the
+
+        agent''s existing system prompt — a separate, pre-existing mechanism that does
+
+        not live in this table — so there is no ``system`` scope here.'
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

@@ -338,102 +338,22 @@ components:
       - updated_at
       title: AdminProjectListItem
       description: Summary schema for project list items in admin views.
-    AdminUserListItem:
+    AdminProjectListResponse:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        email:
-          type: string
-          title: Email
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        workspace_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workspace Name
-        is_internal:
-          type: boolean
-          title: Is Internal
-        is_suspended:
-          type: boolean
-          title: Is Suspended
-        has_completed_onboarding:
-          type: boolean
-          title: Has Completed Onboarding
-        plan_type:
-          type: string
-          title: Plan Type
-        project_count:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectListItem'
+          type: array
+          title: Items
+        total:
           type: integer
-          title: Project Count
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        last_active_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Active At
+          title: Total
       type: object
       required:
-      - id
-      - email
-      - display_name
-      - workspace_id
-      - workspace_name
-      - is_internal
-      - is_suspended
-      - has_completed_onboarding
-      - plan_type
-      - project_count
-      - created_at
-      - last_active_at
-      title: AdminUserListItem
-      description: Summary schema for user list items.
-    AdminUserUpdateRequest:
-      properties:
-        is_internal:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Internal
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        plan_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Plan Type
-        has_completed_onboarding:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Has Completed Onboarding
-      type: object
-      title: AdminUserUpdateRequest
-      description: Request schema for updating user fields.
+      - items
+      - total
+      title: AdminProjectListResponse
+      description: Response schema for admin project list endpoints.
     AdminUserListResponse:
       properties:
         items:
@@ -450,17 +370,6 @@ components:
       - total
       title: AdminUserListResponse
       description: Response schema for user list endpoint.
-    AdminMoveWorkspaceRequest:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-      type: object
-      required:
-      - workspace_id
-      title: AdminMoveWorkspaceRequest
-      description: Request schema for moving a user to a different workspace.
     ValidationError:
       properties:
         loc:
@@ -545,22 +454,122 @@ components:
         `create_workspace_allowed_geographies` key should fail loud rather than
 
         silently no-op (see MAIA-1562).'
-    AdminProjectListResponse:
+    AdminUserUpdateRequest:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminProjectListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        plan_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
+      type: object
+      title: AdminUserUpdateRequest
+      description: Request schema for updating user fields.
+    AdminMoveWorkspaceRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
       type: object
       required:
-      - items
-      - total
-      title: AdminProjectListResponse
-      description: Response schema for admin project list endpoints.
+      - workspace_id
+      title: AdminMoveWorkspaceRequest
+      description: Request schema for moving a user to a different workspace.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AdminUserListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        is_internal:
+          type: boolean
+          title: Is Internal
+        is_suspended:
+          type: boolean
+          title: Is Suspended
+        has_completed_onboarding:
+          type: boolean
+          title: Has Completed Onboarding
+        plan_type:
+          type: string
+          title: Plan Type
+        project_count:
+          type: integer
+          title: Project Count
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
+      type: object
+      required:
+      - id
+      - email
+      - display_name
+      - workspace_id
+      - workspace_name
+      - is_internal
+      - is_suspended
+      - has_completed_onboarding
+      - plan_type
+      - project_count
+      - created_at
+      - last_active_at
+      title: AdminUserListItem
+      description: Summary schema for user list items.
     AdminSendInviteResponse:
       properties:
         success:
@@ -575,15 +584,6 @@ components:
       - message
       title: AdminSendInviteResponse
       description: Response schema for send invite email endpoint.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     AdminUserDetailResponse:
       properties:
         id:

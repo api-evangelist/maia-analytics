@@ -347,6 +347,104 @@ components:
         WRITER = can edit workspace_write projects
 
         READER = can only view workspace projects'
+    WorkspaceMembersResponse:
+      properties:
+        members:
+          items:
+            $ref: '#/components/schemas/WorkspaceMemberResponse'
+          type: array
+          title: Members
+      type: object
+      required:
+      - members
+      title: WorkspaceMembersResponse
+      description: Response model for listing workspace members.
+    DialTemplateVariable:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+      type: object
+      required:
+      - name
+      - description
+      title: DialTemplateVariable
+      description: Single entry in the dial-prompt template-variable registry.
+    DialAgentSettingsUpdateRequest:
+      properties:
+        voicemail_message:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Voicemail Message
+        intro_line:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Intro Line
+        transfer_pitch:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Transfer Pitch
+      type: object
+      title: DialAgentSettingsUpdateRequest
+      description: 'Request model for updating per-workspace dial agent prompt overrides.
+
+
+        All fields optional; pass `null` to clear an individual override and let
+
+        the Retell flow node''s baked-in default apply.
+
+
+        `{{variable_name}}` placeholders are allowed inside each field; the
+
+        handler validates them against the allowed-variable registry and
+
+        returns 422 with the offending names when an unknown variable is used.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TransferDestinationListResponse:
+      properties:
+        destinations:
+          items:
+            $ref: '#/components/schemas/TransferDestinationResponse'
+          type: array
+          title: Destinations
+      type: object
+      required:
+      - destinations
+      title: TransferDestinationListResponse
     DialUsageResponse:
       properties:
         period_start:
@@ -375,54 +473,44 @@ components:
       - transferred_calls
       title: DialUsageResponse
       description: Per-period dial usage rollup for billing/cap display.
-    WorkspaceMemberResponse:
+    TransferDestinationResponse:
       properties:
         id:
           type: string
           format: uuid
           title: Id
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        email:
+        name:
           type: string
-          title: Email
-        workspace_role:
-          $ref: '#/components/schemas/WorkspaceRole'
-        is_workspace_admin:
+          title: Name
+        e164:
+          type: string
+          title: E164
+        is_default:
           type: boolean
-          title: Is Workspace Admin
-        avatar_color:
+          title: Is Default
+        last_used_at:
           anyOf:
           - type: string
+            format: date-time
           - type: 'null'
-          title: Avatar Color
-        used_enrichment_credits:
-          type: integer
-          title: Used Enrichment Credits
-          default: 0
+          title: Last Used At
         created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+          type: string
+          format: date-time
           title: Created At
-        last_active_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Active At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
       type: object
       required:
       - id
-      - email
-      - workspace_role
-      - is_workspace_admin
-      title: WorkspaceMemberResponse
-      description: Response model for a workspace member.
+      - name
+      - e164
+      - is_default
+      - created_at
+      - updated_at
+      title: TransferDestinationResponse
     TransferDestinationCreateRequest:
       properties:
         name:
@@ -473,177 +561,6 @@ components:
         Each field maps to a `{{placeholder}}` in the Retell flow config. Unset
 
         fields are omitted at dispatch so the flow node''s baked-in default applies.'
-    WorkspaceMembersResponse:
-      properties:
-        members:
-          items:
-            $ref: '#/components/schemas/WorkspaceMemberResponse'
-          type: array
-          title: Members
-      type: object
-      required:
-      - members
-      title: WorkspaceMembersResponse
-      description: Response model for listing workspace members.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    CreditBalance:
-      properties:
-        total:
-          type: integer
-          title: Total
-        used:
-          type: integer
-          title: Used
-        remaining:
-          type: integer
-          title: Remaining
-      type: object
-      required:
-      - total
-      - used
-      - remaining
-      title: CreditBalance
-      description: 'Credit balance breakdown for a workspace.
-
-
-        Uses pool accounting: total is the credits ever granted (never decremented),
-
-        used is cumulative consumption, remaining = total - used.'
-    MemberRoleUpdateRequest:
-      properties:
-        workspace_role:
-          $ref: '#/components/schemas/WorkspaceRole'
-          description: 'New role for the member: ''writer'' or ''reader'''
-      type: object
-      required:
-      - workspace_role
-      title: MemberRoleUpdateRequest
-      description: Request model for updating a member's workspace role.
-    TransferDestinationListResponse:
-      properties:
-        destinations:
-          items:
-            $ref: '#/components/schemas/TransferDestinationResponse'
-          type: array
-          title: Destinations
-      type: object
-      required:
-      - destinations
-      title: TransferDestinationListResponse
-    DialTemplateVariable:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-      type: object
-      required:
-      - name
-      - description
-      title: DialTemplateVariable
-      description: Single entry in the dial-prompt template-variable registry.
-    DialAgentSettingsUpdateRequest:
-      properties:
-        voicemail_message:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Voicemail Message
-        intro_line:
-          anyOf:
-          - type: string
-            maxLength: 300
-          - type: 'null'
-          title: Intro Line
-        transfer_pitch:
-          anyOf:
-          - type: string
-            maxLength: 300
-          - type: 'null'
-          title: Transfer Pitch
-      type: object
-      title: DialAgentSettingsUpdateRequest
-      description: 'Request model for updating per-workspace dial agent prompt overrides.
-
-
-        All fields optional; pass `null` to clear an individual override and let
-
-        the Retell flow node''s baked-in default apply.
-
-
-        `{{variable_name}}` placeholders are allowed inside each field; the
-
-        handler validates them against the allowed-variable registry and
-
-        returns 422 with the offending names when an unknown variable is used.'
-    TransferDestinationUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 120
-            minLength: 1
-          - type: 'null'
-          title: Name
-        is_default:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Default
-      type: object
-      title: TransferDestinationUpdateRequest
-      description: Partial update — omitted fields are left untouched.
-    WorkspaceUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 255
-            minLength: 1
-          - type: 'null'
-          title: Name
-          description: New name for the workspace
-        avatar_color:
-          anyOf:
-          - type: string
-            maxLength: 50
-          - type: 'null'
-          title: Avatar Color
-          description: Avatar color name for the workspace. Set to null to remove.
-      type: object
-      title: WorkspaceUpdateRequest
-      description: 'Request model for updating workspace settings.
-
-
-        All fields are optional -- only provided fields are updated.'
     WorkspaceResponse:
       properties:
         id:
@@ -691,44 +608,64 @@ components:
       - member_count
       title: WorkspaceResponse
       description: Response model for workspace details.
-    TransferDestinationResponse:
+    WorkspaceMemberResponse:
       properties:
         id:
           type: string
           format: uuid
           title: Id
-        name:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        email:
           type: string
-          title: Name
-        e164:
-          type: string
-          title: E164
-        is_default:
+          title: Email
+        workspace_role:
+          $ref: '#/components/schemas/WorkspaceRole'
+        is_workspace_admin:
           type: boolean
-          title: Is Default
-        last_used_at:
+          title: Is Workspace Admin
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        used_enrichment_credits:
+          type: integer
+          title: Used Enrichment Credits
+          default: 0
+        created_at:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
-          title: Last Used At
-        created_at:
-          type: string
-          format: date-time
           title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
+        last_active_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Active At
       type: object
       required:
       - id
-      - name
-      - e164
-      - is_default
-      - created_at
-      - updated_at
-      title: TransferDestinationResponse
+      - email
+      - workspace_role
+      - is_workspace_admin
+      title: WorkspaceMemberResponse
+      description: Response model for a workspace member.
+    MemberRoleUpdateRequest:
+      properties:
+        workspace_role:
+          $ref: '#/components/schemas/WorkspaceRole'
+          description: 'New role for the member: ''writer'' or ''reader'''
+      type: object
+      required:
+      - workspace_role
+      title: MemberRoleUpdateRequest
+      description: Request model for updating a member's workspace role.
     HTTPValidationError:
       properties:
         detail:
@@ -738,6 +675,23 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    TransferDestinationUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Name
+        is_default:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Default
+      type: object
+      title: TransferDestinationUpdateRequest
+      description: Partial update — omitted fields are left untouched.
     DialTemplateVariablesResponse:
       properties:
         variables:
@@ -757,6 +711,52 @@ components:
         autocomplete menu reads this directly so client and server can''t
 
         drift on the supported set.'
+    WorkspaceUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+          description: New name for the workspace
+        avatar_color:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Avatar Color
+          description: Avatar color name for the workspace. Set to null to remove.
+      type: object
+      title: WorkspaceUpdateRequest
+      description: 'Request model for updating workspace settings.
+
+
+        All fields are optional -- only provided fields are updated.'
+    CreditBalance:
+      properties:
+        total:
+          type: integer
+          title: Total
+        used:
+          type: integer
+          title: Used
+        remaining:
+          type: integer
+          title: Remaining
+      type: object
+      required:
+      - total
+      - used
+      - remaining
+      title: CreditBalance
+      description: 'Credit balance breakdown for a workspace.
+
+
+        Uses pool accounting: total is the credits ever granted (never decremented),
+
+        used is cumulative consumption, remaining = total - used.'
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

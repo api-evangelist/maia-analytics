@@ -198,6 +198,27 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    SkillScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      - system
+      title: SkillScope
+      description: 'Tier a skill applies to.
+
+
+        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
+
+        scope: globally-available skills that are read-only through the public
+
+        service/API and writable only via the internal admin override,
+
+        plus the in-code create-skill playbook registry. ``user`` skills are owned by
+
+        a single user, ``workspace`` skills by a workspace, ``system`` skills by
+
+        neither.'
     ValidationError:
       properties:
         loc:
@@ -277,57 +298,6 @@ components:
       - updated_at
       title: SkillResponse
       description: A skill as returned to clients (full record, including body).
-    AdminSkillWriteRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Name
-        description:
-          type: string
-          maxLength: 400
-          minLength: 1
-          title: Description
-        body:
-          type: string
-          maxLength: 32000
-          minLength: 1
-          title: Body
-        is_starter:
-          type: boolean
-          title: Is Starter
-          default: false
-        workspace_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Workspace Ids
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - description
-      - body
-      title: AdminSkillWriteRequest
-      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
-
-
-        ``workspace_ids`` sets availability on both create and update: empty is a
-
-        global skill (visible to every workspace); a set restricts it to those
-
-        workspaces. ``is_starter`` is independent of availability.
-
-
-        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
-
-        caller from before the multi-workspace cutover would otherwise have it
-
-        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
-
-        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
     AdminSkillDraftResponse:
       properties:
         name:
@@ -346,63 +316,15 @@ components:
       - body
       title: AdminSkillDraftResponse
       description: A drafted skill's three authored fields, for pre-filling the editor.
-    SkillScope:
-      type: string
-      enum:
-      - user
-      - workspace
-      - system
-      title: SkillScope
-      description: 'Tier a skill applies to.
-
-
-        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
-
-        scope: globally-available skills that are read-only through the public
-
-        service/API and writable only via the internal admin override,
-
-        plus the in-code create-skill playbook registry. ``user`` skills are owned by
-
-        a single user, ``workspace`` skills by a workspace, ``system`` skills by
-
-        neither.'
-    AdminSkillDraftRequest:
+    HTTPValidationError:
       properties:
-        prompt:
-          type: string
-          maxLength: 4000
-          minLength: 1
-          title: Prompt
-        current_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Name
-        current_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Description
-        current_body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Body
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - prompt
-      title: AdminSkillDraftRequest
-      description: 'Draft a system skill from a plain-language description (no persistence).
-
-
-        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
-
-        feedback rather than a fresh request; omit them for a first draft. The draft
-
-        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
-
-        uncapped beyond the prompt length.'
+      title: HTTPValidationError
     AdminSkillResponse:
       properties:
         id:
@@ -476,15 +398,93 @@ components:
         any workspace the skill is visible in. Only the internal admin surface
 
         (``require_internal``) sees the availability set.'
-    HTTPValidationError:
+    AdminSkillWriteRequest:
       properties:
-        detail:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
+        is_starter:
+          type: boolean
+          title: Is Starter
+          default: false
+        workspace_ids:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            type: string
+            format: uuid
           type: array
-          title: Detail
+          title: Workspace Ids
+      additionalProperties: false
       type: object
-      title: HTTPValidationError
+      required:
+      - name
+      - description
+      - body
+      title: AdminSkillWriteRequest
+      description: 'Create or replace a MAIA-curated (``scope=system``) skill.
+
+
+        ``workspace_ids`` sets availability on both create and update: empty is a
+
+        global skill (visible to every workspace); a set restricts it to those
+
+        workspaces. ``is_starter`` is independent of availability.
+
+
+        ``extra="forbid"`` rejects the retired scalar ``workspace_id`` field: a stale
+
+        caller from before the multi-workspace cutover would otherwise have it
+
+        silently dropped, defaulting ``workspace_ids`` to empty and publishing a
+
+        workspace-scoped skill to every workspace. A 422 surfaces the stale call.'
+    AdminSkillDraftRequest:
+      properties:
+        prompt:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Prompt
+        current_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Name
+        current_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Description
+        current_body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Body
+      type: object
+      required:
+      - prompt
+      title: AdminSkillDraftRequest
+      description: 'Draft a system skill from a plain-language description (no persistence).
+
+
+        ``current_*`` carry an existing draft so ``prompt`` can be read as revision
+
+        feedback rather than a fresh request; omit them for a first draft. The draft
+
+        is reviewed and saved through ``AdminSkillWriteRequest``, so this is
+
+        uncapped beyond the prompt length.'
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

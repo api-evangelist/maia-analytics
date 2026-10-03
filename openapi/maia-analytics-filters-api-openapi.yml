@@ -41,6 +41,87 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
+    FilterSpecRequest:
+      properties:
+        filterModel:
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: object
+          title: Filtermodel
+          description: AG Grid native filter model (Record<colId, FilterCondition>).
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+          description: Optional GeoJSON polygon scoping the filter.
+        searchText:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+          description: Optional free-text search applied across searchable columns.
+        favoritesOnly:
+          type: boolean
+          title: Favoritesonly
+          description: Restrict matching rows to the user's favorites.
+          default: false
+      type: object
+      title: FilterSpecRequest
+      description: 'Payload accepted by ``POST /filters``.
+
+
+        All four fields participate in the canonical hash that derives the
+
+        ``filter_id`` — same shape produces the same ID, idempotent under repeat
+
+        POST.'
+    TextCondition:
+      properties:
+        filterType:
+          type: string
+          const: text
+          title: Filtertype
+          default: text
+        type:
+          type: string
+          enum:
+          - contains
+          - notContains
+          - equals
+          - notEqual
+          - startsWith
+          - endsWith
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: TextCondition
     FilterSpecResponse:
       properties:
         filterId:
@@ -64,6 +145,80 @@ components:
         consumer read (tile request / paginated fetch / etc.) refreshes the window,
 
         so an active session never sees the spec expire mid-flight.'
+    SetCondition:
+      properties:
+        filterType:
+          type: string
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
+      type: object
+      title: SetCondition
+    BooleanCondition:
+      properties:
+        filterType:
+          type: string
+          const: boolean
+          title: Filtertype
+          default: boolean
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - equals
+          - notEqual
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Filter
+      type: object
+      required:
+      - type
+      title: BooleanCondition
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     DateCondition:
       properties:
         filterType:
@@ -97,6 +252,55 @@ components:
       required:
       - type
       title: DateCondition
+    NumberCondition:
+      properties:
+        filterType:
+          type: string
+          const: number
+          title: Filtertype
+          default: number
+        type:
+          type: string
+          enum:
+          - equals
+          - notEqual
+          - greaterThan
+          - greaterThanOrEqual
+          - lessThan
+          - lessThanOrEqual
+          - inRange
+          - blank
+          - notBlank
+          - unavailable
+          title: Type
+        filter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filter
+        filterTo:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Filterto
+        units:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Units
+      type: object
+      required:
+      - type
+      title: NumberCondition
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     CompoundFilter-Input:
       properties:
         filterType:
@@ -179,210 +383,6 @@ components:
       - filterType
       - operator
       title: CompoundFilter
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    BooleanCondition:
-      properties:
-        filterType:
-          type: string
-          const: boolean
-          title: Filtertype
-          default: boolean
-        type:
-          type: string
-          enum:
-          - blank
-          - notBlank
-          - equals
-          - notEqual
-          - unavailable
-          title: Type
-        filter:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Filter
-      type: object
-      required:
-      - type
-      title: BooleanCondition
-    FilterSpecRequest:
-      properties:
-        filterModel:
-          additionalProperties:
-            oneOf:
-            - $ref: '#/components/schemas/CompoundFilter-Input'
-            - oneOf:
-              - $ref: '#/components/schemas/TextCondition'
-              - $ref: '#/components/schemas/NumberCondition'
-              - $ref: '#/components/schemas/SetCondition'
-              - $ref: '#/components/schemas/DateCondition'
-              - $ref: '#/components/schemas/BooleanCondition'
-              discriminator:
-                propertyName: filterType
-                mapping:
-                  boolean: '#/components/schemas/BooleanCondition'
-                  date: '#/components/schemas/DateCondition'
-                  number: '#/components/schemas/NumberCondition'
-                  set: '#/components/schemas/SetCondition'
-                  text: '#/components/schemas/TextCondition'
-          type: object
-          title: Filtermodel
-          description: AG Grid native filter model (Record<colId, FilterCondition>).
-        geometry:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Geometry
-          description: Optional GeoJSON polygon scoping the filter.
-        searchText:
-          anyOf:
-          - type: string
-            maxLength: 200
-          - type: 'null'
-          title: Searchtext
-          description: Optional free-text search applied across searchable columns.
-        favoritesOnly:
-          type: boolean
-          title: Favoritesonly
-          description: Restrict matching rows to the user's favorites.
-          default: false
-      type: object
-      title: FilterSpecRequest
-      description: 'Payload accepted by ``POST /filters``.
-
-
-        All four fields participate in the canonical hash that derives the
-
-        ``filter_id`` — same shape produces the same ID, idempotent under repeat
-
-        POST.'
-    NumberCondition:
-      properties:
-        filterType:
-          type: string
-          const: number
-          title: Filtertype
-          default: number
-        type:
-          type: string
-          enum:
-          - equals
-          - notEqual
-          - greaterThan
-          - greaterThanOrEqual
-          - lessThan
-          - lessThanOrEqual
-          - inRange
-          - blank
-          - notBlank
-          - unavailable
-          title: Type
-        filter:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Filter
-        filterTo:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Filterto
-        units:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Units
-      type: object
-      required:
-      - type
-      title: NumberCondition
-    SetCondition:
-      properties:
-        filterType:
-          type: string
-          const: set
-          title: Filtertype
-          default: set
-        values:
-          items:
-            anyOf:
-            - type: string
-            - type: 'null'
-          type: array
-          maxItems: 10000
-          title: Values
-        type:
-          anyOf:
-          - type: string
-            const: unavailable
-          - type: 'null'
-          title: Type
-      type: object
-      title: SetCondition
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    TextCondition:
-      properties:
-        filterType:
-          type: string
-          const: text
-          title: Filtertype
-          default: text
-        type:
-          type: string
-          enum:
-          - contains
-          - notContains
-          - equals
-          - notEqual
-          - startsWith
-          - endsWith
-          - blank
-          - notBlank
-          - unavailable
-          title: Type
-        filter:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Filter
-      type: object
-      required:
-      - type
-      title: TextCondition
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

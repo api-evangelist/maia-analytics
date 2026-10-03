@@ -123,6 +123,22 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    FeatureOverridesResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+        overrides:
+          items:
+            $ref: '#/components/schemas/FeatureOverrideWorkspaceItem'
+          type: array
+          title: Overrides
+      type: object
+      required:
+      - key
+      - overrides
+      title: FeatureOverridesResponse
+      description: Workspaces that override one feature (deviate from the global default).
     GlobalFeatureFlagsResponse:
       properties:
         flags:
@@ -135,20 +151,17 @@ components:
       - flags
       title: GlobalFeatureFlagsResponse
       description: Every registered feature toggle with its global default + override count.
-    ResetFeatureOverridesResponse:
+    SetGlobalFlagDefaultRequest:
       properties:
-        key:
-          type: string
-          title: Key
-        cleared_count:
-          type: integer
-          title: Cleared Count
+        enabled:
+          type: boolean
+          title: Enabled
+      additionalProperties: false
       type: object
       required:
-      - key
-      - cleared_count
-      title: ResetFeatureOverridesResponse
-      description: Result from clearing every per-workspace override for one feature.
+      - enabled
+      title: SetGlobalFlagDefaultRequest
+      description: Request to set the platform-wide default for one feature toggle.
     ValidationError:
       properties:
         loc:
@@ -175,22 +188,6 @@ components:
       - msg
       - type
       title: ValidationError
-    FeatureOverridesResponse:
-      properties:
-        key:
-          type: string
-          title: Key
-        overrides:
-          items:
-            $ref: '#/components/schemas/FeatureOverrideWorkspaceItem'
-          type: array
-          title: Overrides
-      type: object
-      required:
-      - key
-      - overrides
-      title: FeatureOverridesResponse
-      description: Workspaces that override one feature (deviate from the global default).
     GlobalFeatureFlagItem:
       properties:
         key:
@@ -236,17 +233,6 @@ components:
       - enabled
       title: FeatureOverrideWorkspaceItem
       description: One workspace overriding a feature, with its current stored value.
-    SetGlobalFlagDefaultRequest:
-      properties:
-        enabled:
-          type: boolean
-          title: Enabled
-      additionalProperties: false
-      type: object
-      required:
-      - enabled
-      title: SetGlobalFlagDefaultRequest
-      description: Request to set the platform-wide default for one feature toggle.
     HTTPValidationError:
       properties:
         detail:
@@ -256,6 +242,20 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ResetFeatureOverridesResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+        cleared_count:
+          type: integer
+          title: Cleared Count
+      type: object
+      required:
+      - key
+      - cleared_count
+      title: ResetFeatureOverridesResponse
+      description: Result from clearing every per-workspace override for one feature.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

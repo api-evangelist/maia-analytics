@@ -1081,6 +1081,69 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    FeatureDetailResponse:
+      properties:
+        properties:
+          additionalProperties: true
+          type: object
+          title: Properties
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+        enrichments:
+          additionalProperties:
+            $ref: '#/components/schemas/EnrichmentValueBaseModel'
+          type: object
+          title: Enrichments
+      type: object
+      required:
+      - properties
+      - geometry
+      title: FeatureDetailResponse
+      description: 'Full properties + GeoJSON geometry for a single feature.
+
+
+        Powers the feature detail panel and ``MapboxService.flyToFeature()``.
+
+        Base attributes live in ``properties``; enrichment wrappers live in
+
+        ``enrichments``, keyed by enrichment UUID so consumers can look them up
+
+        by ``config.id`` without reconciling column names. The paginated
+
+        endpoint keeps column-name-keyed wrappers in row data for AG Grid SSR.'
+    PaginatedFeatureRow:
+      additionalProperties: true
+      type: object
     EnrichmentColumnConfig:
       properties:
         enrichment_id:
@@ -1148,6 +1211,285 @@ components:
         contains. ``position`` is 0-based; ``total`` is the filtered set
 
         size.'
+    FeatureAddResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        data_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Data Version
+        feature_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Feature Id
+      type: object
+      required:
+      - success
+      title: FeatureAddResponse
+      description: 'Response model for adding a feature.
+
+
+        ``data_version`` is the layer''s new version after a successful add (bumped
+
+        in the same transaction). None on failure since a failed create does not
+
+        bump. The FE uses this to rotate the tile URL''s ``?v=``.'
+    DistinctValue:
+      properties:
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Value
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - value
+      - count
+      title: DistinctValue
+      description: 'A single distinct value and its occurrence count for the set-filter list.
+
+
+        ``value`` is the server-rendered text of the column value (the SQL
+
+        projects ``(col)::text``) so a client echoing it back into a set filter
+
+        matches the ``col::text IN`` predicate byte-for-byte. The non-string
+
+        scalars appear only on list-shape JSONB columns, whose envelopes are
+
+        exploded into their elements after the query.'
+    EnrichmentCitation:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+          description: Optional URL of the source that supports the enrichment value.
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+          description: Optional human-readable title for the source.
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+          description: Optional snippet or excerpt from the cited material.
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+          description: Provider or domain the citation originated from.
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Type
+          description: Provider-specific type identifier for the cited source.
+      type: object
+      title: EnrichmentCitation
+      description: Metadata describing a cited source returned by an enrichment.
+    FeatureSearchResult:
+      properties:
+        featureId:
+          type: string
+          title: Featureid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        owner:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        parcelnumb:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parcelnumb
+        matchField:
+          type: string
+          title: Matchfield
+      type: object
+      required:
+      - featureId
+      - matchField
+      title: FeatureSearchResult
+      description: A single hit from GET /table/{layer_id}/search.
+    ColumnStats:
+      properties:
+        total_rows:
+          type: integer
+          title: Total Rows
+        enriched_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Enriched Count
+        unenriched_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Unenriched Count
+      type: object
+      required:
+      - total_rows
+      title: ColumnStats
+      description: 'Aggregate counts for one column.
+
+
+        Only enrichment columns carry ``enriched_count``/``unenriched_count`` (from
+
+        the ``additions`` sidecar). Base columns carry ``total_rows`` alone.'
+    CreateLayerFromFeatureResponse:
+      properties:
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+        layer_name:
+          type: string
+          title: Layer Name
+      type: object
+      required:
+      - layer_id
+      - layer_name
+      title: CreateLayerFromFeatureResponse
+      description: 'Response for creating a new typed layer seeded with one Overture feature.
+
+
+        Returned when the user adds a nearby feature whose Overture table has no
+
+        layer in the project yet; the client uses ``layer_id`` to focus/refresh the
+
+        newly created layer.'
+    PaginatedFeaturesResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/PaginatedFeatureRow'
+          type: array
+          title: Rows
+        last_row:
+          type: integer
+          title: Last Row
+        column_meta:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/ColumnMeta'
+            type: object
+          - type: 'null'
+          title: Column Meta
+      type: object
+      required:
+      - rows
+      - last_row
+      title: PaginatedFeaturesResponse
+      description: 'Response for the paginated sandbox query endpoint.
+
+
+        ``last_row`` is the exact filtered match count, computed alongside the
+
+        page via a single windowed ``COUNT(*) OVER()``. AG Grid uses it to size
+
+        the scrollbar and drive the "X of Y" footer without a follow-up call.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    EnrichmentState:
+      type: string
+      enum:
+      - unenriched
+      - enriched
+      - attempted
+      - user_edited
+      - pending
+      title: EnrichmentState
+      description: Enum representing the state of an enrichment value.
+    FilteredCountResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        fingerprint:
+          type: string
+          title: Fingerprint
+      type: object
+      required:
+      - total
+      - fingerprint
+      title: FilteredCountResponse
+      description: 'Total row count matching the current filter set, no ids materialized.
+
+
+        Use over ``filtered-ids`` when only the count is needed — skips the sort
+
+        pass and id fetch. Backs the bulk-enrich confirm gate.
+
+
+        ``fingerprint`` is a deterministic hash of every field on
+
+        ``SSRTableQueryParams`` (minus pagination) plus the enrichment
+
+        predicates that ride alongside; snapshot consumers like
+
+        ``/enrich_async`` echo this value back in a ``FilterSelectionRequest``
+
+        so the server can detect client-side spec drift between count and
+
+        action.'
+    ColumnsMetadataResponse:
+      properties:
+        tile_url_template:
+          type: string
+          title: Tile Url Template
+        total_rows:
+          type: integer
+          title: Total Rows
+        columns:
+          additionalProperties:
+            $ref: '#/components/schemas/ColumnDetail'
+          type: object
+          title: Columns
+      type: object
+      required:
+      - tile_url_template
+      - total_rows
+      - columns
+      title: ColumnsMetadataResponse
+      description: 'Response for GET /table/{layer_id}/columns.
+
+
+        ``tile_url_template`` is a literal template; the client substitutes
+
+        ``{layer_id}`` before handing the URL to Mapbox.'
     ColumnMeta:
       properties:
         type:
@@ -1204,95 +1546,6 @@ components:
         friendly names the legacy pre-SSR table used; user overrides on
 
         ``LayerColumn.display_name`` win on key conflict.'
-    SourceTable:
-      type: string
-      enum:
-      - parcel
-      - building
-      - place
-      - address
-      title: SourceTable
-      description: 'The table a resolved feature lives in — what a caller pulls its data from,
-
-        and the feature''s kind. A text match in the ``address`` or ``place`` table
-
-        resolves (point-in-feature) to a ``parcel``/``building``; a ``parcel`` attribute
-
-        match resolves to the parcel itself.'
-    PaginatedFeatureRow:
-      additionalProperties: true
-      type: object
-    FeatureAddRequest:
-      properties:
-        type:
-          type: string
-          enum:
-          - Point
-          - LineString
-          - Polygon
-          - MultiPoint
-          - MultiLineString
-          - MultiPolygon
-          title: Type
-        coordinates:
-          items: {}
-          type: array
-          title: Coordinates
-        properties:
-          additionalProperties: true
-          type: object
-          title: Properties
-          default: {}
-        layer_id:
-          type: string
-          format: uuid
-          title: Layer Id
-        source_feature_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Feature Id
-      type: object
-      required:
-      - type
-      - coordinates
-      - layer_id
-      title: FeatureAddRequest
-      description: Lightweight request for adding GeoJSON features.
-    FeatureDetailResponse:
-      properties:
-        properties:
-          additionalProperties: true
-          type: object
-          title: Properties
-        geometry:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Geometry
-        enrichments:
-          additionalProperties:
-            $ref: '#/components/schemas/EnrichmentValueBaseModel'
-          type: object
-          title: Enrichments
-      type: object
-      required:
-      - properties
-      - geometry
-      title: FeatureDetailResponse
-      description: 'Full properties + GeoJSON geometry for a single feature.
-
-
-        Powers the feature detail panel and ``MapboxService.flyToFeature()``.
-
-        Base attributes live in ``properties``; enrichment wrappers live in
-
-        ``enrichments``, keyed by enrichment UUID so consumers can look them up
-
-        by ``config.id`` without reconciling column names. The paginated
-
-        endpoint keeps column-name-keyed wrappers in row data for AG Grid SSR.'
     FeatureSuggestion:
       properties:
         feature:
@@ -1336,6 +1589,27 @@ components:
         in ``recommended_layer`` — the client shows an "Added" state, not an add
 
         button.'
+    FilteredIdsResponse:
+      properties:
+        ids:
+          items:
+            type: string
+          type: array
+          title: Ids
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - ids
+      - total
+      title: FilteredIdsResponse
+      description: 'Feature ids matching the current filter set, plus the unfiltered total.
+
+
+        ``total`` reflects the full match count even when ``limit`` truncates ``ids`` —
+
+        callers use it for "showing X of Y" UI and bulk-action sizing decisions.'
     DistinctValuesResponse:
       properties:
         values:
@@ -1352,38 +1626,6 @@ components:
       - truncated
       title: DistinctValuesResponse
       description: Response for the per-column distinct-values endpoint (AG Grid set filter).
-    FilteredCountResponse:
-      properties:
-        total:
-          type: integer
-          title: Total
-        fingerprint:
-          type: string
-          title: Fingerprint
-      type: object
-      required:
-      - total
-      - fingerprint
-      title: FilteredCountResponse
-      description: 'Total row count matching the current filter set, no ids materialized.
-
-
-        Use over ``filtered-ids`` when only the count is needed — skips the sort
-
-        pass and id fetch. Backs the bulk-enrich confirm gate.
-
-
-        ``fingerprint`` is a deterministic hash of every field on
-
-        ``SSRTableQueryParams`` (minus pagination) plus the enrichment
-
-        predicates that ride alongside; snapshot consumers like
-
-        ``/enrich_async`` echo this value back in a ``FilterSelectionRequest``
-
-        so the server can detect client-side spec drift between count and
-
-        action.'
     FeatureSearchResponse:
       properties:
         results:
@@ -1396,6 +1638,125 @@ components:
       - results
       title: FeatureSearchResponse
       description: Response for GET /table/{layer_id}/search.
+    SourceTable:
+      type: string
+      enum:
+      - parcel
+      - building
+      - place
+      - address
+      title: SourceTable
+      description: 'The table a resolved feature lives in — what a caller pulls its data from,
+
+        and the feature''s kind. A text match in the ``address`` or ``place`` table
+
+        resolves (point-in-feature) to a ``parcel``/``building``; a ``parcel`` attribute
+
+        match resolves to the parcel itself.'
+    Feature:
+      properties:
+        id:
+          type: string
+          title: Id
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+        layer_id:
+          type: string
+          format: uuid
+          title: Layer Id
+        base_attributes:
+          additionalProperties: true
+          type: object
+          title: Base Attributes
+        enrichments:
+          additionalProperties: true
+          type: object
+          title: Enrichments
+        agent_attributes:
+          additionalProperties: true
+          type: object
+          title: Agent Attributes
+      type: object
+      required:
+      - id
+      - geometry
+      - layer_id
+      - base_attributes
+      - enrichments
+      title: Feature
+      description: 'Flattened feature model.
+
+
+        Uses lazy validation for enrichments to keep model creation fast.
+
+        Access raw enrichments for performance, validated enrichments when type safety is needed.'
+    FindFeatureResponse:
+      properties:
+        suggestions:
+          items:
+            $ref: '#/components/schemas/FeatureSuggestion'
+          type: array
+          title: Suggestions
+        out_of_county:
+          type: boolean
+          title: Out Of County
+          default: false
+      type: object
+      required:
+      - suggestions
+      title: FindFeatureResponse
+      description: Response model for finding a feature.
+    EnrichmentValueBaseModel:
+      properties:
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+          description: 1-2 sentence explanation of the enrichment value.
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: The enrichment value.
+        citations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnrichmentCitation'
+            type: array
+          - type: 'null'
+          title: Citations
+          description: List of citations from web search sources that support the enrichment value if any were used.
+        state:
+          $ref: '#/components/schemas/EnrichmentState'
+          description: The status of the enrichment value.
+          default: unenriched
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      title: EnrichmentValueBaseModel
+      description: Enrichment value domain model.
     ColumnDetail:
       properties:
         name:
@@ -1452,343 +1813,43 @@ components:
       - stats
       title: ColumnDetail
       description: Rich per-column metadata for the columns endpoint.
-    FindFeatureResponse:
+    FeatureAddRequest:
       properties:
-        suggestions:
-          items:
-            $ref: '#/components/schemas/FeatureSuggestion'
-          type: array
-          title: Suggestions
-        out_of_county:
-          type: boolean
-          title: Out Of County
-          default: false
-      type: object
-      required:
-      - suggestions
-      title: FindFeatureResponse
-      description: Response model for finding a feature.
-    ColumnsMetadataResponse:
-      properties:
-        tile_url_template:
-          type: string
-          title: Tile Url Template
-        total_rows:
-          type: integer
-          title: Total Rows
-        columns:
-          additionalProperties:
-            $ref: '#/components/schemas/ColumnDetail'
-          type: object
-          title: Columns
-      type: object
-      required:
-      - tile_url_template
-      - total_rows
-      - columns
-      title: ColumnsMetadataResponse
-      description: 'Response for GET /table/{layer_id}/columns.
-
-
-        ``tile_url_template`` is a literal template; the client substitutes
-
-        ``{layer_id}`` before handing the URL to Mapbox.'
-    EnrichmentState:
-      type: string
-      enum:
-      - unenriched
-      - enriched
-      - attempted
-      - user_edited
-      - pending
-      title: EnrichmentState
-      description: Enum representing the state of an enrichment value.
-    PaginatedFeaturesResponse:
-      properties:
-        rows:
-          items:
-            $ref: '#/components/schemas/PaginatedFeatureRow'
-          type: array
-          title: Rows
-        last_row:
-          type: integer
-          title: Last Row
-        column_meta:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/ColumnMeta'
-            type: object
-          - type: 'null'
-          title: Column Meta
-      type: object
-      required:
-      - rows
-      - last_row
-      title: PaginatedFeaturesResponse
-      description: 'Response for the paginated sandbox query endpoint.
-
-
-        ``last_row`` is the exact filtered match count, computed alongside the
-
-        page via a single windowed ``COUNT(*) OVER()``. AG Grid uses it to size
-
-        the scrollbar and drive the "X of Y" footer without a follow-up call.'
-    CreateLayerFromFeatureResponse:
-      properties:
-        layer_id:
-          type: string
-          format: uuid
-          title: Layer Id
-        layer_name:
-          type: string
-          title: Layer Name
-      type: object
-      required:
-      - layer_id
-      - layer_name
-      title: CreateLayerFromFeatureResponse
-      description: 'Response for creating a new typed layer seeded with one Overture feature.
-
-
-        Returned when the user adds a nearby feature whose Overture table has no
-
-        layer in the project yet; the client uses ``layer_id`` to focus/refresh the
-
-        newly created layer.'
-    ColumnStats:
-      properties:
-        total_rows:
-          type: integer
-          title: Total Rows
-        enriched_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Enriched Count
-        unenriched_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Unenriched Count
-      type: object
-      required:
-      - total_rows
-      title: ColumnStats
-      description: 'Aggregate counts for one column.
-
-
-        Only enrichment columns carry ``enriched_count``/``unenriched_count`` (from
-
-        the ``additions`` sidecar). Base columns carry ``total_rows`` alone.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
         type:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    FilteredIdsResponse:
-      properties:
-        ids:
-          items:
-            type: string
+          enum:
+          - Point
+          - LineString
+          - Polygon
+          - MultiPoint
+          - MultiLineString
+          - MultiPolygon
+          title: Type
+        coordinates:
+          items: {}
           type: array
-          title: Ids
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - ids
-      - total
-      title: FilteredIdsResponse
-      description: 'Feature ids matching the current filter set, plus the unfiltered total.
-
-
-        ``total`` reflects the full match count even when ``limit`` truncates ``ids`` —
-
-        callers use it for "showing X of Y" UI and bulk-action sizing decisions.'
-    Feature:
-      properties:
-        id:
-          type: string
-          title: Id
-        geometry:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Geometry
+          title: Coordinates
+        properties:
+          additionalProperties: true
+          type: object
+          title: Properties
+          default: {}
         layer_id:
           type: string
           format: uuid
           title: Layer Id
-        base_attributes:
-          additionalProperties: true
-          type: object
-          title: Base Attributes
-        enrichments:
-          additionalProperties: true
-          type: object
-          title: Enrichments
-        agent_attributes:
-          additionalProperties: true
-          type: object
-          title: Agent Attributes
+        source_feature_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Feature Id
       type: object
       required:
-      - id
-      - geometry
+      - type
+      - coordinates
       - layer_id
-      - base_attributes
-      - enrichments
-      title: Feature
-      description: 'Flattened feature model.
-
-
-        Uses lazy validation for enrichments to keep model creation fast.
-
-        Access raw enrichments for performance, validated enrichments when type safety is needed.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    DistinctValue:
-      properties:
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Value
-        count:
-          type: integer
-          title: Count
-      type: object
-      required:
-      - value
-      - count
-      title: DistinctValue
-      description: 'A single distinct value and its occurrence count for the set-filter list.
-
-
-        ``value`` is the server-rendered text of the column value (the SQL
-
-        projects ``(col)::text``) so a client echoing it back into a set filter
-
-        matches the ``col::text IN`` predicate byte-for-byte. The non-string
-
-        scalars appear only on list-shape JSONB columns, whose envelopes are
-
-        exploded into their elements after the query.'
-    EnrichmentValueBaseModel:
-      properties:
-        reasoning:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reasoning
-          description: 1-2 sentence explanation of the enrichment value.
-        value:
-          anyOf:
-          - type: string
-          - type: number
-          - type: boolean
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: integer
-          - type: 'null'
-          title: Value
-          description: The enrichment value.
-        citations:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/EnrichmentCitation'
-            type: array
-          - type: 'null'
-          title: Citations
-          description: List of citations from web search sources that support the enrichment value if any were used.
-        state:
-          $ref: '#/components/schemas/EnrichmentState'
-          description: The status of the enrichment value.
-          default: unenriched
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-      type: object
-      title: EnrichmentValueBaseModel
-      description: Enrichment value domain model.
-    EnrichmentCitation:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-          description: Optional URL of the source that supports the enrichment value.
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title
-          description: Optional human-readable title for the source.
-        snippet:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Snippet
-          description: Optional snippet or excerpt from the cited material.
-        provider:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Provider
-          description: Provider or domain the citation originated from.
-        source_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Type
-          description: Provider-specific type identifier for the cited source.
-      type: object
-      title: EnrichmentCitation
-      description: Metadata describing a cited source returned by an enrichment.
+      title: FeatureAddRequest
+      description: Lightweight request for adding GeoJSON features.
     CreateLayerFromFeatureRequest:
       properties:
         source_table:
@@ -1802,67 +1863,6 @@ components:
       - source_feature_id
       title: CreateLayerFromFeatureRequest
       description: Request to create a new typed layer seeded with one Overture feature.
-    FeatureAddResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-        data_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Data Version
-        feature_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Feature Id
-      type: object
-      required:
-      - success
-      title: FeatureAddResponse
-      description: 'Response model for adding a feature.
-
-
-        ``data_version`` is the layer''s new version after a successful add (bumped
-
-        in the same transaction). None on failure since a failed create does not
-
-        bump. The FE uses this to rotate the tile URL''s ``?v=``.'
-    FeatureSearchResult:
-      properties:
-        featureId:
-          type: string
-          title: Featureid
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        owner:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner
-        address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Address
-        parcelnumb:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Parcelnumb
-        matchField:
-          type: string
-          title: Matchfield
-      type: object
-      required:
-      - featureId
-      - matchField
-      title: FeatureSearchResult
-      description: A single hit from GET /table/{layer_id}/search.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

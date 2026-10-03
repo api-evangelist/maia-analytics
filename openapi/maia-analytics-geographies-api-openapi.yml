@@ -24,6 +24,24 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
+    GeographyOptionsResponse:
+      properties:
+        states:
+          items:
+            $ref: '#/components/schemas/StateOption'
+          type: array
+          title: States
+        counties:
+          items:
+            $ref: '#/components/schemas/CountyOption'
+          type: array
+          title: Counties
+      type: object
+      required:
+      - states
+      - counties
+      title: GeographyOptionsResponse
+      description: Available geography options for workspace restriction.
     StateOption:
       properties:
         code:
@@ -56,24 +74,6 @@ components:
       - state
       title: CountyOption
       description: A FIPS county available for geography restriction.
-    GeographyOptionsResponse:
-      properties:
-        states:
-          items:
-            $ref: '#/components/schemas/StateOption'
-          type: array
-          title: States
-        counties:
-          items:
-            $ref: '#/components/schemas/CountyOption'
-          type: array
-          title: Counties
-      type: object
-      required:
-      - states
-      - counties
-      title: GeographyOptionsResponse
-      description: Available geography options for workspace restriction.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

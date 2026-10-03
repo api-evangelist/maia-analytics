@@ -156,6 +156,54 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    SkillScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      - system
+      title: SkillScope
+      description: 'Tier a skill applies to.
+
+
+        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
+
+        scope: globally-available skills that are read-only through the public
+
+        service/API and writable only via the internal admin override,
+
+        plus the in-code create-skill playbook registry. ``user`` skills are owned by
+
+        a single user, ``workspace`` skills by a workspace, ``system`` skills by
+
+        neither.'
+    SkillCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/SkillScope'
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 400
+          minLength: 1
+          title: Description
+        body:
+          type: string
+          maxLength: 32000
+          minLength: 1
+          title: Body
+      type: object
+      required:
+      - scope
+      - name
+      - description
+      - body
+      title: SkillCreateRequest
+      description: Request body for creating a user- or workspace-scoped skill.
     ValidationError:
       properties:
         loc:
@@ -182,30 +230,6 @@ components:
       - msg
       - type
       title: ValidationError
-    SkillUpdateRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Name
-        description:
-          type: string
-          maxLength: 400
-          minLength: 1
-          title: Description
-        body:
-          type: string
-          maxLength: 32000
-          minLength: 1
-          title: Body
-      type: object
-      required:
-      - name
-      - description
-      - body
-      title: SkillUpdateRequest
-      description: Request body for replacing a skill's name + description + body.
     SkillResponse:
       properties:
         id:
@@ -259,10 +283,17 @@ components:
       - updated_at
       title: SkillResponse
       description: A skill as returned to clients (full record, including body).
-    SkillCreateRequest:
+    HTTPValidationError:
       properties:
-        scope:
-          $ref: '#/components/schemas/SkillScope'
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SkillUpdateRequest:
+      properties:
         name:
           type: string
           maxLength: 120
@@ -280,42 +311,11 @@ components:
           title: Body
       type: object
       required:
-      - scope
       - name
       - description
       - body
-      title: SkillCreateRequest
-      description: Request body for creating a user- or workspace-scoped skill.
-    SkillScope:
-      type: string
-      enum:
-      - user
-      - workspace
-      - system
-      title: SkillScope
-      description: 'Tier a skill applies to.
-
-
-        Unlike ``KnowledgeScope`` (user/workspace only), skills add a ``system``
-
-        scope: globally-available skills that are read-only through the public
-
-        service/API and writable only via the internal admin override,
-
-        plus the in-code create-skill playbook registry. ``user`` skills are owned by
-
-        a single user, ``workspace`` skills by a workspace, ``system`` skills by
-
-        neither.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      title: SkillUpdateRequest
+      description: Request body for replacing a skill's name + description + body.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

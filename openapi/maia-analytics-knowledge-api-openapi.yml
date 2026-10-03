@@ -127,43 +127,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    KnowledgeEntryCreateRequest:
-      properties:
-        scope:
-          $ref: '#/components/schemas/KnowledgeScope'
-        title:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Title
-        content:
-          type: string
-          maxLength: 100000
-          minLength: 1
-          title: Content
-      type: object
-      required:
-      - scope
-      - title
-      - content
-      title: KnowledgeEntryCreateRequest
-      description: Request body for creating a user- or workspace-scoped entry.
-    KnowledgeScope:
-      type: string
-      enum:
-      - user
-      - workspace
-      title: KnowledgeScope
-      description: 'Tier a knowledge entry applies to.
-
-
-        Resolution is additive and ordered ``user -> workspace`` — precedence is
-
-        ordering only, not override (no shadowing in v1). "System" knowledge is the
-
-        agent''s existing system prompt — a separate, pre-existing mechanism that does
-
-        not live in this table — so there is no ``system`` scope here.'
     ValidationError:
       properties:
         loc:
@@ -240,6 +203,36 @@ components:
       - is_core
       title: KnowledgeEntryResponse
       description: A titled knowledge entry as returned to clients.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    KnowledgeEntryCreateRequest:
+      properties:
+        scope:
+          $ref: '#/components/schemas/KnowledgeScope'
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        content:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Content
+      type: object
+      required:
+      - scope
+      - title
+      - content
+      title: KnowledgeEntryCreateRequest
+      description: Request body for creating a user- or workspace-scoped entry.
     KnowledgeEntryUpdateRequest:
       properties:
         title:
@@ -258,15 +251,22 @@ components:
       - content
       title: KnowledgeEntryUpdateRequest
       description: Request body for replacing an entry's title + content.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+    KnowledgeScope:
+      type: string
+      enum:
+      - user
+      - workspace
+      title: KnowledgeScope
+      description: 'Tier a knowledge entry applies to.
+
+
+        Resolution is additive and ordered ``user -> workspace`` — precedence is
+
+        ordering only, not override (no shadowing in v1). "System" knowledge is the
+
+        agent''s existing system prompt — a separate, pre-existing mechanism that does
+
+        not live in this table — so there is no ``system`` scope here.'
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http
