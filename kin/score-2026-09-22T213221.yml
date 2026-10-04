@@ -1,22 +1,20 @@
-# Kin Score artifact — maia-analytics — 2026-08-30T220315
+# Kin Score artifact — maia-analytics — 2026-09-22T213221
 # The API Evangelist rating (https://github.com/api-evangelist/kin-score). Generated; do not edit.
 ---
 kin_score:
   slug: maia-analytics
-  schema_version: 0.17.2
-  scored_at: '2026-08-30'
-  run_ts: 2026-08-30T220315
-  composite: 34.1
-  band: thin
+  schema_version: 0.22.0
+  scored_at: '2026-09-22'
+  run_ts: 2026-09-22T213221
+  composite: 40.5
+  band: developing
   facets:
     discoverability: 75.9
-    contract_quality: 56.1
-    governance: 4.5
+    contract_quality: 50.7
+    contract_governance: 4.5
     operational_transparency: 2.6
     developer_ergonomics: 30.4
-    commercial_clarity: 27.6
-    contract_governance: 4.5
-    access_clarity: 27.6
+    access_clarity: 69.7
   agent_readiness:
     score: 32.1
     band: agent-ready
@@ -49,4 +47,4 @@ kin_score:
       total: 33
       derived: 0
       coverage: 0.0
-      callable: 100.0
+      callable: 0.0
