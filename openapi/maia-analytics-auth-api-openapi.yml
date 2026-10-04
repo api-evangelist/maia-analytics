@@ -237,6 +237,125 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
+    LocalTokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - access_token
+      - user_id
+      title: LocalTokenResponse
+      description: Response model for AUTH_DISABLED local mock login.
+    UserExistsResponse:
+      properties:
+        exists:
+          type: boolean
+          title: Exists
+        has_password:
+          type: boolean
+          title: Has Password
+      type: object
+      required:
+      - exists
+      - has_password
+      title: UserExistsResponse
+      description: Response model for checking if a user exists.
+    PlanType:
+      type: string
+      enum:
+      - beta
+      title: PlanType
+      description: Available user plan types with different feature restrictions.
+    UserProfileUpdateRequest:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        avatar_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Color
+        has_completed_onboarding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Completed Onboarding
+        column_preferences:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: boolean
+              type: object
+            type: object
+          - type: 'null'
+          title: Column Preferences
+      type: object
+      title: UserProfileUpdateRequest
+      description: Request model for updating user profile information.
+    Plan:
+      properties:
+        type:
+          $ref: '#/components/schemas/PlanType'
+        max_features_per_layer:
+          type: integer
+          title: Max Features Per Layer
+        max_layers_per_project:
+          type: integer
+          title: Max Layers Per Project
+        default_enrichment_credits:
+          type: integer
+          title: Default Enrichment Credits
+      type: object
+      required:
+      - type
+      - max_features_per_layer
+      - max_layers_per_project
+      - default_enrichment_credits
+      title: Plan
+      description: Plan configuration including type and limits.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     UserProfile:
       properties:
         id:
@@ -378,24 +497,52 @@ components:
         This represents a user stored in the database with enrichment credits,
 
         distinct from the Firebase User model used for authentication.'
-    LocalTokenResponse:
+    WorkspaceRole:
+      type: string
+      enum:
+      - writer
+      - reader
+      title: WorkspaceRole
+      description: 'Role within a workspace determining permission level.
+
+
+        WRITER = can edit workspace_write projects
+
+        READER = can only view workspace projects'
+    UserProfileUpdateResponse:
       properties:
-        access_token:
+        success:
+          type: boolean
+          title: Success
+        message:
           type: string
-          title: Access Token
-        token_type:
-          type: string
-          title: Token Type
-          default: bearer
-        user_id:
-          type: string
-          title: User Id
+          title: Message
       type: object
       required:
-      - access_token
-      - user_id
-      title: LocalTokenResponse
-      description: Response model for AUTH_DISABLED local mock login.
+      - success
+      - message
+      title: UserProfileUpdateResponse
+      description: Response model for user profile update.
+    PasswordResetEmailRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+      type: object
+      required:
+      - email
+      title: PasswordResetEmailRequest
+      description: Request model for sending a password reset email.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     LocalLoginRequest:
       properties:
         email:
@@ -411,153 +558,6 @@ components:
       - password
       title: LocalLoginRequest
       description: Request model for AUTH_DISABLED local mock login.
-    WorkspaceRole:
-      type: string
-      enum:
-      - writer
-      - reader
-      title: WorkspaceRole
-      description: 'Role within a workspace determining permission level.
-
-
-        WRITER = can edit workspace_write projects
-
-        READER = can only view workspace projects'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    Plan:
-      properties:
-        type:
-          $ref: '#/components/schemas/PlanType'
-        max_features_per_layer:
-          type: integer
-          title: Max Features Per Layer
-        max_layers_per_project:
-          type: integer
-          title: Max Layers Per Project
-        default_enrichment_credits:
-          type: integer
-          title: Default Enrichment Credits
-      type: object
-      required:
-      - type
-      - max_features_per_layer
-      - max_layers_per_project
-      - default_enrichment_credits
-      title: Plan
-      description: Plan configuration including type and limits.
-    PasswordResetEmailRequest:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-      type: object
-      required:
-      - email
-      title: PasswordResetEmailRequest
-      description: Request model for sending a password reset email.
-    UserProfileUpdateRequest:
-      properties:
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        avatar_color:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Avatar Color
-        has_completed_onboarding:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Has Completed Onboarding
-        column_preferences:
-          anyOf:
-          - additionalProperties:
-              additionalProperties:
-                type: boolean
-              type: object
-            type: object
-          - type: 'null'
-          title: Column Preferences
-      type: object
-      title: UserProfileUpdateRequest
-      description: Request model for updating user profile information.
-    UserExistsResponse:
-      properties:
-        exists:
-          type: boolean
-          title: Exists
-        has_password:
-          type: boolean
-          title: Has Password
-      type: object
-      required:
-      - exists
-      - has_password
-      title: UserExistsResponse
-      description: Response model for checking if a user exists.
-    PlanType:
-      type: string
-      enum:
-      - beta
-      title: PlanType
-      description: Available user plan types with different feature restrictions.
-    UserProfileUpdateResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - success
-      - message
-      title: UserProfileUpdateResponse
-      description: Response model for user profile update.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

@@ -289,113 +289,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AdminProjectListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        status:
-          type: string
-          title: Status
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        is_locked:
-          type: boolean
-          title: Is Locked
-          default: false
-        locked_by_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Locked By Display Name
-      type: object
-      required:
-      - id
-      - name
-      - status
-      - created_at
-      - updated_at
-      title: AdminProjectListItem
-      description: Summary schema for project list items in admin views.
-    AdminProjectListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminProjectListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminProjectListResponse
-      description: Response schema for admin project list endpoints.
-    AdminUserListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminUserListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminUserListResponse
-      description: Response schema for user list endpoint.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     AdminCreateUserRequest:
       properties:
         email:
@@ -454,6 +347,71 @@ components:
         `create_workspace_allowed_geographies` key should fail loud rather than
 
         silently no-op (see MAIA-1562).'
+    AdminUserListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminUserListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminUserListResponse
+      description: Response schema for user list endpoint.
+    AdminProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        is_locked:
+          type: boolean
+          title: Is Locked
+          default: false
+        locked_by_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locked By Display Name
+      type: object
+      required:
+      - id
+      - name
+      - status
+      - created_at
+      - updated_at
+      title: AdminProjectListItem
+      description: Summary schema for project list items in admin views.
     AdminUserUpdateRequest:
       properties:
         is_internal:
@@ -484,6 +442,46 @@ components:
       type: object
       title: AdminUserUpdateRequest
       description: Request schema for updating user fields.
+    AdminSendInviteResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - success
+      - message
+      title: AdminSendInviteResponse
+      description: Response schema for send invite email endpoint.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     AdminMoveWorkspaceRequest:
       properties:
         workspace_id:
@@ -495,15 +493,6 @@ components:
       - workspace_id
       title: AdminMoveWorkspaceRequest
       description: Request schema for moving a user to a different workspace.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     AdminUserListItem:
       properties:
         id:
@@ -570,20 +559,22 @@ components:
       - last_active_at
       title: AdminUserListItem
       description: Summary schema for user list items.
-    AdminSendInviteResponse:
+    AdminProjectListResponse:
       properties:
-        success:
-          type: boolean
-          title: Success
-        message:
-          type: string
-          title: Message
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
       type: object
       required:
-      - success
-      - message
-      title: AdminSendInviteResponse
-      description: Response schema for send invite email endpoint.
+      - items
+      - total
+      title: AdminProjectListResponse
+      description: Response schema for admin project list endpoints.
     AdminUserDetailResponse:
       properties:
         id:
@@ -675,6 +666,15 @@ components:
       - last_active_at
       title: AdminUserDetailResponse
       description: Full user detail response for admin view.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

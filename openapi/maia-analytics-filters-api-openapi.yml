@@ -41,58 +41,54 @@ paths:
       - FirebaseAuthMiddleware: []
 components:
   schemas:
-    FilterSpecRequest:
+    BooleanCondition:
       properties:
-        filterModel:
-          additionalProperties:
-            oneOf:
-            - $ref: '#/components/schemas/CompoundFilter-Input'
-            - oneOf:
-              - $ref: '#/components/schemas/TextCondition'
-              - $ref: '#/components/schemas/NumberCondition'
-              - $ref: '#/components/schemas/SetCondition'
-              - $ref: '#/components/schemas/DateCondition'
-              - $ref: '#/components/schemas/BooleanCondition'
-              discriminator:
-                propertyName: filterType
-                mapping:
-                  boolean: '#/components/schemas/BooleanCondition'
-                  date: '#/components/schemas/DateCondition'
-                  number: '#/components/schemas/NumberCondition'
-                  set: '#/components/schemas/SetCondition'
-                  text: '#/components/schemas/TextCondition'
-          type: object
-          title: Filtermodel
-          description: AG Grid native filter model (Record<colId, FilterCondition>).
-        geometry:
+        filterType:
+          type: string
+          const: boolean
+          title: Filtertype
+          default: boolean
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - equals
+          - notEqual
+          - unavailable
+          title: Type
+        filter:
           anyOf:
-          - additionalProperties: true
-            type: object
+          - type: boolean
           - type: 'null'
-          title: Geometry
-          description: Optional GeoJSON polygon scoping the filter.
-        searchText:
-          anyOf:
-          - type: string
-            maxLength: 200
-          - type: 'null'
-          title: Searchtext
-          description: Optional free-text search applied across searchable columns.
-        favoritesOnly:
-          type: boolean
-          title: Favoritesonly
-          description: Restrict matching rows to the user's favorites.
-          default: false
+          title: Filter
       type: object
-      title: FilterSpecRequest
-      description: 'Payload accepted by ``POST /filters``.
+      required:
+      - type
+      title: BooleanCondition
+    FilterSpecResponse:
+      properties:
+        filterId:
+          type: string
+          format: uuid
+          title: Filterid
+        expiresAt:
+          type: string
+          format: date-time
+          title: Expiresat
+      type: object
+      required:
+      - filterId
+      - expiresAt
+      title: FilterSpecResponse
+      description: 'Response returned by ``POST /filters`` and the share-mode twin.
 
 
-        All four fields participate in the canonical hash that derives the
+        ``expires_at`` reflects the current sliding TTL window. Every subsequent
 
-        ``filter_id`` — same shape produces the same ID, idempotent under repeat
+        consumer read (tile request / paginated fetch / etc.) refreshes the window,
 
-        POST.'
+        so an active session never sees the spec expire mid-flight.'
     TextCondition:
       properties:
         filterType:
@@ -122,77 +118,6 @@ components:
       required:
       - type
       title: TextCondition
-    FilterSpecResponse:
-      properties:
-        filterId:
-          type: string
-          format: uuid
-          title: Filterid
-        expiresAt:
-          type: string
-          format: date-time
-          title: Expiresat
-      type: object
-      required:
-      - filterId
-      - expiresAt
-      title: FilterSpecResponse
-      description: 'Response returned by ``POST /filters`` and the share-mode twin.
-
-
-        ``expires_at`` reflects the current sliding TTL window. Every subsequent
-
-        consumer read (tile request / paginated fetch / etc.) refreshes the window,
-
-        so an active session never sees the spec expire mid-flight.'
-    SetCondition:
-      properties:
-        filterType:
-          type: string
-          const: set
-          title: Filtertype
-          default: set
-        values:
-          items:
-            anyOf:
-            - type: string
-            - type: 'null'
-          type: array
-          maxItems: 10000
-          title: Values
-        type:
-          anyOf:
-          - type: string
-            const: unavailable
-          - type: 'null'
-          title: Type
-      type: object
-      title: SetCondition
-    BooleanCondition:
-      properties:
-        filterType:
-          type: string
-          const: boolean
-          title: Filtertype
-          default: boolean
-        type:
-          type: string
-          enum:
-          - blank
-          - notBlank
-          - equals
-          - notEqual
-          - unavailable
-          title: Type
-        filter:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Filter
-      type: object
-      required:
-      - type
-      title: BooleanCondition
     ValidationError:
       properties:
         loc:
@@ -219,39 +144,6 @@ components:
       - msg
       - type
       title: ValidationError
-    DateCondition:
-      properties:
-        filterType:
-          type: string
-          const: date
-          title: Filtertype
-          default: date
-        type:
-          type: string
-          enum:
-          - blank
-          - notBlank
-          - inRange
-          - equals
-          - notEqual
-          - lessThan
-          - greaterThan
-          - unavailable
-          title: Type
-        dateFrom:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Datefrom
-        dateTo:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dateto
-      type: object
-      required:
-      - type
-      title: DateCondition
     NumberCondition:
       properties:
         filterType:
@@ -292,15 +184,6 @@ components:
       required:
       - type
       title: NumberCondition
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     CompoundFilter-Input:
       properties:
         filterType:
@@ -383,6 +266,123 @@ components:
       - filterType
       - operator
       title: CompoundFilter
+    SetCondition:
+      properties:
+        filterType:
+          type: string
+          const: set
+          title: Filtertype
+          default: set
+        values:
+          items:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: array
+          maxItems: 10000
+          title: Values
+        type:
+          anyOf:
+          - type: string
+            const: unavailable
+          - type: 'null'
+          title: Type
+      type: object
+      title: SetCondition
+    FilterSpecRequest:
+      properties:
+        filterModel:
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CompoundFilter-Input'
+            - oneOf:
+              - $ref: '#/components/schemas/TextCondition'
+              - $ref: '#/components/schemas/NumberCondition'
+              - $ref: '#/components/schemas/SetCondition'
+              - $ref: '#/components/schemas/DateCondition'
+              - $ref: '#/components/schemas/BooleanCondition'
+              discriminator:
+                propertyName: filterType
+                mapping:
+                  boolean: '#/components/schemas/BooleanCondition'
+                  date: '#/components/schemas/DateCondition'
+                  number: '#/components/schemas/NumberCondition'
+                  set: '#/components/schemas/SetCondition'
+                  text: '#/components/schemas/TextCondition'
+          type: object
+          title: Filtermodel
+          description: AG Grid native filter model (Record<colId, FilterCondition>).
+        geometry:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Geometry
+          description: Optional GeoJSON polygon scoping the filter.
+        searchText:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Searchtext
+          description: Optional free-text search applied across searchable columns.
+        favoritesOnly:
+          type: boolean
+          title: Favoritesonly
+          description: Restrict matching rows to the user's favorites.
+          default: false
+      type: object
+      title: FilterSpecRequest
+      description: 'Payload accepted by ``POST /filters``.
+
+
+        All four fields participate in the canonical hash that derives the
+
+        ``filter_id`` — same shape produces the same ID, idempotent under repeat
+
+        POST.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DateCondition:
+      properties:
+        filterType:
+          type: string
+          const: date
+          title: Filtertype
+          default: date
+        type:
+          type: string
+          enum:
+          - blank
+          - notBlank
+          - inRange
+          - equals
+          - notEqual
+          - lessThan
+          - greaterThan
+          - unavailable
+          title: Type
+        dateFrom:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Datefrom
+        dateTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dateto
+      type: object
+      required:
+      - type
+      title: DateCondition
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

@@ -288,6 +288,249 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AdminDuplicationLogResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminDuplicationLogEntry'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminDuplicationLogResponse
+      description: Recent duplications, newest first, for the admin tracker panel.
+    AdminExampleProjectListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminExampleProjectListItem'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AdminExampleProjectListResponse
+      description: Response schema for example project list endpoint.
+    MissingCounty:
+      properties:
+        fips:
+          type: string
+          title: Fips
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - fips
+      - name
+      title: MissingCounty
+      description: A county the source project covers but the target workspace lacks.
+    AdminExampleProjectListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      title: AdminExampleProjectListItem
+      description: Summary schema for example project list items.
+    AdminDeliveryStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - status
+      title: AdminDeliveryStatusResponse
+      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
+    AdminProjectSearchResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AdminProjectSearchResult'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: AdminProjectSearchResponse
+      description: Response schema for project search endpoint.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MissingCountyCoverageDetail:
+      properties:
+        code:
+          type: string
+          title: Code
+          default: missing_county_coverage
+        missing_counties:
+          items:
+            $ref: '#/components/schemas/MissingCounty'
+          type: array
+          title: Missing Counties
+      type: object
+      required:
+      - missing_counties
+      title: MissingCountyCoverageDetail
+      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
+    AdminProjectPreviewResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        layers:
+          items:
+            $ref: '#/components/schemas/AdminLayerSummary'
+          type: array
+          title: Layers
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - owner_display_name
+      - created_at
+      - layers
+      title: AdminProjectPreviewResponse
+      description: Response schema for project preview endpoint.
+    MissingCountyCoverageResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/MissingCountyCoverageDetail'
+      type: object
+      required:
+      - detail
+      title: MissingCountyCoverageResponse
+      description: 'Wire shape of the county-coverage 409.
+
+
+        FastAPI serializes ``HTTPException(detail=...)`` as ``{"detail": ...}``, so
+
+        the documented response body must carry the wrapper — clients read
+
+        ``data.detail.missing_counties``.'
+    AdminProjectSearchResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workspace Name
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        visibility:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visibility
+      type: object
+      required:
+      - id
+      - name
+      - owner_display_name
+      - workspace_name
+      - created_at
+      - updated_at
+      - visibility
+      title: AdminProjectSearchResult
+      description: Search result item for project search.
     AdminDuplicateProjectRequest:
       properties:
         target_workspace_id:
@@ -357,6 +600,23 @@ components:
         resulting project once it exists (immediately for the user path, on SUCCESS
 
         for the workspace path), used to link straight to the copy.'
+    AdminDuplicateProjectResponse:
+      properties:
+        workflow_id:
+          type: string
+          title: Workflow Id
+      type: object
+      required:
+      - workflow_id
+      title: AdminDuplicateProjectResponse
+      description: 'Response schema for the duplicate (workspace delivery) endpoint.
+
+
+        Delivery is a durable cross-Neon-branch workflow that returns only a
+
+        ``workflow_id``; the delivered project id isn''t known until the workflow''s
+
+        clone step runs, so the UI tracks progress via the Recent duplications panel.'
     AdminLayerSummary:
       properties:
         id:
@@ -382,105 +642,6 @@ components:
       - feature_count
       title: AdminLayerSummary
       description: Layer summary for project preview.
-    MissingCounty:
-      properties:
-        fips:
-          type: string
-          title: Fips
-        name:
-          type: string
-          title: Name
-      type: object
-      required:
-      - fips
-      - name
-      title: MissingCounty
-      description: A county the source project covers but the target workspace lacks.
-    AdminExampleProjectListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminExampleProjectListItem'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - items
-      - total
-      title: AdminExampleProjectListResponse
-      description: Response schema for example project list endpoint.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MissingCountyCoverageResponse:
-      properties:
-        detail:
-          $ref: '#/components/schemas/MissingCountyCoverageDetail'
-      type: object
-      required:
-      - detail
-      title: MissingCountyCoverageResponse
-      description: 'Wire shape of the county-coverage 409.
-
-
-        FastAPI serializes ``HTTPException(detail=...)`` as ``{"detail": ...}``, so
-
-        the documented response body must carry the wrapper — clients read
-
-        ``data.detail.missing_counties``.'
-    AdminDuplicateProjectResponse:
-      properties:
-        workflow_id:
-          type: string
-          title: Workflow Id
-      type: object
-      required:
-      - workflow_id
-      title: AdminDuplicateProjectResponse
-      description: 'Response schema for the duplicate (workspace delivery) endpoint.
-
-
-        Delivery is a durable cross-Neon-branch workflow that returns only a
-
-        ``workflow_id``; the delivered project id isn''t known until the workflow''s
-
-        clone step runs, so the UI tracks progress via the Recent duplications panel.'
-    AdminDeliveryStatusResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-      type: object
-      required:
-      - status
-      title: AdminDeliveryStatusResponse
-      description: 'Status of a cross-branch delivery workflow: PENDING | SUCCESS | FAILURE.'
     HTTPValidationError:
       properties:
         detail:
@@ -490,167 +651,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    MissingCountyCoverageDetail:
-      properties:
-        code:
-          type: string
-          title: Code
-          default: missing_county_coverage
-        missing_counties:
-          items:
-            $ref: '#/components/schemas/MissingCounty'
-          type: array
-          title: Missing Counties
-      type: object
-      required:
-      - missing_counties
-      title: MissingCountyCoverageDetail
-      description: 409 detail payload for the duplicate endpoint's county-coverage gate.
-    AdminDuplicationLogResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminDuplicationLogEntry'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: AdminDuplicationLogResponse
-      description: Recent duplications, newest first, for the admin tracker panel.
-    AdminExampleProjectListItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - owner_display_name
-      - created_at
-      title: AdminExampleProjectListItem
-      description: Summary schema for example project list items.
-    AdminProjectSearchResult:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        workspace_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workspace Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-        visibility:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Visibility
-      type: object
-      required:
-      - id
-      - name
-      - owner_display_name
-      - workspace_name
-      - created_at
-      - updated_at
-      - visibility
-      title: AdminProjectSearchResult
-      description: Search result item for project search.
-    AdminProjectSearchResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AdminProjectSearchResult'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: AdminProjectSearchResponse
-      description: Response schema for project search endpoint.
-    AdminProjectPreviewResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        owner_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Owner Display Name
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        layers:
-          items:
-            $ref: '#/components/schemas/AdminLayerSummary'
-          type: array
-          title: Layers
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - owner_display_name
-      - created_at
-      - layers
-      title: AdminProjectPreviewResponse
-      description: Response schema for project preview endpoint.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

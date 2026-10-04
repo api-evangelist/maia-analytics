@@ -306,6 +306,17 @@ components:
       required:
       - contact_ids
       title: StartCampaignRequest
+    DialCampaignListResponse:
+      properties:
+        campaigns:
+          items:
+            $ref: '#/components/schemas/DialCampaignResponse'
+          type: array
+          title: Campaigns
+      type: object
+      required:
+      - campaigns
+      title: DialCampaignListResponse
     ValidationError:
       properties:
         loc:
@@ -332,6 +343,57 @@ components:
       - msg
       - type
       title: ValidationError
+    DialCampaignDetailResponse:
+      properties:
+        campaign:
+          $ref: '#/components/schemas/DialCampaignResponse'
+        calls:
+          items:
+            $ref: '#/components/schemas/DialCallResponse'
+          type: array
+          title: Calls
+      type: object
+      required:
+      - campaign
+      - calls
+      title: DialCampaignDetailResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    StartDialRequest:
+      properties:
+        transfer_destination_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Transfer Destination Id
+        transfer_destination_override:
+          anyOf:
+          - type: string
+            maxLength: 32
+            minLength: 1
+          - type: 'null'
+          title: Transfer Destination Override
+      type: object
+      title: StartDialRequest
+    DialCallListResponse:
+      properties:
+        calls:
+          items:
+            $ref: '#/components/schemas/DialCallResponse'
+          type: array
+          title: Calls
+      type: object
+      required:
+      - calls
+      title: DialCallListResponse
     DialCampaignResponse:
       properties:
         id:
@@ -394,51 +456,6 @@ components:
       - created_at
       - updated_at
       title: DialCampaignResponse
-    DialCampaignListResponse:
-      properties:
-        campaigns:
-          items:
-            $ref: '#/components/schemas/DialCampaignResponse'
-          type: array
-          title: Campaigns
-      type: object
-      required:
-      - campaigns
-      title: DialCampaignListResponse
-    DialCampaignDetailResponse:
-      properties:
-        campaign:
-          $ref: '#/components/schemas/DialCampaignResponse'
-        calls:
-          items:
-            $ref: '#/components/schemas/DialCallResponse'
-          type: array
-          title: Calls
-      type: object
-      required:
-      - campaign
-      - calls
-      title: DialCampaignDetailResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    DialCallListResponse:
-      properties:
-        calls:
-          items:
-            $ref: '#/components/schemas/DialCallResponse'
-          type: array
-          title: Calls
-      type: object
-      required:
-      - calls
-      title: DialCallListResponse
     DialCallResponse:
       properties:
         id:
@@ -602,23 +619,6 @@ components:
       - updated_at
       title: DialCallResponse
       description: API response — inherits DialCall, hides the internal `events_log`.
-    StartDialRequest:
-      properties:
-        transfer_destination_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Transfer Destination Id
-        transfer_destination_override:
-          anyOf:
-          - type: string
-            maxLength: 32
-            minLength: 1
-          - type: 'null'
-          title: Transfer Destination Override
-      type: object
-      title: StartDialRequest
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http

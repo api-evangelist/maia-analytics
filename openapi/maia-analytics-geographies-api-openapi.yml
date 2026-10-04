@@ -42,20 +42,6 @@ components:
       - counties
       title: GeographyOptionsResponse
       description: Available geography options for workspace restriction.
-    StateOption:
-      properties:
-        code:
-          type: string
-          title: Code
-        name:
-          type: string
-          title: Name
-      type: object
-      required:
-      - code
-      - name
-      title: StateOption
-      description: A US state available for geography restriction.
     CountyOption:
       properties:
         fips:
@@ -74,6 +60,20 @@ components:
       - state
       title: CountyOption
       description: A FIPS county available for geography restriction.
+    StateOption:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - code
+      - name
+      title: StateOption
+      description: A US state available for geography restriction.
   securitySchemes:
     FirebaseAuthMiddleware:
       type: http
